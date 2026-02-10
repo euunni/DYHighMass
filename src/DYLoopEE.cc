@@ -303,9 +303,6 @@ void DYLoopEE::Loop() {
         // Only one gen: whichever reco had the global best gets matched; the other stays unmatched
       }
 
-      if (tLeadMatchedIndex != -1) fHistoSet->FillHisto((std::string)"h_RecoGenDeltaR", tLeadMatchedDeltaR, tEventGenWeight);
-      if (tSubMatchedIndex  != -1) fHistoSet->FillHisto((std::string)"h_RecoGenDeltaR", tSubMatchedDeltaR,  tEventGenWeight);
-
       // Apply mis-charge SF to the matched reco electrons.
       if (tLeadMatchedIndex != -1) {
         int tBinIndexX = fElecMisCharge_SF->GetXaxis()->FindBin(std::abs(tLeadingElec.SCEta()));
