@@ -38,6 +38,29 @@ void HistoSetEE::Init() {
   fDeltaRBins = {-9999, 100, 0.0, 6.0};
   fNJetBins = {-9999, 20, 0, 20};
 
+  SetHisto("h_GenAcc_Denom", fMassBins);
+  SetHisto("h_GenAcc_Numer", fMassBins);
+  // Denominator is identical to h_GenAcc_Numer (gen fiducial)
+  SetHisto("h_GenEff_Numer", fMassBins);
+
+  // ------------------------------------------------------------------
+  // Reco–gen matching / charge mis-id study histograms (global, no suffix)
+  // ------------------------------------------------------------------
+  // Reco–gen ΔR: use finer variable binning near 0
+  std::vector<double> tRecoGenDeltaRBins;
+  for (int i = 0; i <= 200; ++i) tRecoGenDeltaRBins.push_back(0.0 + 0.001 * i);  // 0.000 ... 0.200
+  for (int i = 1; i <= 80;  ++i) tRecoGenDeltaRBins.push_back(0.2 + 0.01  * i);  // 0.210 ... 1.000
+  for (int i = 1; i <= 50;  ++i) tRecoGenDeltaRBins.push_back(1.0 + 0.1   * i);  // 1.100 ... 6.000
+  SetHisto("h_RecoGenDeltaR", tRecoGenDeltaRBins);
+
+  // Lepton-based counts vs dielectron mass (numerator/denominator stored separately)
+  SetHisto("h_ElecMatchedMass_ep");
+  SetHisto("h_ElecMatchedMass_em");
+  SetHisto("h_ElecFailedMatchMass_ep");
+  SetHisto("h_ElecFailedMatchMass_em");
+  SetHisto("h_ElecMisIdMass_ep");
+  SetHisto("h_ElecMisIdMass_em");
+
   std::vector<std::string> fAddonMass = {""};
   std::vector<std::string> fAddonJet = {"", "_0J", "_1J", "_mt1J", "_0BJ", "_1BJ", "_mt1BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"};
   
@@ -382,6 +405,16 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_nPVGood_Count"]->Write();
   fHistSet["h_PileUp_Count_Interaction_before"]->Write();
   fHistSet["h_PileUp_Count_Interaction_after"]->Write();
+  fHistSet["h_GenAcc_Denom"]->Write();
+  fHistSet["h_GenAcc_Numer"]->Write();
+  fHistSet["h_GenEff_Numer"]->Write();
+  fHistSet["h_RecoGenDeltaR"]->Write();
+  fHistSet["h_ElecMatchedMass_ep"]->Write();
+  fHistSet["h_ElecMatchedMass_em"]->Write();
+  fHistSet["h_ElecFailedMatchMass_ep"]->Write();
+  fHistSet["h_ElecFailedMatchMass_em"]->Write();
+  fHistSet["h_ElecMisIdMass_ep"]->Write();
+  fHistSet["h_ElecMisIdMass_em"]->Write();
 
   for (auto tSuffix : fSuffix) {
     if (tSuffix != "")
@@ -427,6 +460,16 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
     fHistSet["h_nPVGood_Count"]->Write();
     fHistSet["h_PileUp_Count_Interaction_before"]->Write();
     fHistSet["h_PileUp_Count_Interaction_after"]->Write();
+    fHistSet["h_GenAcc_Denom"]->Write();
+    fHistSet["h_GenAcc_Numer"]->Write();
+    fHistSet["h_GenEff_Numer"]->Write();
+    fHistSet["h_RecoGenDeltaR"]->Write();
+    fHistSet["h_ElecMatchedMass_ep"]->Write();
+    fHistSet["h_ElecMatchedMass_em"]->Write();
+    fHistSet["h_ElecFailedMatchMass_ep"]->Write();
+    fHistSet["h_ElecFailedMatchMass_em"]->Write();
+    fHistSet["h_ElecMisIdMass_ep"]->Write();
+    fHistSet["h_ElecMisIdMass_em"]->Write();
 
     for (auto tSuffix : fSuffix) 
       if (tSuffix != "")
