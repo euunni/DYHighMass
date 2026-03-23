@@ -14,7 +14,6 @@ void HistoSetEE::Init() {
   SetHisto("h_EventInfo", std::vector<double>{-9999, 5, 0.5, 5.5});
   SetHisto("h_GenWeight", std::vector<double>{-9999, 20000, -10000., 10000.});
   SetHisto("h_LHEDielecMass", std::vector<double>{-9999, 6000, 0., 6000.});
-  SetHisto("h_dielecMass_1GeVBin", std::vector<double>{-9999, 6000, 0., 6000.});
   SetHisto("h_LHEnElec", std::vector<double>{-9999, 10, 0., 10.});
 
   SetHisto("h_nPVGood_Count", std::vector<double>{-9999, 100, 0., 100.});
@@ -93,6 +92,7 @@ void HistoSetEE::Init() {
       SetHisto("h_ElecDeltaR" + tHistSuffix, fDeltaRBins);
 
       SetHisto("h_dielecMass" + tHistSuffix);
+      SetHisto("h_dielecMass_1GeVBin" + tHistSuffix, std::vector<double>{-9999, 6000, 0., 6000.});
       SetHisto("h_dielecPt" + tHistSuffix);
       SetHisto("h_dielecRap" + tHistSuffix, "Eta");
     }
@@ -316,8 +316,6 @@ void HistoSetEE::FillElec(TLorentzVector& fLeadingElec, TLorentzVector& fSublead
 
   TLorentzVector fDielec = fLeadingElec + fSubleadingElec;
 
-  FillHisto("h_dielecMass_1GeVBin", fDielec.M(), weight);
-
   std::string tMassSuffix = GetMassBin(SetMassOverflow(fDielec.M()));
   std::string tJetSuffix = GetJetBin(nJet);
   std::string tBJetSuffix = GetBJetBin(nBJet);
@@ -348,6 +346,7 @@ void HistoSetEE::FillElec(TLorentzVector& fLeadingElec, TLorentzVector& fSublead
     fHistSet["h_ElecDeltaR" + suffix]->Fill(fLeadingElec.DeltaR(fSubleadingElec), weight);
 
     fHistSet["h_dielecMass" + suffix]->Fill(SetMassOverflow(fDielec.M()), weight);
+    fHistSet["h_dielecMass_1GeVBin" + suffix]->Fill(fDielec.M(), weight);
     fHistSet["h_dielecPt" + suffix]->Fill(SetPtOverflow(fDielec.Pt()), weight);
     fHistSet["h_dielecRap" + suffix]->Fill(fDielec.Rapidity(), weight);
   }
@@ -399,7 +398,6 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_EventInfo"]->Write();
   fHistSet["h_GenWeight"]->Write();
   fHistSet["h_LHEDielecMass"]->Write();
-  fHistSet["h_dielecMass_1GeVBin"]->Write();
   fHistSet["h_LHEnElec"]->Write();
   fHistSet["h_nPVGood_Count"]->Write();
   fHistSet["h_PileUp_Count_Interaction_before"]->Write();
@@ -428,6 +426,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
 
     fHistSet["h_ElecDeltaR" + tSuffix]->Write();
     fHistSet["h_dielecMass" + tSuffix]->Write();
+    fHistSet["h_dielecMass_1GeVBin" + tSuffix]->Write();
     fHistSet["h_dielecPt" + tSuffix]->Write();
     fHistSet["h_dielecRap" + tSuffix]->Write();
     
@@ -450,7 +449,6 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
     fHistSet["h_EventInfo"]->Write();
     fHistSet["h_GenWeight"]->Write();
     fHistSet["h_LHEDielecMass"]->Write();
-    fHistSet["h_dielecMass_1GeVBin"]->Write();
     fHistSet["h_LHEnElec"]->Write();
     fHistSet["h_nPVGood_Count"]->Write();
     fHistSet["h_PileUp_Count_Interaction_before"]->Write();
@@ -482,6 +480,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
 
       fHistSet["h_ElecDeltaR" + tSuffix]->Write();
       fHistSet["h_dielecMass" + tSuffix]->Write();
+      fHistSet["h_dielecMass_1GeVBin" + tSuffix]->Write();
       fHistSet["h_dielecPt" + tSuffix]->Write();
       fHistSet["h_dielecRap" + tSuffix]->Write();
       
