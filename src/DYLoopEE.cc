@@ -93,7 +93,8 @@ void DYLoopEE::Loop() {
       const double etaMax    = fConfig["Electron"]["Eta"].as<float>();
 
       auto tGenElecs = fNtuples->GetHardGenPart(11, 1); // (charge, p4)
-      
+      fHistoSet->FillHisto((std::string)"h_nHardGenElec", static_cast<int>(tGenElecs.size()), tEventGenWeight);
+
       // Acceptance denominator: Find OS gen pair to define gen mass
       int leadIdx = -1, subIdx = -1;
       if (tGenElecs.size() >= 2) {
@@ -306,10 +307,10 @@ void DYLoopEE::Loop() {
       // std::cout << " " << std::endl;
     }
 
-    // Electron mis-id correction with sanity checks
+    // Get gen-lv electrons (status == 1, abs(pdgId) == 11)
     std::vector<std::pair<int, TLorentzVector>> tGenElecs = {};
     if (fIsMC) tGenElecs = fNtuples->GetGenPart(11, 1);
-    if (fIsMC) {
+    if (fIsMC && fDoElecMisCharge && tGenElecs.size() > 0) {
       int tLeadMatchedIndex = -1;
       int tSubMatchedIndex = -1;
       double tLeadMatchedDeltaR = 9999.;
@@ -334,6 +335,7 @@ void DYLoopEE::Loop() {
           tSubMatchedIndex = tBestGenIndex;
           tSubMatchedDeltaR = tBestDeltaR;
         }
+      }
 
       // Step 2: match the other reco to the closest among remaining gen
       if (tGenElecs.size() >= 2) {
@@ -356,7 +358,11 @@ void DYLoopEE::Loop() {
             double dR = tFVecLeadingElec.DeltaR(tGenElecs.at(i).second);
             if (dR < tBestLeadDeltaR) { tBestLeadDeltaR = dR; tBestLeadIndex = i; }
           }
+          tLeadMatchedIndex = tBestLeadIndex;
+          tLeadMatchedDeltaR = tBestLeadDeltaR;
         }
+      } else {
+        // Only one gen: whichever reco had the global best gets matched; the other stays unmatched
       }
 
       // Apply mis-charge SF to the matched reco electrons.
@@ -373,9 +379,6 @@ void DYLoopEE::Loop() {
           double tElecMisChargeSFWeight = fElecMisCharge_SF->GetBinContent(tBinIndexX, tBinIndexY);
           tEventGenWeight *= tElecMisChargeSFWeight;
         }
-      } else {
-        if (tLeadingElec.fCharge > 0) fHistoSet->FillHisto((std::string)"h_ElecFailedMatchMass_ep", tDiElecMass, tWeightBeforeElecMisCharge);
-        else                          fHistoSet->FillHisto((std::string)"h_ElecFailedMatchMass_em", tDiElecMass, tWeightBeforeElecMisCharge);
       }
 
       if (tSubMatchedIndex != -1) {
