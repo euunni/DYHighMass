@@ -62,7 +62,6 @@ private:
   std::vector<double> fEtaBins;
   std::vector<double> fPhiBins;
   std::vector<double> fMassBins;
-  std::vector<double> fMassBinsHisto;
   std::vector<double> fDeltaRBins;
   std::vector<double> fNJetBins;
 

@@ -34,16 +34,8 @@ void HistoSetEE::Init() {
 
   fEtaBins = {-9999, 60, -3., 3.};
   fPhiBins = {-9999, 60, -3.141593, 3.141593};
-  // Mass binning for *categories/suffix* (keep coarse to avoid histogram explosion)
   fMassBins = {199, 200,  220,  243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
   // fMassBins = {39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
-
-  fMassBinsHisto.clear();
-  fMassBinsHisto.reserve(1 + 1 + (4000 - 200) / 10 + 1);
-  fMassBinsHisto.push_back(199);
-  fMassBinsHisto.push_back(200);
-  for (int m = 210; m <= 4000; m += 10) fMassBinsHisto.push_back(m);
-  fMassBinsHisto.push_back(4001);
 
   fDeltaRBins = {-9999, 100, 0.0, 6.0};
   fNJetBins = {-9999, 20, 0, 20};
@@ -182,7 +174,7 @@ void HistoSetEE::SetHisto(std::string name) {
     SetHisto(name, fPhiBins);
   }
   else if (name.find("Mass") != std::string::npos) {
-    SetHisto(name, fMassBinsHisto);
+    SetHisto(name, fMassBins);
   }
   else if (name.find("DeltaR") != std::string::npos) {
     SetHisto(name, fDeltaRBins);
@@ -208,7 +200,7 @@ void HistoSetEE::SetHisto(std::string name, std::string binning) {
     SetHisto(name, fPhiBins);
   }
   else if (binning.find("Mass") != std::string::npos) {
-    SetHisto(name, fMassBinsHisto);
+    SetHisto(name, fMassBins);
   }
   else if (binning.find("DeltaR") != std::string::npos) {
     SetHisto(name, fDeltaRBins);
@@ -235,7 +227,7 @@ void HistoSetEE::SetHisto(std::string name, std::string binning1, std::string bi
     binEdge1 = fPhiBins;
   }
   else if (binning1.find("Mass") != std::string::npos) {
-    binEdge1 = fMassBinsHisto;
+    binEdge1 = fMassBins;
   }
   else if (binning1.find("DeltaR") != std::string::npos) {
     binEdge1 = fDeltaRBins;
@@ -259,7 +251,7 @@ void HistoSetEE::SetHisto(std::string name, std::string binning1, std::string bi
     binEdge2 = fPhiBins;
   }
   else if (binning2.find("Mass") != std::string::npos) {
-    binEdge2 = fMassBinsHisto;
+    binEdge2 = fMassBins;
   }
   else if (binning2.find("DeltaR") != std::string::npos) {
     binEdge2 = fDeltaRBins;
