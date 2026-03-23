@@ -93,10 +93,7 @@ public:
     else throw std::runtime_error("Wrong definitions for HighPtID, allowed optsions: global, tracker");
 
     fISO = fMuonConf["ISO"].as<float>();
-
-    fISOinverted = false;
-    if (fMuonConf["ISOinverted"].as<bool>()) 
-      fISOinverted = true;
+    fISOinverted = fMuonConf["ISOinverted"].as<bool>();
 
     fOppositeCharge = true;
     if (fMuonConf["Charge"].as<std::string>() == "same")
@@ -142,10 +139,10 @@ public:
     TLorentzVector fVecRaw;
     int fCharge;
     bool fPassingID;
-    float fISO;
+    int fISO;
 
-    StdMuon(TLorentzVector fVec_, TLorentzVector fVecRaw_, int fCharge_)
-    : fVec(fVec_), fVecRaw(fVecRaw_), fCharge(fCharge_)
+    StdMuon(TLorentzVector fVec_, TLorentzVector fVecRaw_, int fCharge_, int fISO_)
+    : fVec(fVec_), fVecRaw(fVecRaw_), fCharge(fCharge_), fISO(fISO_)
     { };
   };
 

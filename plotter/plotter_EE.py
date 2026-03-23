@@ -10,9 +10,22 @@ parser.add_argument('--era', help=' : era to plot')
 args = parser.parse_args()
 
 
-CMS.SetExtraText("Preliminary")
+CMS.SetExtraText("Private work")
 CMS.SetEnergy("13")
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
+
+def _tune_logx_axis_labels(axis):
+    """
+    ROOT log-x axes tend to hide non-decade labels (e.g. 200).
+    These options request more labels and disable 10^n exponent formatting.
+    """
+    if not axis:
+        return
+    try:
+        axis.SetMoreLogLabels(True)
+        axis.SetNoExponent(True)
+    except Exception:
+        pass
 
 mcList = [
     "NNLO_EE_10to50",
@@ -210,9 +223,10 @@ normFactor = {}
 
 class Plotter:
     def __init__(self, era):
-        self.rootPath = "output.root"
+        # self.rootPath = "/u/user/haeun/SE_UserHome/CMSAnalysis/DYHighMass/260105/ROOT/260219/output.root"
+        self.rootPath = "./ROOT/260313/output.root"
         self.era = era
-        self.outputPath = "./plots/plot_" + era + "/"
+        self.outputPath = "./plots/260313/plot_" + era + "/"
 
         os.makedirs(self.outputPath, exist_ok=True)
 
@@ -300,10 +314,11 @@ class Plotter:
 
         if doAutoYrange:
             ymin = 2e-2
-            ymax = data.GetBinContent(data.GetMaximumBin()) * 1e3
+            ymax = data.GetBinContent(data.GetMaximumBin()) * 1e5
 
-        if "h_dielecMass" in histName: 
+        if "h_dielecMass" or "h_dielecPt" or "h_leadingElecPt" or "h_subleadingElecPt" in histName: 
             ymin = 2e-2
+            ymax = data.GetBinContent(data.GetMaximumBin()) * 1e3
 
         if doAutoYRatiorange:
             nBinsX = dataOmc.GetNbinsX()
@@ -342,9 +357,16 @@ class Plotter:
                 yrmin = 0.5
                 yrmax = 1.5
 
+        # For the mass plot on log-x, give the *frame* a small headroom below xmin,
+        # otherwise the left-edge tick label (e.g. "200") is often suppressed/clipped.
+        is_mass_plot = (histName == "h_dielecMass")
+        xmin_axis = xmin
+        if logx and is_mass_plot and xmin > 0:
+            xmin_axis = max(1e-6, float(xmin) * 0.98)
+
         dicanv = CMS.cmsDiCanvas(
             canvasName,
-            xmin,
+            xmin_axis,
             xmax,
             ymin,
             ymax,
@@ -359,8 +381,11 @@ class Plotter:
         )
 
         dicanv.cd(1)
-        if logy: dicanv.cd(1).SetLogy(True)
-        if logx: dicanv.cd(1).SetLogx(True)
+        pad1 = dicanv.cd(1)
+        if logy:
+            pad1.SetLogy(True)
+        if logx:
+            pad1.SetLogx(True)
 
         stack = ROOT.THStack("stack", "Stacked")
 
@@ -382,6 +407,24 @@ class Plotter:
         CMS.cmsDrawStack(stack, leg, stackSeet)
         CMS.cmsDraw(data, "P", mcolor=ROOT.kBlack)
 
+        if logx and is_mass_plot:
+            # cmsDiCanvas draws axes with an internal frame hist; tune that x-axis.
+            frame1 = None
+            prims1 = pad1.GetListOfPrimitives()
+            if prims1:
+                for obj in prims1:
+                    try:
+                        if obj.InheritsFrom("TH1"):
+                            frame1 = obj
+                            break
+                    except Exception:
+                        pass
+            if frame1:
+                _tune_logx_axis_labels(frame1.GetXaxis())
+            pad1.Modified()
+            pad1.Update()
+            pad1.RedrawAxis()
+
         latex = ROOT.TLatex()
         latex.SetTextAlign(14);
         latex.SetTextSize(0.04);
@@ -390,9 +433,28 @@ class Plotter:
             latex.DrawLatexNDC(0.18, 0.86 - idx * 0.065, addon.encode('utf-8'))
 
         dicanv.cd(2)
-        if logx: dicanv.cd(2).SetLogx(True)
+        pad2 = dicanv.cd(2)
+        if logx:
+            pad2.SetLogx(True)
 
         CMS.cmsDraw(dataOmc, "P", mcolor=ROOT.kBlack)
+
+        if logx and is_mass_plot:
+            frame2 = None
+            prims2 = pad2.GetListOfPrimitives()
+            if prims2:
+                for obj in prims2:
+                    try:
+                        if obj.InheritsFrom("TH1"):
+                            frame2 = obj
+                            break
+                    except Exception:
+                        pass
+            if frame2:
+                _tune_logx_axis_labels(frame2.GetXaxis())
+            pad2.Modified()
+            pad2.Update()
+            pad2.RedrawAxis()
 
 
         ref_line = ROOT.TLine(xmin, 1, xmax, 1)
@@ -543,12 +605,15 @@ def main(args):
         "_0J": -1,
         "_1J": -1,
         "_mtJ": -1,
-        "_0BJ": 1.15,
+        "_0BJ": 1.5,
         "_1BJ": -1,
         "_mt1BJ": -1,
-        "_bVeto_0J": 1.3,
+        # "_bVeto_0J": 1.3,
+        # "_bVeto_1J": 1.5,
+        # "_bVeto_mt1J": 1.5,    
+        "_bVeto_0J": 1.5,
         "_bVeto_1J": 1.5,
-        "_bVeto_mt1J": 1.5,    
+        "_bVeto_mt1J": 1.5  
     }
 
     yrmin_vec = {
@@ -556,12 +621,15 @@ def main(args):
         "_0J": -1,
         "_1J": -1,
         "_mt1J": -1,
-        "_0BJ": 0.85,
+        "_0BJ": 0.5,
         "_1BJ": -1,
         "_mt1BJ": -1,
-        "_bVeto_0J": 0.7,
+        # "_bVeto_0J": 0.7,
+        # "_bVeto_1J": 0.5,
+        # "_bVeto_mt1J": 0.5
+        "_bVeto_0J": 0.5,
         "_bVeto_1J": 0.5,
-        "_bVeto_mt1J": 0.5,  
+        "_bVeto_mt1J": 0.5 
     }
 
     addon_hook_mass = {
@@ -583,47 +651,48 @@ def main(args):
 
     latex = [
         args.era + ", dielectron channel",
-        "p_{T}(e) > 50 (20) GeV, |#eta(e)| < 2.4",
+        "p_{T}(e) > 50 (38) GeV, |#eta^{SC}(e)| < 2.5",
         "",
         "",
     ]
 
-    plotter.Plot("h_nJet",  "", "", latex, xTitle = "N_{jet}", xmin = 0, xmax = 14)
-    plotter.Plot("h_nBJet", "", "", latex, xTitle = "N_{b-jet}", xmin = 0, xmax = 14)
+    # plotter.Plot("h_nJet",  "", "", latex, xTitle = "N_{jet}", xmin = 0, xmax = 14)
+    # plotter.Plot("h_nBJet", "", "", latex, xTitle = "N_{b-jet}", xmin = 0, xmax = 14)
  
     for case in cases:
 
         latex_temp = latex.copy()
         latex_temp[2] = addon_hook[case]
-
-        plotter.Plot("h_dielecMass", case, ""                     , latex_temp, xTitle = "M(ee) [GeV]"  ,xmin = 200, xmax = 4000, yrmin = yrmin_vec[case], yrmax = yrmax_vec[case], logy = True, logx = True)
+# 
+        plotter.Plot("h_dielecMass", case, ""                     , latex_temp, xTitle = "M(ee) [GeV]"  ,xmin = 200, xmax = 2000, yrmin = -3., yrmax = 5., logy = True, logx = True)
+        # plotter.Plot("h_dielecMass", case, ""                     , latex_temp, xTitle = "M(ee) [GeV]"  ,xmin = 200, xmax = 4000, yrmin = yrmin_vec[case], yrmax = yrmax_vec[case], logy = True, logx = True)
 
         for massbin in massBins:
             latex_temp[3] = addon_hook_mass[massbin]
 
-            plotter.Plot("h_JetPt", case, massbin                 , latex_temp, xTitle = "pT(jet) [GeV]"          ,xmin = 0, xmax = 500, logy = True)
-            plotter.Plot("h_JetEta", case, massbin                , latex_temp, xTitle = "#eta(jet)"              ,xmin = -2.5, xmax = 2.5, logy = True)
-            plotter.Plot("h_JetPhi", case, massbin                , latex_temp, xTitle = "#phi(jet)"              ,xmin = -3.141593, xmax = 3.141593, logy = True)
+            # plotter.Plot("h_JetPt", case, massbin                 , latex_temp, xTitle = "pT(jet) [GeV]"          ,xmin = 0, xmax = 500, logy = True)
+            # plotter.Plot("h_JetEta", case, massbin                , latex_temp, xTitle = "#eta(jet)"              ,xmin = -2.5, xmax = 2.5, yrmin = 0.6, yrmax = 1.4, logy = True)
+            # plotter.Plot("h_JetPhi", case, massbin                , latex_temp, xTitle = "#phi(jet)"              ,xmin = -3.141593, xmax = 3.141593, yrmin = 0.6, yrmax = 1.4, logy = True)
 
-            plotter.Plot("h_BJetPt", case, massbin                , latex_temp, xTitle = "pT(b-jet) [GeV]"          ,xmin = 0, xmax = 500, logy = True)
-            plotter.Plot("h_BJetEta", case, massbin               , latex_temp, xTitle = "#eta(b-jet)"              ,xmin = -2.5, xmax = 2.5, logy = True)
-            plotter.Plot("h_BJetPhi", case, massbin               , latex_temp, xTitle = "#phi(b-jet)"              ,xmin = -3.141593, xmax = 3.141593, logy = True)
+            # plotter.Plot("h_BJetPt", case, massbin                , latex_temp, xTitle = "pT(b-jet) [GeV]"          ,xmin = 0, xmax = 500, logy = True)
+            # plotter.Plot("h_BJetEta", case, massbin               , latex_temp, xTitle = "#eta(b-jet)"              ,xmin = -2.5, xmax = 2.5, logy = True)
+            # plotter.Plot("h_BJetPhi", case, massbin               , latex_temp, xTitle = "#phi(b-jet)"              ,xmin = -3.141593, xmax = 3.141593, logy = True)
 
-            plotter.Plot("h_LeadingElecPt", case, massbin         , latex_temp, xTitle = "pT(e) [GeV]"          ,xmin = 15, xmax = 1520, logy = True, logx = True)
-            plotter.Plot("h_LeadingElecEta", case, massbin        , latex_temp, xTitle = "#eta(e)"              ,xmin = -2.5, xmax = 2.5, logy = True)
-            plotter.Plot("h_LeadingElecPhi", case, massbin        , latex_temp, xTitle = "#phi(e)"              ,xmin = -3.141593, xmax = 3.141593, logy = True)
+            # plotter.Plot("h_LeadingElecPt", case, massbin         , latex_temp, xTitle = "pT(e) [GeV]"          ,xmin = 0, xmax = 500, yrmin = 0.5, yrmax = 1.5, logy = True)
+            # plotter.Plot("h_LeadingElecEta", case, massbin        , latex_temp, xTitle = "#eta(e)"              ,xmin = -2.5, xmax = 2.5, yrmin = 0.6, yrmax = 1.4, logy = True)
+            # plotter.Plot("h_LeadingElecPhi", case, massbin        , latex_temp, xTitle = "#phi(e)"              ,xmin = -3.141593, xmax = 3.141593, yrmin = 0.8, yrmax = 1.2, logy = True)
 
-            plotter.Plot("h_SubleadingElecPt", case, massbin      , latex_temp, xTitle = "pT(e) [GeV]"          ,xmin = 15, xmax = 1520, logy = True, logx = True)
-            plotter.Plot("h_SubleadingElecEta", case, massbin     , latex_temp, xTitle = "#eta(e)"              ,xmin = -2.5, xmax = 2.5, logy = True)
-            plotter.Plot("h_SubleadingElecPhi", case, massbin     , latex_temp, xTitle = "#phi(e)"              ,xmin = -3.141593, xmax = 3.141593, logy = True)
+            # plotter.Plot("h_SubleadingElecPt", case, massbin      , latex_temp, xTitle = "pT(e) [GeV]"          ,xmin = 0, xmax = 500, yrmin = 0.5, yrmax = 1.5, logy = True)
+            # plotter.Plot("h_SubleadingElecEta", case, massbin     , latex_temp, xTitle = "#eta(e)"              ,xmin = -2.5, xmax = 2.5, yrmin = 0.6, yrmax = 1.4, logy = True)
+            # plotter.Plot("h_SubleadingElecPhi", case, massbin     , latex_temp, xTitle = "#phi(e)"              ,xmin = -3.141593, xmax = 3.141593, yrmin = 0.8, yrmax = 1.2, logy = True)
 
-            plotter.Plot("h_ElecPt", case, massbin                , latex_temp, xTitle = "pT(e) [GeV]"          ,xmin = 15, xmax = 1520, logy = True, logx = True)
-            plotter.Plot("h_ElecEta", case, massbin               , latex_temp, xTitle = "#eta(e)"              ,xmin = -2.5, xmax = 2.5, logy = True)
-            plotter.Plot("h_ElecPhi", case, massbin               , latex_temp, xTitle = "#phi(e)"              ,xmin = -3.141593, xmax = 3.141593, logy = True)
-            plotter.Plot("h_ElecDeltaR", case, massbin            , latex_temp, xTitle = "#DeltaR(e_{1}, e_{2})" ,xmin = 0, xmax = 6.4, logy = True)
+            # plotter.Plot("h_ElecPt", case, massbin                , latex_temp, xTitle = "pT(e) [GeV]"          ,xmin = 15, xmax = 500, logy = True, logx = True)
+            # plotter.Plot("h_ElecEta", case, massbin               , latex_temp, xTitle = "#eta(e)"              ,xmin = -2.5, xmax = 2.5, logy = True)
+            # plotter.Plot("h_ElecPhi", case, massbin               , latex_temp, xTitle = "#phi(e)"              ,xmin = -3.141593, xmax = 3.141593, logy = True)
+            # plotter.Plot("h_ElecDeltaR", case, massbin            , latex_temp, xTitle = "#DeltaR(e_{1}, e_{2})" ,xmin = 0, xmax = 6.4, logy = True)
 
-            plotter.Plot("h_dielecPt", case, massbin              , latex_temp, xTitle = "pT(ee) [GeV]" ,xmin = 0, xmax = 500, logy = True)
-            plotter.Plot("h_dielecRap", case, massbin             , latex_temp, xTitle = "rapidity(ee)"      ,xmin = -2.8, xmax = 2.8, logy = True)
+            # plotter.Plot("h_dielecPt", case, massbin              , latex_temp, xTitle = "pT(ee) [GeV]" ,xmin = 0, xmax = 500, yrmin = 0.5, yrmax = 1.5, logy = True)
+            # plotter.Plot("h_dielecRap", case, massbin             , latex_temp, xTitle = "rapidity(ee)"      ,xmin = -2.8, xmax = 2.8, yrmin = 0.8, yrmax = 1.2, logy = True)
 
 
 if __name__ == "__main__" :

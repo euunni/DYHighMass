@@ -56,8 +56,6 @@ void DYLoopEE::Loop() {
       auto tCurrentTime = std::chrono::system_clock::now();
       auto tElapsed = tCurrentTime - tTimeBegin;
       double tProgressPercent = 100. * tMaxLoop / fMaxEntries;
-      
-      // Expected time: current elapsed time * 100 / progress percentage
       auto tEstimatedTotal = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(
           tElapsed * (100.0 / tProgressPercent)
       );
@@ -265,16 +263,16 @@ void DYLoopEE::Loop() {
       double tIDEffSFLeading = 0;
 
       if (tFVecLeadingElec.Pt() < 20.) tIDEffSFLeading = 0;
-      else                             tIDEffSFLeading = fID_SF->evaluate({(std::string)(fEra), "sf", std::abs(tLeadingElec.SCEta())}); // HEEP ID
-      // else                             tIDEffSFLeading = fID_SF->evaluate({(std::string)(fEra), "sf", tElecIDWP, tLeadingElec.SCEta(), tFVecLeadingElec.Pt()}); // cutBased ID WP
+      // else                             tIDEffSFLeading = fID_SF->evaluate({(std::string)(fEra), "sf", std::abs(tLeadingElec.SCEta())}); // HEEP ID
+      else                             tIDEffSFLeading = fID_SF->evaluate({(std::string)(fEra), "sf", tElecIDWP, tLeadingElec.SCEta(), tFVecLeadingElec.Pt()}); // cutBased ID WP
 
       tEventGenWeight *= tIDEffSFLeading;
 
       double tIDEffSFSubleading = 0;
 
       if (tFVecSubLeadingElec.Pt() < 20.) tIDEffSFSubleading = 0;
-      else                                tIDEffSFSubleading = fID_SF->evaluate({(std::string)(fEra), "sf", std::abs(tSubLeadingElec.SCEta())}); // HEEP ID
-      // else                                tIDEffSFSubleading = fID_SF->evaluate({(std::string)(fEra), "sf", tElecIDWP, tSubLeadingElec.SCEta(), tFVecSubLeadingElec.Pt()}); // cutBased ID WP
+      // else                                tIDEffSFSubleading = fID_SF->evaluate({(std::string)(fEra), "sf", std::abs(tSubLeadingElec.SCEta())}); // HEEP ID
+      else                                tIDEffSFSubleading = fID_SF->evaluate({(std::string)(fEra), "sf", tElecIDWP, tSubLeadingElec.SCEta(), tFVecSubLeadingElec.Pt()}); // cutBased ID WP
 
       tEventGenWeight *= tIDEffSFSubleading;
 
@@ -289,43 +287,21 @@ void DYLoopEE::Loop() {
 
     if (fIsMC && fDoTRIGG) {
 
-      double elec_1_data = 0;
-      double elec_2_data = 0;
+      // Leading electron -> Leg1 SF, sub-leading electron -> Leg2 SF
+      // Event trigger SF = SF1 * SF2 (no trigger matching applied)
+      double tTrigEffSFLeading    = fTRIG_SF_Leg1->evaluate({tLeadingElec.SCEta(),    tFVecLeadingElec.Pt(),    "nominal"});
+      double tTrigEffSFSubleading = fTRIG_SF_Leg2->evaluate({tSubLeadingElec.SCEta(), tFVecSubLeadingElec.Pt(), "nominal"});
 
-      double elec_1_mc = 0;
-      double elec_2_mc = 0;
+      double tTrigEffSF = tTrigEffSFLeading * tTrigEffSFSubleading;
 
-      if (tFVecLeadingElec.Pt() < 52.) {
-        elec_1_data = 0.;
-        elec_1_mc = 0.;
-      } else {
-        elec_1_data = fTRIG_SF->evaluate({std::abs(tFVecLeadingElec.Eta()), tFVecLeadingElec.Pt(), "dataEff"});
-        elec_1_mc = fTRIG_SF->evaluate({std::abs(tFVecLeadingElec.Eta()), tFVecLeadingElec.Pt(), "mcEff"});
-      }
-
-      if (tFVecSubLeadingElec.Pt() < 52.) {
-        elec_2_data = 0.;
-        elec_2_mc = 0.;
-      } else {
-        elec_2_data = fTRIG_SF->evaluate({std::abs(tFVecSubLeadingElec.Eta()), tFVecSubLeadingElec.Pt(), "dataEff"});
-        elec_2_mc = fTRIG_SF->evaluate({std::abs(tFVecSubLeadingElec.Eta()), tFVecSubLeadingElec.Pt(), "mcEff"});
-      }
-
-      double data_tot = 1. - (1. - elec_1_data) * (1. - elec_2_data);
-      double mc_tot = 1. - (1. - elec_1_mc) * (1. - elec_2_mc);
-
-      double eventTriggerEffSF = 0.;
-      if ( mc_tot != 0 )
-        eventTriggerEffSF = data_tot / mc_tot;
-
-      tEventGenWeight *= eventTriggerEffSF;
+      tEventGenWeight *= tTrigEffSF;
 
       // std::cout << "######################################################################" << std::endl;
       // std::cout << "                       TRIGG efficiency debugging                     " << std::endl;
       // std::cout << "----------------------------------------------------------------------" << std::endl;
-      // std::cout << " LEADING: " << tFVecLeadingElec.Pt() << " " << tFVecLeadingElec.Eta() << " " << elec_1_data << " " << elec_1_mc << std::endl;
-      // std::cout << " SUB-LEADING: " << tFVecSubLeadingElec.Pt() << " " << tFVecSubLeadingElec.Eta() << " " << elec_2_data << " " << elec_2_mc << std::endl;
-      // std::cout << eventTriggerEffSF << std::endl;
+      // std::cout << " LEADING  SCEta=" << tLeadingElec.SCEta() << " Pt=" << tFVecLeadingElec.Pt() << " SF=" << tTrigEffSFLeading << std::endl;
+      // std::cout << " SUB-LEADING SCEta=" << tSubLeadingElec.SCEta() << " Pt=" << tFVecSubLeadingElec.Pt() << " SF=" << tTrigEffSFSubleading << std::endl;
+      // std::cout << " tTrigEffSF=" << tTrigEffSF << std::endl;
       // std::cout << "######################################################################" << std::endl;
       // std::cout << " " << std::endl;
     }
@@ -339,113 +315,81 @@ void DYLoopEE::Loop() {
       double tLeadMatchedDeltaR = 9999.;
       double tSubMatchedDeltaR = 9999.;
 
-      // 1:1 matching between (reco leading, subleading) and gen electrons
-      if (tGenElecs.size() > 0) {
-        // Step 1: find the global minimal pair
-        double tBestDeltaR = 9999.;
-        bool tBestIsLead = true;
-        int tBestGenIndex = -1;
-        for (int i = 0; i < tGenElecs.size(); i++) {
-          double dRlead = tFVecLeadingElec.DeltaR(tGenElecs.at(i).second);
-          double dRsub  = tFVecSubLeadingElec.DeltaR(tGenElecs.at(i).second);
-          if (dRlead < tBestDeltaR) { tBestDeltaR = dRlead; tBestIsLead = true;  tBestGenIndex = i; }
-          if (dRsub  < tBestDeltaR) { tBestDeltaR = dRsub;  tBestIsLead = false; tBestGenIndex = i; }
-        }
-        if (tBestGenIndex != -1) {
-          if (tBestIsLead) { tLeadMatchedIndex = tBestGenIndex; tLeadMatchedDeltaR = tBestDeltaR; }
-          else             { tSubMatchedIndex  = tBestGenIndex; tSubMatchedDeltaR  = tBestDeltaR; }
+      // Step 1: find the global minimal pair
+      double tBestDeltaR = 9999.;
+      bool tBestIsLead = true;
+      int tBestGenIndex = -1;
+      for (int i = 0; i < tGenElecs.size(); i++) {
+        double dRlead = tFVecLeadingElec.DeltaR(tGenElecs.at(i).second);
+        double dRsub  = tFVecSubLeadingElec.DeltaR(tGenElecs.at(i).second);
+        if (dRlead < tBestDeltaR) { tBestDeltaR = dRlead; tBestIsLead = true;  tBestGenIndex = i; }
+        if (dRsub  < tBestDeltaR) { tBestDeltaR = dRsub;  tBestIsLead = false; tBestGenIndex = i; }
+      }
+
+      if (tBestGenIndex != -1) {
+        if (tBestIsLead) {
+          tLeadMatchedIndex = tBestGenIndex;
+          tLeadMatchedDeltaR = tBestDeltaR;
+        } else {
+          tSubMatchedIndex = tBestGenIndex;
+          tSubMatchedDeltaR = tBestDeltaR;
         }
 
-        // Step 2: match the other reco to the closest among remaining gen
-        if (tGenElecs.size() >= 2) {
-          if (tLeadMatchedIndex != -1) {
-            double tBestSubDeltaR = 9999.;
-            int tBestSubIndex = -1;
-            for (int i = 0; i < tGenElecs.size(); i++) {
-              if (i == tLeadMatchedIndex) continue;
-              double dR = tFVecSubLeadingElec.DeltaR(tGenElecs.at(i).second);
-              if (dR < tBestSubDeltaR) { tBestSubDeltaR = dR; tBestSubIndex = i; }
-            }
-            tSubMatchedIndex = tBestSubIndex;
-            tSubMatchedDeltaR = tBestSubDeltaR;
-          } else if (tSubMatchedIndex != -1) {
-            double tBestLeadDeltaR = 9999.;
-            int tBestLeadIndex = -1;
-            for (int i = 0; i < tGenElecs.size(); i++) {
-              if (i == tSubMatchedIndex) continue;
-              double dR = tFVecLeadingElec.DeltaR(tGenElecs.at(i).second);
-              if (dR < tBestLeadDeltaR) { tBestLeadDeltaR = dR; tBestLeadIndex = i; }
-            }
-            tLeadMatchedIndex = tBestLeadIndex;
-            tLeadMatchedDeltaR = tBestLeadDeltaR;
+      // Step 2: match the other reco to the closest among remaining gen
+      if (tGenElecs.size() >= 2) {
+        if (tLeadMatchedIndex != -1) {
+          double tBestSubDeltaR = 9999.;
+          int tBestSubIndex = -1;
+          for (int i = 0; i < tGenElecs.size(); i++) {
+            if (i == tLeadMatchedIndex) continue;
+            double dR = tFVecSubLeadingElec.DeltaR(tGenElecs.at(i).second);
+            if (dR < tBestSubDeltaR) { tBestSubDeltaR = dR; tBestSubIndex = i; }
+          }
+
+          tSubMatchedIndex = tBestSubIndex;
+          tSubMatchedDeltaR = tBestSubDeltaR;
+        } else if (tSubMatchedIndex != -1) {
+          double tBestLeadDeltaR = 9999.;
+          int tBestLeadIndex = -1;
+          for (int i = 0; i < tGenElecs.size(); i++) {
+            if (i == tSubMatchedIndex) continue;
+            double dR = tFVecLeadingElec.DeltaR(tGenElecs.at(i).second);
+            if (dR < tBestLeadDeltaR) { tBestLeadDeltaR = dR; tBestLeadIndex = i; }
           }
         }
       }
 
-      const double tWeightBeforeElecMisCharge = tEventGenWeight;
-      const double tDiElecMass = tDiElec.M();
-
-      // Reco–gen ΔR monitoring (for matched electrons only)
-      if (tLeadMatchedIndex != -1) fHistoSet->FillHisto((std::string)"h_RecoGenDeltaR", tLeadMatchedDeltaR, tWeightBeforeElecMisCharge);
-      if (tSubMatchedIndex  != -1) fHistoSet->FillHisto((std::string)"h_RecoGenDeltaR", tSubMatchedDeltaR,  tWeightBeforeElecMisCharge);
-
-      // Matched / failed / mis-id counts vs dielectron mass (lepton-based)
-      // Leading electron
+      // Apply mis-charge SF to the matched reco electrons.
       if (tLeadMatchedIndex != -1) {
-        if (tLeadingElec.fCharge > 0) fHistoSet->FillHisto((std::string)"h_ElecMatchedMass_ep", tDiElecMass, tWeightBeforeElecMisCharge);
-        else                          fHistoSet->FillHisto((std::string)"h_ElecMatchedMass_em", tDiElecMass, tWeightBeforeElecMisCharge);
-
-        const int tGenCharge = tGenElecs.at(tLeadMatchedIndex).first;
-        if (tLeadingElec.fCharge * tGenCharge < 0) {
-          if (tLeadingElec.fCharge > 0) fHistoSet->FillHisto((std::string)"h_ElecMisIdMass_ep", tDiElecMass, tWeightBeforeElecMisCharge);
-          else                          fHistoSet->FillHisto((std::string)"h_ElecMisIdMass_em", tDiElecMass, tWeightBeforeElecMisCharge);
+        int tBinIndexX = fElecMisCharge_SF->GetXaxis()->FindBin(std::abs(tLeadingElec.SCEta()));
+        if (tBinIndexX == 0) tBinIndexX = 1;
+        else if (tBinIndexX > fElecMisCharge_SF->GetNbinsX()) tBinIndexX = fElecMisCharge_SF->GetNbinsX();
+        
+        int tBinIndexY = fElecMisCharge_SF->GetYaxis()->FindBin(tFVecLeadingElec.Pt());
+        if (tBinIndexY == 0) tBinIndexY = 1;
+        else if (tBinIndexY > fElecMisCharge_SF->GetNbinsY()) tBinIndexY = fElecMisCharge_SF->GetNbinsY();
+        
+        if (tLeadingElec.fCharge * tGenElecs.at(tLeadMatchedIndex).first < 0) {
+          double tElecMisChargeSFWeight = fElecMisCharge_SF->GetBinContent(tBinIndexX, tBinIndexY);
+          tEventGenWeight *= tElecMisChargeSFWeight;
         }
       } else {
         if (tLeadingElec.fCharge > 0) fHistoSet->FillHisto((std::string)"h_ElecFailedMatchMass_ep", tDiElecMass, tWeightBeforeElecMisCharge);
         else                          fHistoSet->FillHisto((std::string)"h_ElecFailedMatchMass_em", tDiElecMass, tWeightBeforeElecMisCharge);
       }
 
-      // Subleading electron
       if (tSubMatchedIndex != -1) {
-        if (tSubLeadingElec.fCharge > 0) fHistoSet->FillHisto((std::string)"h_ElecMatchedMass_ep", tDiElecMass, tWeightBeforeElecMisCharge);
-        else                             fHistoSet->FillHisto((std::string)"h_ElecMatchedMass_em", tDiElecMass, tWeightBeforeElecMisCharge);
-
-        const int tGenCharge = tGenElecs.at(tSubMatchedIndex).first;
-        if (tSubLeadingElec.fCharge * tGenCharge < 0) {
-          if (tSubLeadingElec.fCharge > 0) fHistoSet->FillHisto((std::string)"h_ElecMisIdMass_ep", tDiElecMass, tWeightBeforeElecMisCharge);
-          else                             fHistoSet->FillHisto((std::string)"h_ElecMisIdMass_em", tDiElecMass, tWeightBeforeElecMisCharge);
-        }
-      } else {
-        if (tSubLeadingElec.fCharge > 0) fHistoSet->FillHisto((std::string)"h_ElecFailedMatchMass_ep", tDiElecMass, tWeightBeforeElecMisCharge);
-        else                             fHistoSet->FillHisto((std::string)"h_ElecFailedMatchMass_em", tDiElecMass, tWeightBeforeElecMisCharge);
-      }
-
-      // Apply mis-charge SF to the matched reco electrons (analysis correction)
-      if (fDoElecMisCharge && tGenElecs.size() > 0) {
-        if (tLeadMatchedIndex != -1) {
-          int tBinIndexX = fElecMisCharge_SF->GetXaxis()->FindBin(std::abs(tLeadingElec.SCEta()));
-          if (tBinIndexX == 0) tBinIndexX = 1;
-          else if (tBinIndexX > fElecMisCharge_SF->GetNbinsX()) tBinIndexX = fElecMisCharge_SF->GetNbinsX();
-          int tBinIndexY = fElecMisCharge_SF->GetYaxis()->FindBin(tFVecLeadingElec.Pt());
-          if (tBinIndexY == 0) tBinIndexY = 1;
-          else if (tBinIndexY > fElecMisCharge_SF->GetNbinsY()) tBinIndexY = fElecMisCharge_SF->GetNbinsY();
-          if (tLeadingElec.fCharge * tGenElecs.at(tLeadMatchedIndex).first < 0) {
-            double tElecMisChargeSFWeight = fElecMisCharge_SF->GetBinContent(tBinIndexX, tBinIndexY);
-            tEventGenWeight *= tElecMisChargeSFWeight;
-          }
-        }
-
-        if (tSubMatchedIndex != -1) {
-          int tBinIndexX = fElecMisCharge_SF->GetXaxis()->FindBin(std::abs(tSubLeadingElec.SCEta()));
-          if (tBinIndexX == 0) tBinIndexX = 1;
-          else if (tBinIndexX > fElecMisCharge_SF->GetNbinsX()) tBinIndexX = fElecMisCharge_SF->GetNbinsX();
-          int tBinIndexY = fElecMisCharge_SF->GetYaxis()->FindBin(tFVecSubLeadingElec.Pt());
-          if (tBinIndexY == 0) tBinIndexY = 1;
-          else if (tBinIndexY > fElecMisCharge_SF->GetNbinsY()) tBinIndexY = fElecMisCharge_SF->GetNbinsY();
-          if (tSubLeadingElec.fCharge * tGenElecs.at(tSubMatchedIndex).first < 0) {
-            double tElecMisChargeSFWeight = fElecMisCharge_SF->GetBinContent(tBinIndexX, tBinIndexY);
-            tEventGenWeight *= tElecMisChargeSFWeight;
-          }
+        int tBinIndexX = fElecMisCharge_SF->GetXaxis()->FindBin(std::abs(tSubLeadingElec.SCEta()));
+        if (tBinIndexX == 0) tBinIndexX = 1;
+        else if (tBinIndexX > fElecMisCharge_SF->GetNbinsX()) tBinIndexX = fElecMisCharge_SF->GetNbinsX();
+        
+        int tBinIndexY = fElecMisCharge_SF->GetYaxis()->FindBin(tFVecSubLeadingElec.Pt());
+        if (tBinIndexY == 0) tBinIndexY = 1;
+        else if (tBinIndexY > fElecMisCharge_SF->GetNbinsY()) tBinIndexY = fElecMisCharge_SF->GetNbinsY();
+        
+        if (tSubLeadingElec.fCharge * tGenElecs.at(tSubMatchedIndex).first < 0) {
+          double tElecMisChargeSFWeight = fElecMisCharge_SF->GetBinContent(tBinIndexX, tBinIndexY);
+          tEventGenWeight *= tElecMisChargeSFWeight;
         }
       }
     }

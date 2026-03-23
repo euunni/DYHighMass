@@ -33,7 +33,7 @@ Jet:
   Eta: 2.4
   ID: 6
   PUID: 4
-  BTag: 0.3040
+  BTag: M
   Cleaning: false
 
 Correction:
@@ -43,7 +43,7 @@ Correction:
   Trigger: true
   ElecReco: true
   ElecID: true
-  ElecMisCharge: true
+  ElecMisCharge: false
   PileUp: true
   L1PreFiring: true
   JetPU: true
@@ -72,9 +72,9 @@ Efficiency:
   ElecMisCharge:
     Path: ../../EfficiencyTable/elec/ChargeMisId/CFRate2017.root
   JetPU:
-    Path: ../../EfficiencyTable/JetPUID/2017_L.csv
+    Path: ../../correctionlib/JetPUID/2017.json
   BTag:
-    Path: ../../EfficiencyTable/BTag/wp_deepJet_2017.csv
+    Path: ../../correctionlib/bTag/2017.json
   BTagEff:
     bQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_B.txt
     cQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_C.txt

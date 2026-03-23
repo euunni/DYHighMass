@@ -42,6 +42,9 @@ public:
     fIsMC = false;
     fIsMC = fConfigSample[std::string(fEra)][std::string(fSampleName)]["IsMC"].as<bool>();
 
+    fIsInverted = false;
+    fIsInverted = fConfig["Muon"]["ISOinverted"].as<bool>();
+
     fDoL1Pre = false;
     fDoL1Pre = fConfig["Correction"]["L1PreFiring"].as<bool>();
 
@@ -189,6 +192,7 @@ private:
   bool fDoJetPUID;
   bool fDoBTag;
   bool fDoTopPtReweighing;
+  bool fIsInverted;
 
   NT* fNtuples;
   YAML::Node fConfig;

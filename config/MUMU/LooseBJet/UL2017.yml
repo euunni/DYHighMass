@@ -29,7 +29,7 @@ Jet:
   Eta: 2.4
   ID: 6
   PUID: 4
-  BTag: 0.0532
+  BTag: L
   Cleaning: false
 
 Correction:
@@ -40,7 +40,8 @@ Correction:
   PileUp: true
   L1PreFiring: true
   JetPU: true
-  BTag: false
+  BTag: true
+  TopPtReweighing: true
 
 Efficiency:
   Reco:
@@ -53,16 +54,17 @@ Efficiency:
     Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_IDISO_2017_schemaV2.json
     Name: NUM_probe_LooseRelTkIso_DEN_HighPtProbes
   Trigger:
-    Path: ../../correctionlib/muon/medium/2017.json
-    Name: NUM_Mu50_or_OldMu100_or_TkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose
+    Path: ../../correctionlib/muon/high/2017/ScaleFactors_Muon_highPt_HLT_2017_schemaV2.json
+    Data: NUM_HLT_DEN_HighPtLooseRelIsoProbes_DATAeff
+    MC: NUM_HLT_DEN_HighPtLooseRelIsoProbes_MCeff
   JetPU:
-    Path: ../../EfficiencyTable/JetPUID/2017_L.csv
+    Path: ../../correctionlib/JetPUID/2017.json
   BTag:
-    Path: ../../EfficiencyTable/BTag/wp_deepJet_2017.csv
+    Path: ../../correctionlib/bTag/2017.json
   BTagEff:
-    bQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_B.txt
-    cQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_C.txt
-    lQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_L.txt
+    bQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_Loose_B.txt
+    cQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_Loose_C.txt
+    lQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_Loose_L.txt
 
 Pileup:
   Data: PileupHistogram-goldenJSON-13tev-2017-69200ub-99bins.root

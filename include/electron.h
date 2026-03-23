@@ -96,6 +96,27 @@ public:
   TTreeReaderArray<int>* Electron_cutBased;
   TTreeReaderArray<int>* Electron_charge;
 
+  // TTreeReaderArray<float>* Electron_pfRelIso03_all;
+  // TTreeReaderArray<float>* Electron_miniPFRelIso_all;
+  // TTreeReaderArray<float>* Electron_jetRelIso;
+  // TTreeReaderArray<float>* Electron_jetPtRelv2;
+  // TTreeReaderArray<int>* Electron_jetIdx;
+  // TTreeReaderArray<bool>* Electron_convVeto;
+  // TTreeReaderArray<unsigned char>* Electron_lostHits;
+  // TTreeReaderArray<float>* Electron_dxy;
+  // TTreeReaderArray<float>* Electron_sip3d;
+  // TTreeReaderArray<float>* Electron_mvaFall17V2Iso;
+  // TTreeReaderArray<float>* Electron_mvaFall17V2noIso;
+  // TTreeReaderArray<float>* Electron_hoe;
+  // TTreeReaderArray<float>* Electron_sieie;
+  // TTreeReaderArray<float>* Electron_eInvMinusPInv;
+  // TTreeReaderArray<float>* Electron_r9;
+  // TTreeReaderArray<int>* Electron_vidNestedWPBitmap;
+  // TTreeReaderArray<float>* Electron_dr03TkSumPt;
+  // TTreeReaderArray<float>* Electron_dr03HcalDepth1TowerSumEt;
+  // TTreeReaderArray<float>* Electron_dr03EcalRecHitSumEt;
+  // TTreeReaderArray<float>* Electron_dr03TkSumPtHEEP;
+
 private:
 
   std::vector<StdElec> fFVecElecs;

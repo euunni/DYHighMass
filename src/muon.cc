@@ -151,12 +151,6 @@ bool MUON::PrepareMuon() {
     if ( !(Muon_highPtId->At(i) == fID) )
       continue;
 
-    if ( !fISOinverted && !(Muon_tkRelIso->At(i) < fISO) )
-      continue;
-
-    if ( fISOinverted && Muon_tkRelIso->At(i) < fISO )
-      continue;
-
     if (std::abs(Muon_eta->At(i)) > fEta)
       continue;
 
@@ -180,18 +174,23 @@ bool MUON::PrepareMuon() {
     if ( !(mu_corr.Pt() > fSubLeadingMuonPt) )
       continue;
 
-    StdMuon mu_std = StdMuon(mu_corr, mu, Muon_charge->At(i));
-    fFVecMuons.push_back(mu_std);
+    int tIso = 1;
+    if (Muon_tkRelIso->At(i) > fISO) tIso = -1;
 
-    std::sort(fFVecMuons.begin(), fFVecMuons.end(), [](const StdMuon &lhs, const StdMuon &rhs) {
-      return lhs.fVec.Pt() > rhs.fVec.Pt();
-    });
+    if (!fISOinverted && tIso == 1) {
+      StdMuon mu_std = StdMuon(mu_corr, mu, Muon_charge->At(i), tIso);
+      fFVecMuons.push_back(mu_std);
+    } else if (fISOinverted) {
+      StdMuon mu_std = StdMuon(mu_corr, mu, Muon_charge->At(i), tIso);
+      fFVecMuons.push_back(mu_std);
+    }
   }
 
-  if (fFVecMuons.size() < 2)
-    return false;
+  std::sort(fFVecMuons.begin(), fFVecMuons.end(), [](const StdMuon &lhs, const StdMuon &rhs) {
+    return lhs.fVec.Pt() > rhs.fVec.Pt();
+  });
 
-  if (fFVecMuons.at(0).fVec.Pt() < fLeadingMuonPt)
+  if (fFVecMuons.size() < 2)
     return false;
 
   int tLeadingIdx = -1;
@@ -205,7 +204,16 @@ bool MUON::PrepareMuon() {
       if (tChargeSelection * (fFVecMuons.at(i).fCharge * fFVecMuons.at(j).fCharge) > 0)
         continue;
 
-      if (fFVecMuons.at(i).fVec.Pt() < fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() < fLeadingMuonPt)
+      if (!fISOinverted && fFVecMuons.at(i).fVec.Pt() < fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() < fLeadingMuonPt)
+        continue;
+
+      if (fISOinverted && fFVecMuons.at(i).fISO * fFVecMuons.at(j).fISO > 0)
+        continue;
+
+      if (fISOinverted && fFVecMuons.at(i).fISO == 1 && !(fFVecMuons.at(i).fVec.Pt() > fLeadingMuonPt)) 
+        continue;
+
+      if (fISOinverted && fFVecMuons.at(j).fISO == 1 && !(fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt)) 
         continue;
 
       auto tDimuonVec = fFVecMuons.at(i).fVec + fFVecMuons.at(j).fVec;
@@ -215,6 +223,13 @@ bool MUON::PrepareMuon() {
 
       tLeadingIdx = i;
       tSubLeadingIdx = j;
+
+      if (fISOinverted) {
+        if (fFVecMuons.at(i).fISO == -1 && fFVecMuons.at(j).fISO == 1) {
+          tLeadingIdx = j;
+          tSubLeadingIdx = i;
+        } 
+      }
 
       if (tSubLeadingIdx != -1 && tLeadingIdx != -1)
         break;

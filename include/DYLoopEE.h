@@ -54,7 +54,9 @@ public:
 
     fDoTRIGG = false;
     fDoTRIGG = fConfig["Correction"]["Trigger"].as<bool>();
-    fTRIG_SF = correction::CorrectionSet::from_file(fConfig["Efficiency"]["Trigger"]["Path"].as<std::string>())->at(fConfig["Efficiency"]["Trigger"]["Name"].as<std::string>());
+    auto trigSF = correction::CorrectionSet::from_file(fConfig["Efficiency"]["Trigger"]["Path"].as<std::string>());
+    fTRIG_SF_Leg1 = trigSF->at(fConfig["Efficiency"]["Trigger"]["NameLeg1"].as<std::string>());
+    fTRIG_SF_Leg2 = trigSF->at(fConfig["Efficiency"]["Trigger"]["NameLeg2"].as<std::string>());
 
     fDoElecMisCharge = false;
     fDoElecMisCharge = fConfig["Correction"]["ElecMisCharge"].as<bool>();
@@ -119,7 +121,8 @@ public:
     std::cout << " fDoID: " << fDoID << " " << fConfig["Efficiency"]["ID"]["Path"].as<std::string>() << std::endl;
     std::cout << "        " << fDoID << " " << fConfig["Efficiency"]["ID"]["Name"].as<std::string>() << std::endl;
     std::cout << " fDoTRIGG: " << fDoTRIGG << " " << fConfig["Efficiency"]["Trigger"]["Path"].as<std::string>() << std::endl;
-    std::cout << "           " << fDoTRIGG << " " << fConfig["Efficiency"]["Trigger"]["Name"].as<std::string>() << std::endl;
+    std::cout << "           Leg1: " << fConfig["Efficiency"]["Trigger"]["NameLeg1"].as<std::string>() << std::endl;
+    std::cout << "           Leg2: " << fConfig["Efficiency"]["Trigger"]["NameLeg2"].as<std::string>() << std::endl;
     std::cout << " fDoElecMisCharge: " << fDoElecMisCharge << std::endl;
     std::cout << "                   " << fConfig["Efficiency"]["ElecMisCharge"]["Path"].as<std::string>() << std::endl;
     std::cout << " fDoPU: " << fDoPU << " " << fConfig["Pileup"]["Data"].as<std::string>() << std::endl;
@@ -177,7 +180,8 @@ private:
   LumiReWeighting* fPuReweighting;
   std::shared_ptr<const correction::Correction> fReco_SF;
   std::shared_ptr<const correction::Correction> fID_SF;
-  std::shared_ptr<const correction::Correction> fTRIG_SF;
+  std::shared_ptr<const correction::Correction> fTRIG_SF_Leg1;
+  std::shared_ptr<const correction::Correction> fTRIG_SF_Leg2;
   TH2D* fElecMisCharge_SF;
 
   bool fDoReco;

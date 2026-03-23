@@ -187,7 +187,7 @@ void DYLoopEMU::Loop() {
 
     }
 
-    if (fIsMC && fDoISO) {
+    if (fIsMC && fDoISO && !fIsInverted) {
 
       double tISOEffSFMuon = 0;
 
@@ -208,7 +208,7 @@ void DYLoopEMU::Loop() {
 
     }
 
-    if (fIsMC && fDoTRIGG) {
+    if (fIsMC && fDoTRIGG && !fIsInverted) {
 
       double tTRIGEffSFMuon = 0;
 
@@ -236,7 +236,7 @@ void DYLoopEMU::Loop() {
       tEventGenWeight *= tElecRecoEffSFElec;
     }
 
-    if (fIsMC && fDoElecID) {
+    if (fIsMC && fDoElecID && !fIsInverted) {
       double tElecIDEffSFElec = 0;
 
       if (tFVecElec.Pt() < 20.) tElecIDEffSFElec = 0;
@@ -253,7 +253,7 @@ void DYLoopEMU::Loop() {
     double tMatchedRelPt = 9999;
 
     std::vector<std::pair<int, TLorentzVector>> tGenElecs = {};
-    if (fIsMC) tGenElecs = fNtuples->GetGenPart(11, 1);
+    if (fIsMC && fDoElecMisCharge) tGenElecs = fNtuples->GetGenPart(11, 1);
     if (fIsMC && fDoElecMisCharge && tGenElecs.size() > 0) {
       tRecoGenMatched = true;
       int tRecoCharge = tElec.fCharge;

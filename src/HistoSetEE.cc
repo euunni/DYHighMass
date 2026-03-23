@@ -14,6 +14,7 @@ void HistoSetEE::Init() {
   SetHisto("h_EventInfo", std::vector<double>{-9999, 5, 0.5, 5.5});
   SetHisto("h_GenWeight", std::vector<double>{-9999, 20000, -10000., 10000.});
   SetHisto("h_LHEDielecMass", std::vector<double>{-9999, 6000, 0., 6000.});
+  SetHisto("h_dielecMass_1GeVBin", std::vector<double>{-9999, 6000, 0., 6000.});
   SetHisto("h_LHEnElec", std::vector<double>{-9999, 10, 0., 10.});
 
   SetHisto("h_nPVGood_Count", std::vector<double>{-9999, 100, 0., 100.});
@@ -33,8 +34,17 @@ void HistoSetEE::Init() {
 
   fEtaBins = {-9999, 60, -3., 3.};
   fPhiBins = {-9999, 60, -3.141593, 3.141593};
-  // fMassBins = {199, 200,  220,  243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
-  fMassBins = {39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
+  // Mass binning for *categories/suffix* (keep coarse to avoid histogram explosion)
+  fMassBins = {199, 200,  220,  243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
+  // fMassBins = {39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
+
+  fMassBinsHisto.clear();
+  fMassBinsHisto.reserve(1 + 1 + (4000 - 200) / 10 + 1);
+  fMassBinsHisto.push_back(199);
+  fMassBinsHisto.push_back(200);
+  for (int m = 210; m <= 4000; m += 10) fMassBinsHisto.push_back(m);
+  fMassBinsHisto.push_back(4001);
+
   fDeltaRBins = {-9999, 100, 0.0, 6.0};
   fNJetBins = {-9999, 20, 0, 20};
 
@@ -178,7 +188,7 @@ void HistoSetEE::SetHisto(std::string name) {
     SetHisto(name, fPhiBins);
   }
   else if (name.find("Mass") != std::string::npos) {
-    SetHisto(name, fMassBins);
+    SetHisto(name, fMassBinsHisto);
   }
   else if (name.find("DeltaR") != std::string::npos) {
     SetHisto(name, fDeltaRBins);
@@ -204,7 +214,7 @@ void HistoSetEE::SetHisto(std::string name, std::string binning) {
     SetHisto(name, fPhiBins);
   }
   else if (binning.find("Mass") != std::string::npos) {
-    SetHisto(name, fMassBins);
+    SetHisto(name, fMassBinsHisto);
   }
   else if (binning.find("DeltaR") != std::string::npos) {
     SetHisto(name, fDeltaRBins);
@@ -231,7 +241,7 @@ void HistoSetEE::SetHisto(std::string name, std::string binning1, std::string bi
     binEdge1 = fPhiBins;
   }
   else if (binning1.find("Mass") != std::string::npos) {
-    binEdge1 = fMassBins;
+    binEdge1 = fMassBinsHisto;
   }
   else if (binning1.find("DeltaR") != std::string::npos) {
     binEdge1 = fDeltaRBins;
@@ -255,7 +265,7 @@ void HistoSetEE::SetHisto(std::string name, std::string binning1, std::string bi
     binEdge2 = fPhiBins;
   }
   else if (binning2.find("Mass") != std::string::npos) {
-    binEdge2 = fMassBins;
+    binEdge2 = fMassBinsHisto;
   }
   else if (binning2.find("DeltaR") != std::string::npos) {
     binEdge2 = fDeltaRBins;
@@ -310,8 +320,8 @@ double HistoSetEE::SetPtOverflow(double fPt) {
   else return fPt;
 }
 double HistoSetEE::SetMassOverflow(double fMass) {
-  // if (fMass < 200) return 199.5;
-  if (fMass < 40) return 39.5;
+  if (fMass < 200) return 199.5;
+  // if (fMass < 40) return 39.5;
   if (fMass >= 4000) return 4000.5;
   else return fMass;
 }
@@ -319,6 +329,8 @@ double HistoSetEE::SetMassOverflow(double fMass) {
 void HistoSetEE::FillElec(TLorentzVector& fLeadingElec, TLorentzVector& fSubleadingElec, int nJet, int nBJet, double weight) {
 
   TLorentzVector fDielec = fLeadingElec + fSubleadingElec;
+
+  FillHisto("h_dielecMass_1GeVBin", fDielec.M(), weight);
 
   std::string tMassSuffix = GetMassBin(SetMassOverflow(fDielec.M()));
   std::string tJetSuffix = GetJetBin(nJet);
@@ -401,6 +413,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_EventInfo"]->Write();
   fHistSet["h_GenWeight"]->Write();
   fHistSet["h_LHEDielecMass"]->Write();
+  fHistSet["h_dielecMass_1GeVBin"]->Write();
   fHistSet["h_LHEnElec"]->Write();
   fHistSet["h_nPVGood_Count"]->Write();
   fHistSet["h_PileUp_Count_Interaction_before"]->Write();
@@ -456,6 +469,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
     fHistSet["h_EventInfo"]->Write();
     fHistSet["h_GenWeight"]->Write();
     fHistSet["h_LHEDielecMass"]->Write();
+    fHistSet["h_dielecMass_1GeVBin"]->Write();
     fHistSet["h_LHEnElec"]->Write();
     fHistSet["h_nPVGood_Count"]->Write();
     fHistSet["h_PileUp_Count_Interaction_before"]->Write();

@@ -74,6 +74,23 @@ public:
         i++;
         AddVariable("channel", (std::string)(fArgv[i]));
       }
+
+      if (fArgv[i] == "--error") {
+        AddVariable("error", true);
+      }
+
+      if (fArgv[i] == "--error-sample") {
+
+        while (1) {
+          i++;
+          if (i == (fArgc - 1)) break;
+
+          std::string tErrorSample = (std::string)fArgv[i];
+          if (tErrorSample.find("--") != std::string::npos) break;
+
+          AddVec("error-sample", tErrorSample);
+        }
+      }
     }
   }
 

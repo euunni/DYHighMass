@@ -15,6 +15,8 @@
 
 #include "yaml-cpp/yaml.h"
 
+namespace fs = std::filesystem;
+
 static std::map<std::string, std::map<std::string, std::map<std::string, std::vector<std::string>>>> InputMap = {
   {
     {
@@ -48,7 +50,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -97,7 +99,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -148,7 +150,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -198,7 +200,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -253,7 +255,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -302,7 +304,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -353,7 +355,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -403,7 +405,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              "WJetsToLNu",
+              // "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -448,6 +450,9 @@ int main(int argc, char* argv[]) {
   if (fInput == "null") {
     fInput = "output.root";
   }
+
+  // bool fErrorCorrection = false;
+  // fOpt->GetVariable("error", &fErrorCorrection);
 
   TFile* fFile = new TFile(fInput.c_str(), "READ");
 
@@ -502,9 +507,11 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  std::vector<std::pair<std::string, std::string>> fErrorList;
   std::cout << "ERROR SAMPLES:" << std::endl;
   for (int i = 0; i < fErrorEra.size(); i++) {
     std::cout << "    " << fErrorEra[i] << " " << fErrorSample[i] << " ref: " << fErrorRef[i] << " target: " << fErrorTarget[i] << std::endl;
+    fErrorList.push_back(std::make_pair(fErrorEra[i], fErrorSample[i]));
   }
 
   return 1;

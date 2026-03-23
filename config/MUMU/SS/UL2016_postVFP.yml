@@ -28,8 +28,8 @@ Jet:
   Pt: 30
   Eta: 2.4
   ID: 6
-  PUID: 4
-  BTag: 0.2489
+  PUID: 1
+  BTag: M
   Cleaning: false
 
 Correction:
@@ -58,9 +58,9 @@ Efficiency:
     Data: NUM_HLT_DEN_HighPtLooseRelIsoProbes_DATAeff
     MC: NUM_HLT_DEN_HighPtLooseRelIsoProbes_MCeff
   JetPU:
-    Path: ../../EfficiencyTable/JetPUID/2016_L.csv
+    Path: ../../correctionlib/JetPUID/2016postVFP.json
   BTag:
-    Path: ../../EfficiencyTable/BTag/wp_deepJet_2016postVFP.csv
+    Path: ../../correctionlib/bTag/2016postVFP.json
   BTagEff:
     bQuark: ../../EfficiencyTable/BTagEff/DY_2016_postVFP_h_BTagEff_B.txt
     cQuark: ../../EfficiencyTable/BTagEff/DY_2016_postVFP_h_BTagEff_C.txt

@@ -1,0 +1,71 @@
+Info:
+  Era: 2016_preVFP
+  Channel: MUMU
+
+Z:
+  MassCut: 200
+
+Muon:
+  LeadingMuonPt: 52
+  SubLeadingMuonPt: 15
+  Eta: 2.4
+  ID: global
+  ISO: 0.1
+  ISOinverted: false
+  Charge: same
+  doRoccoR: false
+  RoccoR: ../../RoccoR/RoccoR2018UL.txt
+  doMCSmearing: true
+  MCSmearing:
+    barrel:
+      smearing: -1
+      sigma: 0.0112 + 6.87e-5 * x -3.88e-8 * x^2 + 9.03e-12 * x^3
+    endcap:
+      smearing: -1
+      sigma: 0.013 + 6.93e-5 * x -3.46e-8 * x^2 + 7.72e-12 * x^3
+
+Jet:
+  Pt: 30
+  Eta: 2.4
+  ID: 6
+  PUID: 1
+  BTag: L
+  Cleaning: false
+
+Correction:
+  Reco: true
+  ID: true
+  ISO: true
+  Trigger: true
+  PileUp: true
+  L1PreFiring: true
+  JetPU: true
+  BTag: true
+  TopPtReweighing: true
+
+Efficiency:
+  Reco:
+    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_RECO_2016_preVFP_schemaV2.json
+    Name: NUM_GlobalMuons_DEN_TrackerMuonProbes
+  ID:
+    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_preVFP_schemaV2.json
+    Name: NUM_HighPtID_DEN_GlobalMuonProbes
+  ISO:
+    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_preVFP_schemaV2.json
+    Name: NUM_probe_LooseRelTkIso_DEN_HighPtProbes
+  Trigger:
+    Path: ../../correctionlib/muon/high/2016_preVFP/ScaleFactors_Muon_highPt_HLT_2016_preVFP_schemaV2.json
+    Data: NUM_HLT_DEN_HighPtLooseRelIsoProbes_DATAeff
+    MC: NUM_HLT_DEN_HighPtLooseRelIsoProbes_MCeff
+  JetPU:
+    Path: ../../correctionlib/JetPUID/2016preVFP.json
+  BTag:
+    Path: ../../correctionlib/bTag/2016preVFP.json
+  BTagEff:
+    bQuark: ../../EfficiencyTable/BTagEff/DY_2016_preVFP_h_BTagEff_Loose_B.txt
+    cQuark: ../../EfficiencyTable/BTagEff/DY_2016_preVFP_h_BTagEff_Loose_C.txt
+    lQuark: ../../EfficiencyTable/BTagEff/DY_2016_preVFP_h_BTagEff_Loose_L.txt
+
+Pileup:
+  Data: PileupHistogram-goldenJSON-13tev-2016-preVFP-69200ub-99bins.root
+  MC: MC_2016.root

@@ -18,6 +18,28 @@ void ELEC::init(TTreeReader* fTreeReader) {
   Electron_cutBased_HEEP = new TTreeReaderArray<bool>(*fTreeReader, "Electron_cutBased_HEEP");
   Electron_cutBased = new TTreeReaderArray<int>(*fTreeReader, "Electron_cutBased");
   Electron_charge = new TTreeReaderArray<int>(*fTreeReader, "Electron_charge");
+
+  // For low-pT electron debugging
+  // Electron_pfRelIso03_all = new TTreeReaderArray<float>(*fTreeReader, "Electron_pfRelIso03_all");
+  // Electron_miniPFRelIso_all = new TTreeReaderArray<float>(*fTreeReader, "Electron_miniPFRelIso_all");
+  // Electron_jetRelIso = new TTreeReaderArray<float>(*fTreeReader, "Electron_jetRelIso");
+  // Electron_jetPtRelv2 = new TTreeReaderArray<float>(*fTreeReader, "Electron_jetPtRelv2");
+  // Electron_jetIdx = new TTreeReaderArray<int>(*fTreeReader, "Electron_jetIdx");
+  // Electron_convVeto = new TTreeReaderArray<bool>(*fTreeReader, "Electron_convVeto");
+  // Electron_lostHits = new TTreeReaderArray<unsigned char>(*fTreeReader, "Electron_lostHits");
+  // Electron_dxy = new TTreeReaderArray<float>(*fTreeReader, "Electron_dxy");
+  // Electron_sip3d = new TTreeReaderArray<float>(*fTreeReader, "Electron_sip3d");
+  // Electron_mvaFall17V2Iso = new TTreeReaderArray<float>(*fTreeReader, "Electron_mvaFall17V2Iso");
+  // Electron_mvaFall17V2noIso = new TTreeReaderArray<float>(*fTreeReader, "Electron_mvaFall17V2noIso");
+  // Electron_hoe = new TTreeReaderArray<float>(*fTreeReader, "Electron_hoe");
+  // Electron_sieie = new TTreeReaderArray<float>(*fTreeReader, "Electron_sieie");
+  // Electron_eInvMinusPInv = new TTreeReaderArray<float>(*fTreeReader, "Electron_eInvMinusPInv");
+  // Electron_r9 = new TTreeReaderArray<float>(*fTreeReader, "Electron_r9");
+  // Electron_vidNestedWPBitmap = new TTreeReaderArray<int>(*fTreeReader, "Electron_vidNestedWPBitmap");
+  // Electron_dr03TkSumPt = new TTreeReaderArray<float>(*fTreeReader, "Electron_dr03TkSumPt");
+  // Electron_dr03HcalDepth1TowerSumEt = new TTreeReaderArray<float>(*fTreeReader, "Electron_dr03HcalDepth1TowerSumEt");
+  // Electron_dr03EcalRecHitSumEt = new TTreeReaderArray<float>(*fTreeReader, "Electron_dr03EcalRecHitSumEt");
+  // Electron_dr03TkSumPtHEEP = new TTreeReaderArray<float>(*fTreeReader, "Electron_dr03TkSumPtHEEP");
 }
 
 bool ELEC::PrepareElec() {

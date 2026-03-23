@@ -154,6 +154,22 @@ void DYLoopMUMU::Loop() {
     auto tFVecRawSubLeadingMuon = tSubLeadingMuon.fVecRaw;
     float tChargeSubLeadingMuon = tSubLeadingMuon.fCharge;
 
+    // std::cout << "######################################################################" << std::endl;
+    // std::cout << "                      dimuon selection debugging                      " << std::endl;
+    // std::cout << "----------------------------------------------------------------------" << std::endl;
+    // std::cout << " LEADING: " << std::endl;
+    // std::cout << "   pT: " << tFVecLeadingMuon.Pt() << std::endl;
+    // std::cout << "   eta: " << tFVecLeadingMuon.Eta() << std::endl;
+    // std::cout << "   charge: " << tChargeLeadingMuon << std::endl;
+    // std::cout << "   ISO: " << tLeadingMuon.fISO << std::endl;
+    // std::cout << " SUB-LLEADING: " << std::endl;
+    // std::cout << "   pT: " << tFVecRawSubLeadingMuon.P() << std::endl;
+    // std::cout << "   eta: " << tFVecRawSubLeadingMuon.Eta() << std::endl;
+    // std::cout << "   charge: " << tChargeSubLeadingMuon << std::endl;
+    // std::cout << "   ISO: " << tSubLeadingMuon.fISO << std::endl;
+    // std::cout << "######################################################################" << std::endl;
+    // std::cout << " " << std::endl;
+
     float tCharge = tChargeLeadingMuon * tChargeSubLeadingMuon;
     if (tCharge < 0) tCharge = -0.5;
     else             tCharge = 0.5;
@@ -217,72 +233,98 @@ void DYLoopMUMU::Loop() {
     if (fIsMC && fDoISO) {
 
       double tISOEffSFLeading = 0;
+      double tISOEffSFSubleading = 0;
 
       if (tFVecRawLeadingMuon.Pt() < 15.) tISOEffSFLeading = 0;
       else                                tISOEffSFLeading = fISO_SF->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-
       tEventGenWeight *= tISOEffSFLeading;
 
+      if (!fIsInverted) {
 
-      double tISOEffSFSubleading = 0;
-
-      if (tFVecRawSubLeadingMuon.Pt() < 15.) tISOEffSFSubleading = 0;
-      else                                   tISOEffSFSubleading = fISO_SF->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
-
-      tEventGenWeight *= tISOEffSFSubleading;
+        if (tFVecRawSubLeadingMuon.Pt() < 15.) tISOEffSFSubleading = 0;
+        else                                   tISOEffSFSubleading = fISO_SF->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
+        tEventGenWeight *= tISOEffSFSubleading;
+      }
 
       // std::cout << "######################################################################" << std::endl;
       // std::cout << "                        ISO efficiency debugging                      " << std::endl;
       // std::cout << "----------------------------------------------------------------------" << std::endl;
       // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << tISOEffSFLeading << std::endl;
-      // std::cout << " SUB-LEADING: " << tFVecRawSubLeadingMuon.Pt() << " " << tFVecRawSubLeadingMuon.Eta() << " " << tISOEffSFSubleading << std::endl;
+      // if (!fIsInverted) std::cout << " SUB-LEADING: " << tFVecRawSubLeadingMuon.Pt() << " " << tFVecRawSubLeadingMuon.Eta() << " " << tISOEffSFSubleading << std::endl;
       // std::cout << "######################################################################" << std::endl;
       // std::cout << " " << std::endl;
-
-
     }
 
     if (fIsMC && fDoTRIGG) {
+      
+      if (!fIsInverted) {
 
-      double mu_1_data = 0;
-      double mu_2_data = 0;
+        double mu_1_data = 0;
+        double mu_2_data = 0;
 
-      double mu_1_mc = 0;
-      double mu_2_mc = 0;
+        double mu_1_mc = 0;
+        double mu_2_mc = 0;
 
-      if (tFVecRawLeadingMuon.Pt() < 52.) {
-        mu_1_data = 0.;
-        mu_1_mc = 0.;
+        if (tFVecRawLeadingMuon.Pt() < 52.) {
+          mu_1_data = 0.;
+          mu_1_mc = 0.;
+        } else {
+          mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
+          mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
+        }
+
+        if (tFVecRawSubLeadingMuon.Pt() < 52.) {
+          mu_2_data = 0.;
+          mu_2_mc = 0.;
+        } else {
+          mu_2_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
+          mu_2_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
+        }
+
+        double data_tot = 1. - (1. - mu_1_data) * (1. - mu_2_data);
+        double mc_tot = 1. - (1. - mu_1_mc) * (1. - mu_2_mc);
+
+        double eventTriggerEffSF = 0.;
+        if ( mc_tot != 0 )
+          eventTriggerEffSF = data_tot / mc_tot;
+
+        tEventGenWeight *= eventTriggerEffSF;
+
+        // std::cout << "######################################################################" << std::endl;
+        // std::cout << "                       TRIGG efficiency debugging                     " << std::endl;
+        // std::cout << "----------------------------------------------------------------------" << std::endl;
+        // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << mu_1_data << " " << mu_1_mc << std::endl;
+        // std::cout << " SUB-LEADING: " << tFVecRawSubLeadingMuon.Pt() << " " << tFVecRawSubLeadingMuon.Eta() << " " << mu_2_data << " " << mu_2_mc << std::endl;
+        // std::cout << "(1 - (1 - " <<  mu_1_data << ") * (1 - " << mu_2_data << ")) / (1 - (1 - " << mu_1_mc << ") * (1 - " << mu_2_mc << ")) = " << eventTriggerEffSF << std::endl;
+        // std::cout << "######################################################################" << std::endl;
+        // std::cout << " " << std::endl;
       } else {
-        mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-        mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
+
+        double mu_1_data = 0;
+        double mu_1_mc = 0;
+
+        if (tFVecRawLeadingMuon.Pt() < 52.) {
+          mu_1_data = 0.;
+          mu_1_mc = 0.;
+        } else {
+          mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
+          mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
+        }
+
+        double eventTriggerEffSF = 0.;
+        if ( mu_1_mc != 0 )
+          eventTriggerEffSF = mu_1_data / mu_1_mc;
+
+        tEventGenWeight *= eventTriggerEffSF;
+
+        // std::cout << "######################################################################" << std::endl;
+        // std::cout << "                       TRIGG efficiency debugging                     " << std::endl;
+        // std::cout << "----------------------------------------------------------------------" << std::endl;
+        // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << mu_1_data << " " << mu_1_mc << std::endl;
+        // std::cout << mu_1_data << " / " << mu_1_mc << " = " << eventTriggerEffSF << std::endl;
+        // std::cout << "######################################################################" << std::endl;
+        // std::cout << " " << std::endl;
       }
-
-      if (tFVecRawSubLeadingMuon.Pt() < 52.) {
-        mu_2_data = 0.;
-        mu_2_mc = 0.;
-      } else {
-        mu_2_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
-        mu_2_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
-      }
-
-      double data_tot = 1. - (1. - mu_1_data) * (1. - mu_2_data);
-      double mc_tot = 1. - (1. - mu_1_mc) * (1. - mu_2_mc);
-
-      double eventTriggerEffSF = 0.;
-      if ( mc_tot != 0 )
-        eventTriggerEffSF = data_tot / mc_tot;
-
-      tEventGenWeight *= eventTriggerEffSF;
-
-      // std::cout << "######################################################################" << std::endl;
-      // std::cout << "                       TRIGG efficiency debugging                     " << std::endl;
-      // std::cout << "----------------------------------------------------------------------" << std::endl;
-      // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << mu_1_data << " " << mu_1_mc << std::endl;
-      // std::cout << " SUB-LEADING: " << tFVecRawSubLeadingMuon.Pt() << " " << tFVecRawSubLeadingMuon.Eta() << " " << mu_2_data << " " << mu_2_mc << std::endl;
-      // std::cout << "(1 - (1 - " <<  mu_1_data << ") * (1 - " << mu_2_data << ")) / (1 - (1 - " << mu_1_mc << ") * (1 - " << mu_2_mc << ")) = " << eventTriggerEffSF << std::endl;
-      // std::cout << "######################################################################" << std::endl;
-      // std::cout << " " << std::endl;
     }
 
     if (fIsMC && fDoJetPUID) {
