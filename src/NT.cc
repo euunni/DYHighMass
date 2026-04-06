@@ -50,8 +50,8 @@ std::vector<std::pair<int, TLorentzVector>> NT::GetGenPart(int tID, int tStatus)
   return returnVec;
 }
 
-std::vector<std::pair<int, TLorentzVector>> NT::GetHardGenPart(int tID, int tStatus) {
-  std::vector<std::pair<int, TLorentzVector>> returnVec = {};
+std::vector<std::tuple<int, TLorentzVector, int>> NT::GetHardGenPart(int tID, int tStatus) {
+  std::vector<std::tuple<int, TLorentzVector, int>> returnVec = {};
 
   // constexpr int kIsPrompt = (1 << 0);
   // constexpr int kIsHardProcess = (1 << 7);
@@ -67,7 +67,11 @@ std::vector<std::pair<int, TLorentzVector>> NT::GetHardGenPart(int tID, int tSta
       TLorentzVector tTmpVec;
       tTmpVec.SetPtEtaPhiM(GenPart_pt->At(i), GenPart_eta->At(i), GenPart_phi->At(i), GenPart_mass->At(i));
       int tCharge = GenPart_pdgId->At(i) > 0 ? -1 : 1;
-      returnVec.push_back(std::make_pair(tCharge, tTmpVec));
+
+      const int motherIdx = GenPart_genPartIdxMother->At(i);
+      const int motherPdgId = (motherIdx >= 0) ? GenPart_pdgId->At(motherIdx) : 0;
+
+      returnVec.push_back(std::make_tuple(tCharge, tTmpVec, motherPdgId));
     }
   }
 

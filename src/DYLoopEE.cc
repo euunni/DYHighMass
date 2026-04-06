@@ -92,18 +92,21 @@ void DYLoopEE::Loop() {
       const double subPtCut  = fConfig["Electron"]["SubLeadingPt"].as<float>();
       const double etaMax    = fConfig["Electron"]["Eta"].as<float>();
 
-      auto tGenElecs = fNtuples->GetHardGenPart(11, 1); // (charge, p4)
+      auto tGenElecs = fNtuples->GetHardGenPart(11, 1); // (charge, p4, motherPdgId)
       fHistoSet->FillHisto((std::string)"h_nHardGenElec", static_cast<int>(tGenElecs.size()), tEventGenWeight);
+
+      for (const auto& [charge, p4, motherPdgId] : tGenElecs)
+        fHistoSet->FillHisto((std::string)"h_HardGenElecMotherPdgId", std::abs(motherPdgId), tEventGenWeight);
 
       // Acceptance denominator: Find OS gen pair to define gen mass
       int leadIdx = -1, subIdx = -1;
       if (tGenElecs.size() >= 2) {
         std::sort(tGenElecs.begin(), tGenElecs.end(),
-                  [](const auto& a, const auto& b) { return a.second.Pt() > b.second.Pt(); });
+                  [](const auto& a, const auto& b) { return std::get<1>(a).Pt() > std::get<1>(b).Pt(); });
 
         for (int i = 0; i < (int)tGenElecs.size(); ++i) {
           for (int j = i + 1; j < (int)tGenElecs.size(); ++j) {
-            if (tGenElecs[i].first * tGenElecs[j].first > 0) // same-sign
+            if (std::get<0>(tGenElecs[i]) * std::get<0>(tGenElecs[j]) > 0) // same-sign
               continue;
             leadIdx = i;
             subIdx = j;
@@ -114,48 +117,24 @@ void DYLoopEE::Loop() {
       }
 
       if (leadIdx != -1) {
-        const auto& leadVec = tGenElecs[leadIdx].second;
-        const auto& subVec  = tGenElecs[subIdx].second;
+        const auto& leadVec = std::get<1>(tGenElecs[leadIdx]);
+        const auto& subVec  = std::get<1>(tGenElecs[subIdx]);
 
         double tGenDielecMass = (leadVec + subVec).M();
         tGenDielecMass = fHistoSet->SetMassOverflow(tGenDielecMass);
 
         fHistoSet->FillHisto((std::string)"h_GenAcc_Denom", tGenDielecMass, tEventGenWeight);
 
-        // Acceptance numerator: pT, eta cut, and OS pair
-        std::vector<std::pair<int, TLorentzVector>> tGenFid;
-        tGenFid.reserve(tGenElecs.size());
-        for (const auto& e : tGenElecs) {
-          const auto& v = e.second;
-          if (!(v.Pt() > subPtCut)) continue;
+        // Acceptance numerator
+        auto passFid = [&](const TLorentzVector& v, double ptCut) -> bool {
+          if (v.Pt() <= ptCut) return false;
           const double aeta = std::abs(v.Eta());
-          if (!(aeta < etaMax)) continue;
-          if (aeta > 1.4442 && aeta < 1.566) continue;
-          tGenFid.push_back(e);
-        }
+          if (aeta >= etaMax) return false;
+          if (aeta > 1.4442 && aeta < 1.566) return false;
+          return true;
+        };
 
-        int leadFidIdx = -1, subFidIdx = -1;
-        if (tGenFid.size() >= 2) {
-          std::sort(tGenFid.begin(), tGenFid.end(),
-                    [](const auto& a, const auto& b) { return a.second.Pt() > b.second.Pt(); });
-
-          if (!(tGenFid[0].second.Pt() < leadPtCut)) { 
-            for (int i = 0; i < (int)tGenFid.size(); ++i) {
-              for (int j = i + 1; j < (int)tGenFid.size(); ++j) {
-                if (tGenFid[i].first * tGenFid[j].first > 0) // same-sign
-                  continue;
-                if (tGenFid[i].second.Pt() < leadPtCut && tGenFid[j].second.Pt() < leadPtCut)
-                  continue;
-                leadFidIdx = i;
-                subFidIdx = j;
-                break;
-              }
-              if (leadFidIdx != -1) break;
-            }
-          }
-        }
-
-        if (leadFidIdx != -1) {
+        if (passFid(leadVec, leadPtCut) && passFid(subVec, subPtCut)) {
           fHistoSet->FillHisto((std::string)"h_GenAcc_Numer", tGenDielecMass, tEventGenWeight);
 
           // Efficiency numerator (electron-only cut): trigger + id + pt + eta + OS sign (no mass cut, no jet cuts)

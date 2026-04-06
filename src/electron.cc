@@ -60,8 +60,8 @@ bool ELEC::PrepareElec() {
     if (std::abs(eSCEta) > 1.4442 && std::abs(eSCEta) < 1.5660)
       continue;
 
-    if (!Electron_cutBased_HEEP->At(i)) continue;
-    // if (Electron_cutBased->At(i) < fID) continue;
+    // if (!Electron_cutBased_HEEP->At(i)) continue;
+    if (Electron_cutBased->At(i) < fID) continue;
 
     TLorentzVector elecs;
     elecs.SetPtEtaPhiM(Electron_pt->At(i), eEta, Electron_phi->At(i), Electron_mass->At(i));
@@ -136,8 +136,8 @@ bool ELEC::PrepareElecNoMassCut() {
     if (std::abs(eSCEta) > 1.4442 && std::abs(eSCEta) < 1.5660)
       continue;
 
-    if (!Electron_cutBased_HEEP->At(i)) continue;
-    // if (Electron_cutBased->At(i) < fID) continue;
+    // if (!Electron_cutBased_HEEP->At(i)) continue;
+    if (Electron_cutBased->At(i) < fID) continue;
 
     TLorentzVector elecs;
     elecs.SetPtEtaPhiM(Electron_pt->At(i), eEta, Electron_phi->At(i), Electron_mass->At(i));

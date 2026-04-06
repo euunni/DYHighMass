@@ -6,8 +6,8 @@ Z:
   MassCut: 200
 
 Electron:
-  LeadingPt: 50
-  SubLeadingPt: 38
+  LeadingPt: 52
+  SubLeadingPt: 45
   Eta: 2.5
   Charge: opposite
 

@@ -33,8 +33,8 @@ void HistoSetEE::Init() {
 
   fEtaBins = {-9999, 60, -3., 3.};
   fPhiBins = {-9999, 60, -3.141593, 3.141593};
-  fMassBins = {199, 200,  220,  243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
-  // fMassBins = {39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
+  // fMassBins = {199, 200,  220,  243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
+  fMassBins = {39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
 
   fDeltaRBins = {-9999, 100, 0.0, 6.0};
   fNJetBins = {-9999, 20, 0, 20};
@@ -45,16 +45,8 @@ void HistoSetEE::Init() {
   SetHisto("h_GenEff_Numer", fMassBins);
 
   SetHisto("h_nHardGenElec", std::vector<double>{-9999, 10, 0., 10.});
-
-  // ------------------------------------------------------------------
-  // Reco–gen matching / charge mis-id study histograms (global, no suffix)
-  // ------------------------------------------------------------------
-  // Reco–gen ΔR: use finer variable binning near 0
-  std::vector<double> tRecoGenDeltaRBins;
-  for (int i = 0; i <= 200; ++i) tRecoGenDeltaRBins.push_back(0.0 + 0.001 * i);  // 0.000 ... 0.200
-  for (int i = 1; i <= 80;  ++i) tRecoGenDeltaRBins.push_back(0.2 + 0.01  * i);  // 0.210 ... 1.000
-  for (int i = 1; i <= 50;  ++i) tRecoGenDeltaRBins.push_back(1.0 + 0.1   * i);  // 1.100 ... 6.000
-  SetHisto("h_RecoGenDeltaR", tRecoGenDeltaRBins);
+  // Mother pdgId of hard-process gen electrons (|pdgId|, covers γ=22, Z=23, W=24, τ=15, etc.)
+  SetHisto("h_HardGenElecMotherPdgId", std::vector<double>{-9999, 50, 0., 50.});
 
   std::vector<std::string> fAddonMass = {""};
   std::vector<std::string> fAddonJet = {"", "_0J", "_1J", "_mt1J", "_0BJ", "_1BJ", "_mt1BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"};
@@ -306,8 +298,8 @@ double HistoSetEE::SetPtOverflow(double fPt) {
   else return fPt;
 }
 double HistoSetEE::SetMassOverflow(double fMass) {
-  if (fMass < 200) return 199.5;
-  // if (fMass < 40) return 39.5;
+  // if (fMass < 200) return 199.5;
+  if (fMass < 40) return 39.5;
   if (fMass >= 4000) return 4000.5;
   else return fMass;
 }
@@ -406,6 +398,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_GenAcc_Numer"]->Write();
   fHistSet["h_GenEff_Numer"]->Write();
   fHistSet["h_nHardGenElec"]->Write();
+  fHistSet["h_HardGenElecMotherPdgId"]->Write();
   fHistSet["h_RecoGenDeltaR"]->Write();
 
   for (auto tSuffix : fSuffix) {

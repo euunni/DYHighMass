@@ -138,7 +138,8 @@ public:
     * \throws TTbar should have 2 gen tops, if not, throw an exception
     */
   std::vector<std::pair<int, TLorentzVector>> GetGenPart(int tID, int tStatus);
-  std::vector<std::pair<int, TLorentzVector>> GetHardGenPart(int tID, int tStatus);
+  // Returns (charge, p4, motherPdgId) for each matched hard-process particle.
+  std::vector<std::tuple<int, TLorentzVector, int>> GetHardGenPart(int tID, int tStatus);
   std::vector<std::pair<int, TLorentzVector>> GetGenDressedLepton(int tID);
 
   void SetMC() { fIsMC = true; }
