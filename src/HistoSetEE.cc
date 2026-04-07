@@ -40,9 +40,18 @@ void HistoSetEE::Init() {
   fNJetBins = {-9999, 20, 0, 20};
 
   SetHisto("h_GenAcc_Denom", fMassBins);
+  SetHisto("h_GenAcc_Denom_0J",   fMassBins);
+  SetHisto("h_GenAcc_Denom_1J",   fMassBins);
+  SetHisto("h_GenAcc_Denom_mt1J", fMassBins);
   SetHisto("h_GenAcc_Numer", fMassBins);
+  SetHisto("h_GenAcc_Numer_0J",   fMassBins);
+  SetHisto("h_GenAcc_Numer_1J",   fMassBins);
+  SetHisto("h_GenAcc_Numer_mt1J", fMassBins);
   // Denominator is identical to h_GenAcc_Numer (gen fiducial)
   SetHisto("h_GenEff_Numer", fMassBins);
+  SetHisto("h_GenEff_Numer_0J",   fMassBins);
+  SetHisto("h_GenEff_Numer_1J",   fMassBins);
+  SetHisto("h_GenEff_Numer_mt1J", fMassBins);
 
   SetHisto("h_nHardGenElec", std::vector<double>{-9999, 10, 0., 10.});
   // Mother pdgId of hard-process gen electrons (|pdgId|, covers γ=22, Z=23, W=24, τ=15, etc.)
@@ -395,8 +404,17 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_PileUp_Count_Interaction_before"]->Write();
   fHistSet["h_PileUp_Count_Interaction_after"]->Write();
   fHistSet["h_GenAcc_Denom"]->Write();
+  fHistSet["h_GenAcc_Denom_0J"]->Write();
+  fHistSet["h_GenAcc_Denom_1J"]->Write();
+  fHistSet["h_GenAcc_Denom_mt1J"]->Write();
   fHistSet["h_GenAcc_Numer"]->Write();
+  fHistSet["h_GenAcc_Numer_0J"]->Write();
+  fHistSet["h_GenAcc_Numer_1J"]->Write();
+  fHistSet["h_GenAcc_Numer_mt1J"]->Write();
   fHistSet["h_GenEff_Numer"]->Write();
+  fHistSet["h_GenEff_Numer_0J"]->Write();
+  fHistSet["h_GenEff_Numer_1J"]->Write();
+  fHistSet["h_GenEff_Numer_mt1J"]->Write();
   fHistSet["h_nHardGenElec"]->Write();
   fHistSet["h_HardGenElecMotherPdgId"]->Write();
   fHistSet["h_RecoGenDeltaR"]->Write();
@@ -447,8 +465,17 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
     fHistSet["h_PileUp_Count_Interaction_before"]->Write();
     fHistSet["h_PileUp_Count_Interaction_after"]->Write();
     fHistSet["h_GenAcc_Denom"]->Write();
+    fHistSet["h_GenAcc_Denom_0J"]->Write();
+    fHistSet["h_GenAcc_Denom_1J"]->Write();
+    fHistSet["h_GenAcc_Denom_mt1J"]->Write();
     fHistSet["h_GenAcc_Numer"]->Write();
+    fHistSet["h_GenAcc_Numer_0J"]->Write();
+    fHistSet["h_GenAcc_Numer_1J"]->Write();
+    fHistSet["h_GenAcc_Numer_mt1J"]->Write();
     fHistSet["h_GenEff_Numer"]->Write();
+    fHistSet["h_GenEff_Numer_0J"]->Write();
+    fHistSet["h_GenEff_Numer_1J"]->Write();
+    fHistSet["h_GenEff_Numer_mt1J"]->Write();
     fHistSet["h_RecoGenDeltaR"]->Write();
 
     for (auto tSuffix : fSuffix) 

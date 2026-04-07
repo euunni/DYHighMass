@@ -141,6 +141,7 @@ public:
   // Returns (charge, p4, motherPdgId) for each matched hard-process particle.
   std::vector<std::tuple<int, TLorentzVector, int>> GetHardGenPart(int tID, int tStatus);
   std::vector<std::pair<int, TLorentzVector>> GetGenDressedLepton(int tID);
+  std::vector<TLorentzVector> GetGenJet(float fJetPt, float fJetEta, std::vector<TLorentzVector> tGenLep) const;
 
   void SetMC() { fIsMC = true; }
 

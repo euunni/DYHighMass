@@ -91,14 +91,17 @@ void DYLoopEE::Loop() {
       const double leadPtCut = fConfig["Electron"]["LeadingPt"].as<float>();
       const double subPtCut  = fConfig["Electron"]["SubLeadingPt"].as<float>();
       const double etaMax    = fConfig["Electron"]["Eta"].as<float>();
+      const double genJetPtCut  = fConfig["Jet"]["Pt"].as<float>();
+      const double genJetEtaCut = fConfig["Jet"]["Eta"].as<float>();
 
+      // Get hard gen electrons
       auto tGenElecs = fNtuples->GetHardGenPart(11, 1); // (charge, p4, motherPdgId)
-      fHistoSet->FillHisto((std::string)"h_nHardGenElec", static_cast<int>(tGenElecs.size()), tEventGenWeight);
+      fHistoSet->FillHisto((std::string)"h_nHardGenElec", static_cast<int>(tGenElecs.size()), tEventGenWeight); // for sanity check
 
       for (const auto& [charge, p4, motherPdgId] : tGenElecs)
-        fHistoSet->FillHisto((std::string)"h_HardGenElecMotherPdgId", std::abs(motherPdgId), tEventGenWeight);
+        fHistoSet->FillHisto((std::string)"h_HardGenElecMotherPdgId", std::abs(motherPdgId), tEventGenWeight); // for sanity check
 
-      // Acceptance denominator: Find OS gen pair to define gen mass
+      // Acceptance denominator: Find OS gen pair
       int leadIdx = -1, subIdx = -1;
       if (tGenElecs.size() >= 2) {
         std::sort(tGenElecs.begin(), tGenElecs.end(),
@@ -106,7 +109,7 @@ void DYLoopEE::Loop() {
 
         for (int i = 0; i < (int)tGenElecs.size(); ++i) {
           for (int j = i + 1; j < (int)tGenElecs.size(); ++j) {
-            if (std::get<0>(tGenElecs[i]) * std::get<0>(tGenElecs[j]) > 0) // same-sign
+            if (std::get<0>(tGenElecs[i]) * std::get<0>(tGenElecs[j]) > 0)
               continue;
             leadIdx = i;
             subIdx = j;
@@ -120,10 +123,20 @@ void DYLoopEE::Loop() {
         const auto& leadVec = std::get<1>(tGenElecs[leadIdx]);
         const auto& subVec  = std::get<1>(tGenElecs[subIdx]);
 
+        // Gen jet counting with lepton cleaning using the selected OS pair
+        // Denom: no pT/eta cuts (captures jet acceptance effect)
+        // Numer: config pT/eta cuts applied
+        std::vector<TLorentzVector> tGenLepVec = {leadVec, subVec};
+        auto tGenJetsDenom = fNtuples->GetGenJet(0., 9999., tGenLepVec);
+        auto tGenJetsNumer = fNtuples->GetGenJet(genJetPtCut, genJetEtaCut, tGenLepVec);
+        std::string tGenJetSuffixDenom = fHistoSet->GetJetBin(tGenJetsDenom.size());
+        std::string tGenJetSuffixNumer = fHistoSet->GetJetBin(tGenJetsNumer.size());
+
         double tGenDielecMass = (leadVec + subVec).M();
         tGenDielecMass = fHistoSet->SetMassOverflow(tGenDielecMass);
 
         fHistoSet->FillHisto((std::string)"h_GenAcc_Denom", tGenDielecMass, tEventGenWeight);
+        fHistoSet->FillHisto((std::string)"h_GenAcc_Denom" + tGenJetSuffixDenom, tGenDielecMass, tEventGenWeight);
 
         // Acceptance numerator
         auto passFid = [&](const TLorentzVector& v, double ptCut) -> bool {
@@ -135,12 +148,26 @@ void DYLoopEE::Loop() {
         };
 
         if (passFid(leadVec, leadPtCut) && passFid(subVec, subPtCut)) {
-          fHistoSet->FillHisto((std::string)"h_GenAcc_Numer", tGenDielecMass, tEventGenWeight);
+          // Inclusive in jets: electrons passing fiducial, no jet condition
+          fHistoSet->FillHisto((std::string)"h_GenAcc_Numer", tGenDielecMass, tEventGenWeight); // Inclusive in jets: electrons passing fiducial, no jet condition
 
-          // Efficiency numerator (electron-only cut): trigger + id + pt + eta + OS sign (no mass cut, no jet cuts)
+          // Jet multiplicity: electrons and jets passing fiducial
+          if (tGenJetSuffixNumer == tGenJetSuffixDenom)
+            fHistoSet->FillHisto((std::string)"h_GenAcc_Numer" + tGenJetSuffixDenom, tGenDielecMass, tEventGenWeight);
+
+          // Efficiency numerator: trigger + reco electron (no mass cut) selection + reco jet selection amomg those in the denominator.
           if (fNtuples->PassingTrigger()) {
             if (fElecs->PrepareElecNoMassCut()) {
+              fJets->PrepareJet();
+              int nRecoJets = fJets->GetJets().size();
+              std::string tRecoJetSuffix = fHistoSet->GetJetBin(nRecoJets);
+
+              // Inclusive: no reco jet multiplicity requirement
               fHistoSet->FillHisto((std::string)"h_GenEff_Numer", tGenDielecMass, tEventGenWeight);
+
+              // Jet multiplicity: reco jets must match gen jets in the denominator
+              if (tRecoJetSuffix == tGenJetSuffixNumer && tGenJetSuffixNumer == tGenJetSuffixDenom)
+                fHistoSet->FillHisto((std::string)"h_GenEff_Numer" + tGenJetSuffixNumer, tGenDielecMass, tEventGenWeight);
             }
           }
         }

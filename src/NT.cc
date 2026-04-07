@@ -53,9 +53,9 @@ std::vector<std::pair<int, TLorentzVector>> NT::GetGenPart(int tID, int tStatus)
 std::vector<std::tuple<int, TLorentzVector, int>> NT::GetHardGenPart(int tID, int tStatus) {
   std::vector<std::tuple<int, TLorentzVector, int>> returnVec = {};
 
-  // constexpr int kIsPrompt = (1 << 0);
-  // constexpr int kIsHardProcess = (1 << 7);
+  constexpr int kIsPrompt = (1 << 0);
   constexpr int kFromHardProcess = (1 << 8);
+  // constexpr int kIsHardProcess = (1 << 7);
 
   for (int i = 0; i < **nGenPart; i++) {
     if (std::abs(std::abs(GenPart_pdgId->At(i))) == tID && GenPart_status->At(i) == tStatus) {
@@ -64,8 +64,12 @@ std::vector<std::tuple<int, TLorentzVector, int>> NT::GetHardGenPart(int tID, in
       if (!(flags & kFromHardProcess))
         continue;
 
+      float tMass = 0.;
+      if (tID == 13) tMass = 0.1056583755; // Muon mass in PDG
+      if (tID == 11) tMass = 0.00051099895; // Electron mass in PDG
+
       TLorentzVector tTmpVec;
-      tTmpVec.SetPtEtaPhiM(GenPart_pt->At(i), GenPart_eta->At(i), GenPart_phi->At(i), GenPart_mass->At(i));
+      tTmpVec.SetPtEtaPhiM(GenPart_pt->At(i), GenPart_eta->At(i), GenPart_phi->At(i), tMass);
       int tCharge = GenPart_pdgId->At(i) > 0 ? -1 : 1;
 
       const int motherIdx = GenPart_genPartIdxMother->At(i);
@@ -140,6 +144,37 @@ double NT::GetGenTopPtReweightFactor() {
   }
 
   return std::sqrt(tGenTopPtReweightFactor);
+}
+
+std::vector<TLorentzVector> NT::GetGenJet(float fJetPt, float fJetEta, std::vector<TLorentzVector> tGenLep) const {
+  std::vector<TLorentzVector> returnVec = {};
+
+  for (int i = 0; i < **nGenJet; i++) {
+
+    if (std::abs(GenJet_eta->At(i)) > fJetEta)
+      continue;
+
+    if (GenJet_pt->At(i) < fJetPt)
+      continue;
+
+    TLorentzVector tTmpVec;
+    tTmpVec.SetPtEtaPhiM(GenJet_pt->At(i), GenJet_eta->At(i), GenJet_phi->At(i), GenJet_mass->At(i));
+
+    bool tIsOverlap = false;
+    for (const auto& lep : tGenLep) {
+      if (tTmpVec.DeltaR(lep) < 0.4) {
+        tIsOverlap = true;
+        break;
+      }
+    }
+
+    if (tIsOverlap)
+      continue;
+
+    returnVec.push_back(tTmpVec);
+  }
+
+  return returnVec;
 }
 
 std::vector<TLorentzVector> NT::GetLHE(int fPID) {
