@@ -23,6 +23,7 @@ Muon:
 Electron:
   Pt: 20
   Eta: 2.5
+  ID: 3
   IDinverted: true
 
 Pair:
@@ -30,7 +31,7 @@ Pair:
 
 Jet:
   Pt: 30
-  Eta: 2.4
+  Eta: 2.5
   ID: 6
   PUID: 4
   BTag: M

@@ -473,7 +473,7 @@ int main(int argc, char* argv[]) {
 
       auto fSampleMap = fEraMap[fTierVec[j]];
       for (int k = 0; k < fSampleMap.size(); k++) {
-        std::cout << "Processing: " << fEraVec[i] << " " << fSampleMap[k] << std::endl;
+        // std::cout << "Processing: " << fEraVec[i] << " " << fSampleMap[k] << std::endl;
 
         double nEventRef    = fConfig[fEraVec[i]][fSampleMap[k]]["nEvent"].as<double>();
         if (fSampleMap[k] == "NNLO_EE_10to50") nEventRef += fConfig[fEraVec[i]]["NNLO_EE_10to50_v2"]["nEvent"].as<double>();
@@ -500,7 +500,7 @@ int main(int argc, char* argv[]) {
           fErrorRef.push_back(nEventRef);
           fErrorTarget.push_back(nEventTarget);
         } else {
-          std::cout << "OK: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
+          // std::cout << "OK: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
         }
 
       }

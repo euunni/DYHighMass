@@ -34,7 +34,7 @@ public:
     fChannel = fConfig["Info"]["Channel"].as<std::string>();
     if (fChannel == "EMU") fChannel = "MUMU";
 
-    fTopPtReweighter = new TF1("fTopPtReweighter", "exp(0.0416 - 0.0003 * x)", 0, 600);
+    fTopPtReweighter = new TF1("fTopPtReweighter", "exp(0.0615 - 0.0005 * x)", 0, 600);
   }
 
   ~NT() {

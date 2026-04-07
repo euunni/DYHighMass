@@ -167,7 +167,10 @@ double JET::GetBTagSF() {
 
   for (int i = 0; i < fFVecJets.size(); i++) {
 
-    double tJetEta = std::abs(fFVecJets.at(i).fVec.Eta());
+    double tJetAbsEta = std::abs(fFVecJets.at(i).fVec.Eta());
+    double tJetEta = fFVecJets.at(i).fVec.Eta();
+    if (tJetEta < -2.4) tJetEta = -2.3;
+    if (tJetEta > 2.4) tJetEta = 2.3;
     double tJetPt = fFVecJets.at(i).fVec.Pt();
     int tHadFlav = fFVecJets.at(i).fHadFlav;
 
@@ -175,8 +178,8 @@ double JET::GetBTagSF() {
       tJetPt = 800.;
 
     double tSFcentral = 1.;
-    if (tHadFlav == 5 || tHadFlav == 4) tSFcentral = fBTagMuJets->evaluate({"central", fBTagWP, tHadFlav, std::abs(tJetEta), tJetPt});
-    else tSFcentral = fBTagIncl->evaluate({"central", fBTagWP, 0, std::abs(tJetEta), tJetPt});
+    if (tHadFlav == 5 || tHadFlav == 4) tSFcentral = fBTagMuJets->evaluate({"central", fBTagWP, tHadFlav, tJetAbsEta, tJetPt});
+    else tSFcentral = fBTagIncl->evaluate({"central", fBTagWP, 0, tJetAbsEta, tJetPt});
 
     double tJetEff = 1.;
     if (tHadFlav == 5)        tJetEff = fJetBTagEffB.getEfficiency(tJetPt, tJetEta);

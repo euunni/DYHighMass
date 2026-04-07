@@ -102,6 +102,7 @@ public:
 
     fElecPt = fElecConf["Pt"].as<float>();
     fElecEta = fElecConf["Eta"].as<float>();
+    fElecID = fElecConf["ID"].as<int>();
     fElecIDinverted = fElecConf["IDinverted"].as<bool>();
 
     fIsOppositeCharge = true;
@@ -125,6 +126,7 @@ public:
     std::cout << "----------------------------------------------------------------------" << std::endl;
     std::cout << " Pt: " << fElecPt << std::endl;
     std::cout << " Eta: " << fElecEta << std::endl;
+    std::cout << " ID: " << fElecID << std::endl;
     std::cout << " IDinverted: " << fElecIDinverted << std::endl;
     std::cout << " ID: HEEP ID (not in config!)" << std::endl;
     std::cout << "----------------------------------------------------------------------" << std::endl;
@@ -197,7 +199,7 @@ public:
   TTreeReaderArray<float>* Electron_phi;
   TTreeReaderArray<float>* Electron_mass;
   TTreeReaderArray<int>* Electron_charge;
-  TTreeReaderArray<bool>* Electron_cutBased_HEEP;
+  TTreeReaderArray<int>* Electron_cutBased;
 
   // TTreeReaderValue<unsigned int>* nGenPart;
   // TTreeReaderArray<float>* GenPart_pt;
@@ -229,6 +231,7 @@ private:
 
   float fElecPt;
   float fElecEta;
+  int fElecID;
   bool fElecIDinverted;
 
   bool fIsOppositeCharge;

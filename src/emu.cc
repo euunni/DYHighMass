@@ -38,7 +38,7 @@ void EMU::init(TTreeReader* fTreeReader) {
   Electron_phi = new TTreeReaderArray<float>(*fTreeReader, "Electron_phi");
   Electron_charge = new TTreeReaderArray<int>(*fTreeReader, "Electron_charge");
   Electron_mass = new TTreeReaderArray<float>(*fTreeReader, "Electron_mass");
-  Electron_cutBased_HEEP = new TTreeReaderArray<bool>(*fTreeReader, "Electron_cutBased_HEEP");
+  Electron_cutBased = new TTreeReaderArray<int>(*fTreeReader, "Electron_cutBased");
 }
 
 // void EMU::PrepareGenMuon() {
@@ -142,10 +142,10 @@ bool EMU::PrepareEMUPair() {
     if (std::abs(eSCEta) > 1.4442 && std::abs(eSCEta) < 1.5660)
       continue;
 
-    if (!fElecIDinverted && !Electron_cutBased_HEEP->At(i))
+    if (!fElecIDinverted && Electron_cutBased->At(i) < fElecID)
       continue;
 
-    if (fElecIDinverted && Electron_cutBased_HEEP->At(i))
+    if (fElecIDinverted && Electron_cutBased->At(i) >= fElecID)
       continue;
 
 
