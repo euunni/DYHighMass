@@ -146,7 +146,7 @@ double NT::GetGenTopPtReweightFactor() {
   return std::sqrt(tGenTopPtReweightFactor);
 }
 
-std::vector<TLorentzVector> NT::GetGenJet(float fJetPt, float fJetEta, std::vector<TLorentzVector> tGenLep) const {
+std::vector<TLorentzVector> NT::GetGenJet(float fJetPt, float fJetEta, std::vector<TLorentzVector> tGenLep) {
   std::vector<TLorentzVector> returnVec = {};
 
   for (int i = 0; i < **nGenJet; i++) {

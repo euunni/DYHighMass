@@ -417,7 +417,6 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_GenEff_Numer_mt1J"]->Write();
   fHistSet["h_nHardGenElec"]->Write();
   fHistSet["h_HardGenElecMotherPdgId"]->Write();
-  fHistSet["h_RecoGenDeltaR"]->Write();
 
   for (auto tSuffix : fSuffix) {
     if (tSuffix != "")
@@ -476,7 +475,6 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
     fHistSet["h_GenEff_Numer_0J"]->Write();
     fHistSet["h_GenEff_Numer_1J"]->Write();
     fHistSet["h_GenEff_Numer_mt1J"]->Write();
-    fHistSet["h_RecoGenDeltaR"]->Write();
 
     for (auto tSuffix : fSuffix) 
       if (tSuffix != "")
