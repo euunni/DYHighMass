@@ -52,6 +52,12 @@ void DYLoopEE::Loop() {
   while(fNtuples->GetNext()) { // Event loop starts here
     tMaxLoop++;
 
+    double      tEffNumGenMass        = -1.;
+    bool        tPassEffNumInc       = false;
+    std::string tSavedGenJetSuffixNum = "";
+    std::string tSavedGenJetSuffixDen = "";
+    std::vector<TLorentzVector> tSavedGenJetsNum = {};
+
     if (static_cast<int>(tMaxLoop) % 10000 == 0 ) {
       auto tCurrentTime = std::chrono::system_clock::now();
       auto tElapsed = tCurrentTime - tTimeBegin;
@@ -84,6 +90,24 @@ void DYLoopEE::Loop() {
       }
 
       fHistoSet->FillHisto((std::string)"h_GenWeight", tEventGenWeight, 1.);
+    }
+
+    if (fIsMC && fSampleName.Contains("NNLO")) {
+      auto tLHEElecs = fNtuples->GetLHE(11);
+
+      fHistoSet->FillHisto((std::string)"h_LHEnElec", static_cast<int>(tLHEElecs.size()));
+
+      double tDiElecMassLHE = 0;
+
+      if (tLHEElecs.size() == 2) {
+        auto tDiElecLHE = tLHEElecs.at(0) + tLHEElecs.at(1);
+        tDiElecMassLHE = tDiElecLHE.M();
+      }
+
+      if (fSampleName.Contains("NNLO") && fSampleName.Contains("inc") && tDiElecMassLHE > 100 )
+        continue;
+
+      fHistoSet->FillHisto((std::string)"h_LHEDielecMass", tDiElecMassLHE, tEventGenWeight);
     }
 
     // Acceptance and efficiency
@@ -127,16 +151,17 @@ void DYLoopEE::Loop() {
         // Denom: no pT/eta cuts (captures jet acceptance effect)
         // Numer: config pT/eta cuts applied
         std::vector<TLorentzVector> tGenLepVec = {leadVec, subVec};
-        auto tGenJetsDenom = fNtuples->GetGenJet(0., 9999., tGenLepVec);
-        auto tGenJetsNumer = fNtuples->GetGenJet(genJetPtCut, genJetEtaCut, tGenLepVec);
-        std::string tGenJetSuffixDenom = fHistoSet->GetJetBin(tGenJetsDenom.size());
-        std::string tGenJetSuffixNumer = fHistoSet->GetJetBin(tGenJetsNumer.size());
+        auto tGenJetsDen = fNtuples->GetGenJet(0., 9999., tGenLepVec);
+        auto tGenJetsNum = fNtuples->GetGenJet(genJetPtCut, genJetEtaCut, tGenLepVec);
+        tSavedGenJetsNum = tGenJetsNum;
+        std::string tGenJetSuffixDen = fHistoSet->GetJetBin(tGenJetsDen.size());
+        std::string tGenJetSuffixNum = fHistoSet->GetJetBin(tGenJetsNum.size());
 
         double tGenDielecMass = (leadVec + subVec).M();
         tGenDielecMass = fHistoSet->SetMassOverflow(tGenDielecMass);
 
         fHistoSet->FillHisto((std::string)"h_GenAcc_Denom", tGenDielecMass, tEventGenWeight);
-        fHistoSet->FillHisto((std::string)"h_GenAcc_Denom" + tGenJetSuffixDenom, tGenDielecMass, tEventGenWeight);
+        fHistoSet->FillHisto((std::string)"h_GenAcc_Denom" + tGenJetSuffixDen, tGenDielecMass, tEventGenWeight);
 
         // Acceptance numerator
         auto passFid = [&](const TLorentzVector& v, double ptCut) -> bool {
@@ -152,44 +177,20 @@ void DYLoopEE::Loop() {
           fHistoSet->FillHisto((std::string)"h_GenAcc_Numer", tGenDielecMass, tEventGenWeight); // Inclusive in jets: electrons passing fiducial, no jet condition
 
           // Jet multiplicity: electrons and jets passing fiducial
-          if (tGenJetSuffixNumer == tGenJetSuffixDenom)
-            fHistoSet->FillHisto((std::string)"h_GenAcc_Numer" + tGenJetSuffixDenom, tGenDielecMass, tEventGenWeight);
+          if (tGenJetSuffixNum == tGenJetSuffixDen)
+            fHistoSet->FillHisto((std::string)"h_GenAcc_Numer" + tGenJetSuffixDen, tGenDielecMass, tEventGenWeight);
 
-          // Efficiency numerator: trigger + reco electron (no mass cut) selection + reco jet selection amomg those in the denominator.
+          // Efficiency numerator: save gen info here; fill with full weight after all reco SFs
           if (fNtuples->PassingTrigger()) {
-            if (fElecs->PrepareElecNoMassCut()) {
-              fJets->PrepareJet();
-              int nRecoJets = fJets->GetJets().size();
-              std::string tRecoJetSuffix = fHistoSet->GetJetBin(nRecoJets);
-
-              // Inclusive: no reco jet multiplicity requirement
-              fHistoSet->FillHisto((std::string)"h_GenEff_Numer", tGenDielecMass, tEventGenWeight);
-
-              // Jet multiplicity: reco jets must match gen jets in the denominator
-              if (tRecoJetSuffix == tGenJetSuffixNumer && tGenJetSuffixNumer == tGenJetSuffixDenom)
-                fHistoSet->FillHisto((std::string)"h_GenEff_Numer" + tGenJetSuffixNumer, tGenDielecMass, tEventGenWeight);
+            if (fElecs->PrepareElec()) {
+              tEffNumGenMass        = tGenDielecMass;
+              tPassEffNumInc        = true;
+              tSavedGenJetSuffixNum = tGenJetSuffixNum;
+              tSavedGenJetSuffixDen = tGenJetSuffixDen;
             }
           }
         }
       }
-    }
-
-    if (fIsMC && fSampleName.Contains("NNLO")) {
-      auto tLHEElecs = fNtuples->GetLHE(11);
-
-      fHistoSet->FillHisto((std::string)"h_LHEnElec", static_cast<int>(tLHEElecs.size()));
-
-      double tDiElecMassLHE = 0;
-
-      if (tLHEElecs.size() == 2) {
-        auto tDiElecLHE = tLHEElecs.at(0) + tLHEElecs.at(1);
-        tDiElecMassLHE = tDiElecLHE.M();
-      }
-
-      if (fSampleName.Contains("NNLO") && fSampleName.Contains("inc") && tDiElecMassLHE > 100 )
-        continue;
-
-      fHistoSet->FillHisto((std::string)"h_LHEDielecMass", tDiElecMassLHE, tEventGenWeight);
     }
 
     if (fIsMC && fSampleName.Contains("TTTo2L2Nu") && fDoTopPtReweighing)
@@ -412,11 +413,43 @@ void DYLoopEE::Loop() {
       tEventGenWeight *= bTagWeight;
     }
 
+    if (fIsMC && tPassEffNumInc) {
+      int nEffRecoJets = fJets->GetJets().size();
+      std::string tEffRecoJetSuffix = fHistoSet->GetJetBin(nEffRecoJets);
+
+      // Inclusive: no reco jet multiplicity requirement
+      fHistoSet->FillHisto((std::string)"h_GenEff_Numer", tEffNumGenMass, tEventGenWeight);
+
+      // Jet multiplicity: reco jets must match gen jets in the denominator
+      if (tEffRecoJetSuffix == tSavedGenJetSuffixNum && tSavedGenJetSuffixNum == tSavedGenJetSuffixDen)
+        fHistoSet->FillHisto((std::string)"h_GenEff_Numer" + tSavedGenJetSuffixNum, tEffNumGenMass, tEventGenWeight);
+    }
+
     tTotalGenWeight += tEventGenWeight;
 
     fHistoSet->FillHisto((std::string)"h_nPVGood_Count", **(fNtuples->PV_npvsGood), tEventGenWeight);
     fHistoSet->FillElec(tFVecLeadingElec, tFVecSubLeadingElec, nJets, nBJets, tEventGenWeight);
     fHistoSet->FillJet(&vJets, &vBJets, tDiElec.M(), tEventGenWeight);
+
+    if (fIsMC) {
+      double tRecoMass = tDiElec.M();
+      std::string tMassBinSuffix = "";
+      if      (tRecoMass >= 200.  && tRecoMass < 220.)  tMassBinSuffix = "_m200_220";
+      else if (tRecoMass >= 440.  && tRecoMass < 510.)  tMassBinSuffix = "_m440_510";
+      else if (tRecoMass >= 1500. && tRecoMass < 4000.) tMassBinSuffix = "_m1500_4000";
+
+      if (!tMassBinSuffix.empty()) {
+        std::string tGenJetCat = fHistoSet->GetJetBin(tSavedGenJetsNum.size());
+        for (const auto& jet : tSavedGenJetsNum) {
+          fHistoSet->FillHisto((std::string)"h_GenJetPt_Incl"  + tMassBinSuffix, jet.Pt(),  tEventGenWeight);
+          fHistoSet->FillHisto((std::string)"h_GenJetEta_Incl" + tMassBinSuffix, jet.Eta(), tEventGenWeight);
+          if (tGenJetCat == "_1J" || tGenJetCat == "_mt1J") {
+            fHistoSet->FillHisto((std::string)"h_GenJetPt"  + tGenJetCat + tMassBinSuffix, jet.Pt(),  tEventGenWeight);
+            fHistoSet->FillHisto((std::string)"h_GenJetEta" + tGenJetCat + tMassBinSuffix, jet.Eta(), tEventGenWeight);
+          }
+        }
+      }
+    }
 
   } // End of event loop
 

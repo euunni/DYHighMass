@@ -53,6 +53,14 @@ void HistoSetEE::Init() {
   SetHisto("h_GenEff_Numer_1J",   fMassBins);
   SetHisto("h_GenEff_Numer_mt1J", fMassBins);
 
+  // Gen jet pT/eta distributions in specific reco dielectron mass bins
+  for (const auto& tMassSuffix : std::vector<std::string>{"_m200_220", "_m440_510", "_m1500_4000"}) {
+    for (const auto& tJetCat : std::vector<std::string>{"_Incl", "_1J", "_mt1J"}) {
+      SetHisto("h_GenJetPt"  + tJetCat + tMassSuffix);
+      SetHisto("h_GenJetEta" + tJetCat + tMassSuffix);
+    }
+  }
+
   SetHisto("h_nHardGenElec", std::vector<double>{-9999, 10, 0., 10.});
   // Mother pdgId of hard-process gen electrons (|pdgId|, covers γ=22, Z=23, W=24, τ=15, etc.)
   SetHisto("h_HardGenElecMotherPdgId", std::vector<double>{-9999, 50, 0., 50.});
@@ -417,6 +425,13 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_GenEff_Numer_mt1J"]->Write();
   fHistSet["h_nHardGenElec"]->Write();
   fHistSet["h_HardGenElecMotherPdgId"]->Write();
+
+  for (const auto& tMassSuffix : std::vector<std::string>{"_m200_220", "_m440_510", "_m1500_4000"}) {
+    for (const auto& tJetCat : std::vector<std::string>{"_Incl", "_1J", "_mt1J"}) {
+      fHistSet["h_GenJetPt"  + tJetCat + tMassSuffix]->Write();
+      fHistSet["h_GenJetEta" + tJetCat + tMassSuffix]->Write();
+    }
+  }
 
   for (auto tSuffix : fSuffix) {
     if (tSuffix != "")

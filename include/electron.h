@@ -68,8 +68,6 @@ public:
   void init(TTreeReader* fTreeReader);
 
   bool PrepareElec();
-  // Same as PrepareElec() but WITHOUT dielectron mass cut (for efficiency studies)
-  bool PrepareElecNoMassCut();
 
   std::vector<StdElec> GetElecs() { return fFVecElecs; }
   StdElec GetLeadingElec() { return fFVecElecs.at(fLeadingIdx); }
