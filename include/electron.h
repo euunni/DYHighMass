@@ -32,6 +32,8 @@ public:
     // Cut-based ID (default to Medium=3)
     fID = 3;
     if (fElecConf["ID"]) fID = fElecConf["ID"].as<int>();
+    fInvertedID = false;
+    if (fElecConf["InvertedID"]) fInvertedID = fElecConf["InvertedID"].as<bool>();
     fOppositeCharge = true;
     if (fElecConf["Charge"].as<std::string>() == "same")
       fOppositeCharge = false;
@@ -45,6 +47,7 @@ public:
     std::cout << " Electron eta: " << fEta << std::endl;
     // std::cout << " Electron ID: HEEP ID (not in config!)" << std::endl;
     std::cout << " Electron ID: " << fID << std::endl;
+    std::cout << " InvertedID: " << fInvertedID << std::endl;
     std::cout << " OppositeCharge: " << fOppositeCharge << std::endl;
     std::cout << "######################################################################" << std::endl;
     std::cout << " " << std::endl;
@@ -55,9 +58,10 @@ public:
     TLorentzVector fVec;
     float fSCEta;
     int fCharge;
+    bool fPassID;
 
-    StdElec(TLorentzVector fVec_, float fSCEta_, int fCharge_)
-    : fVec(fVec_), fSCEta(fSCEta_), fCharge(fCharge_)
+    StdElec(TLorentzVector fVec_, float fSCEta_, int fCharge_, bool fPassID_ = true)
+    : fVec(fVec_), fSCEta(fSCEta_), fCharge(fCharge_), fPassID(fPassID_)
     { };
 
     float SCEta() const { return fSCEta; }
@@ -125,6 +129,7 @@ private:
   float fSubLeadingPt;
   float fEta;
   int fID;
+  bool fInvertedID;
   bool fOppositeCharge;
 
   int fSubLeadingIdx;

@@ -46,7 +46,7 @@ bool ELEC::PrepareElec() {
 
   fFVecElecs.clear();
 
-  for (int i = 0; i < **nElectron; i++) {
+  for (int i = 0; i < (int)**nElectron; i++) {
 
     if (!(Electron_pt->At(i) > fSubLeadingPt))
       continue;
@@ -61,13 +61,13 @@ bool ELEC::PrepareElec() {
       continue;
 
     // if (!Electron_cutBased_HEEP->At(i)) continue;
-    if (Electron_cutBased->At(i) < fID)
-      continue;
+    bool passID = (Electron_cutBased->At(i) >= fID);
+    if (!fInvertedID && !passID) continue;
 
     TLorentzVector elecs;
     elecs.SetPtEtaPhiM(Electron_pt->At(i), eEta, Electron_phi->At(i), Electron_mass->At(i));
 
-    fFVecElecs.push_back(StdElec(elecs, eSCEta, Electron_charge->At(i)));
+    fFVecElecs.push_back(StdElec(elecs, eSCEta, Electron_charge->At(i), passID));
   }
 
   std::sort(fFVecElecs.begin(), fFVecElecs.end(), [](const StdElec &lhs, const StdElec &rhs) {
@@ -79,16 +79,19 @@ bool ELEC::PrepareElec() {
 
   if (fFVecElecs.at(0).fVec.Pt() < fLeadingPt)
     return false;
-  
+
   int tLeadingIdx = -1;
   int tSubLeadingIdx = -1;
 
   int tChargeSelection = 1;
   if (!fOppositeCharge) tChargeSelection = -1;
 
-  for (int i = 0; i < fFVecElecs.size(); i++) {
-    for (int j = i + 1; j < fFVecElecs.size(); j++) {
+  for (int i = 0; i < (int)fFVecElecs.size(); i++) {
+    for (int j = i + 1; j < (int)fFVecElecs.size(); j++) {
       if (tChargeSelection * (fFVecElecs.at(i).fCharge * fFVecElecs.at(j).fCharge) > 0)
+        continue;
+
+      if (fInvertedID && fFVecElecs.at(i).fPassID && fFVecElecs.at(j).fPassID)
         continue;
 
       if (fFVecElecs.at(i).fVec.Pt() < fLeadingPt && fFVecElecs.at(j).fVec.Pt() < fLeadingPt)
@@ -105,7 +108,7 @@ bool ELEC::PrepareElec() {
       if (tSubLeadingIdx != -1 && tLeadingIdx != -1)
         break;
     }
-    
+
     if (tSubLeadingIdx != -1 && tLeadingIdx != -1)
       break;
   }

@@ -432,7 +432,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
     fHistSet["h_PileUp_Count_Interaction_before"]->Write();
     fHistSet["h_PileUp_Count_Interaction_after"]->Write();
 
-    for (auto tSuffix : fSuffix) 
+    for (auto tSuffix : fSuffix)
       if (tSuffix != "")
         fOutputFile->mkdir(fEra + "/Data/" + tSuffix);
 
