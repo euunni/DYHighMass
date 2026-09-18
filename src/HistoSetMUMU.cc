@@ -792,7 +792,7 @@ void HistoSetMUMU::WriteHisto(TString fEra, TString fSampleName, TFile* fOutputF
   // }
 }
 
-void HistoSetMUMU::WriteGenHisto(TString fEra, TFile* fOutputFile, TString fOutputDir) {
+void HistoSetMUMU::WriteGenHisto(TString fEra, TString fSampleName, TFile* fOutputFile) {
   
   if (fSampleName.Contains("NNLO_MUMU_10to50"))
     fSampleName = "NNLO_MUMU_10to50";

@@ -23,8 +23,8 @@ def GetSpliitedHist(fHist, name = "plotname"):
         fHist_1J.SetBinContent(i, fHist.GetBinContent(i + 16))
         fHist_1J.SetBinError(i, fHist.GetBinError(i + 16))
 
-        fHist_mt1J.SetBinContent(i, fHist.GetBinContent(i + 32))
-        fHist_mt1J.SetBinError(i, fHist.GetBinError(i + 32))
+        fHist_mt1J.SetBinContent(i, fHist.GetBinContent(i + 31))
+        fHist_mt1J.SetBinError(i, fHist.GetBinError(i + 31))
 
     return fHist_0J, fHist_1J, fHist_mt1J
 
@@ -54,7 +54,7 @@ def GetYRange(hHist):
 
     return max_idx
 
-def plotter(hPred, hData, name, var = {}):
+def plotter(hData, hPred, name, var = {}):
 
 
     hRatio = hPred.Clone(f"{name}_Ratio")
@@ -115,9 +115,16 @@ def main():
 
     fUnfolded = ROOT.TFile.Open("Unfolding_v1.root")
     fInput = ROOT.TFile.Open("store_v1.root")
+    fInput_v2 = ROOT.TFile.Open("store_MUMU.root")
 
     hUnfolded = fUnfolded.Get("Unfolded_Run2")
     hGen = fInput.Get("Gen_Run2")
+    hDYReco = fInput_v2.Get("merged/DYReco")
+    hData = fInput_v2.Get("merged/Data")
+    hMC = fInput_v2.Get("merged/TotalMC")
+
+    hDataOnly = hData.Clone("DataOnly")
+    hDataOnly.Add(hMC, -1)
 
     fUnfolded.Close()
     fInput.Close()
@@ -125,9 +132,16 @@ def main():
     hUnfolded_0J, hUnfolded_1J, hUnfolded_mt1J = GetSpliitedHist(hUnfolded, "Unfolded")
     hGen_0J, hGen_1J, hGen_mt1J = GetSpliitedHist(hGen, "Gen")
 
-    plotter(hUnfolded_0J, hGen_0J, "h0J", {"outputPath": "h_0J"})
-    plotter(hUnfolded_1J, hGen_1J, "h0J", {"outputPath": "h_1J"})
-    plotter(hUnfolded_mt1J, hGen_mt1J, "h0J", {"outputPath": "h_mt1J", "ymin": 2e-3, "yrmin": 0.8, "yrmax": 1.2})
+    hReco_0J, hReco_1J, hReco_mt1J = GetSpliitedHist(hDYReco, "Reco")
+    hData_0J, hData_1J, hData_mt1J = GetSpliitedHist(hDataOnly, "Data")
+
+    plotter(hUnfolded_0J, hGen_0J, "h0J", {"outputPath": "h_0J", "yrmin": 0.75, "yrmax": 1.25})
+    plotter(hUnfolded_1J, hGen_1J, "h0J", {"outputPath": "h_1J", "yrmin": 0.75, "yrmax": 1.25})
+    plotter(hUnfolded_mt1J, hGen_mt1J, "h0J", {"outputPath": "h_mt1J", "ymin": 2e-3, "yrmin": 0.6, "yrmax": 1.4})
+    
+    plotter(hData_0J, hReco_0J, "h_Reco_0J", {"outputPath": "h_Reco_0J", "yrmin": 0.75, "yrmax": 1.25})
+    plotter(hData_1J, hReco_1J, "h_Reco_1J", {"outputPath": "h_Reco_1J", "yrmin": 0.75, "yrmax": 1.25})
+    plotter(hData_mt1J, hReco_mt1J, "h_Reco_mt1J", {"outputPath": "h_Reco_mt1J", "ymin": 2e-3, "yrmin": 0.6, "yrmax": 1.4})
 
 
 

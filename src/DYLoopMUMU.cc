@@ -386,7 +386,7 @@ void DYLoopMUMU::Loop() {
 
 void DYLoopMUMU::EndOfJob() {
 
-  TString fOutputFileName = fOutputDir + "/output_" + fEra + "_" +  fSampleName + "_" + std::to_string(fJobID) + ".root"
+  TString fOutputFileName = fOutputDir + "/output_" + fEra + "_" +  fSampleName + "_" + std::to_string(fJobID) + ".root";
 
   TFile* fOutputFile = new TFile(fOutputFileName, "RECREATE");
 

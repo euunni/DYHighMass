@@ -165,7 +165,7 @@ def main():
     cases = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
     
     histoName_MUMU = "h_dimuonMass"
-    outputPath = "./plots_260910/MUMU_FAKE/"
+    outputPath = "./plots_260917/MUMU_FAKE/"
     outputRoot = "./Bck/MUMU_FAKE.root"
 
     os.makedirs(outputPath, exist_ok=True)
@@ -246,8 +246,13 @@ def main():
             MUMU_OS_inverted_FAKE_rebin = Rebin(MUMU_OS_inverted_FAKE)
             MUMU_SS_inverted_FAKE_rebin = Rebin(MUMU_SS_inverted_FAKE)
 
-            MUMU_inverted_SStoOS = MUMU_OS_inverted_FAKE_rebin.Clone(f"MUMU_inverted_SStoOS_{uuid.uuid4()}")
-            MUMU_inverted_SStoOS.Divide(MUMU_SS_inverted_FAKE_rebin)
+            # MUMU_inverted_SStoOS = MUMU_OS_inverted_FAKE_rebin.Clone(f"MUMU_inverted_SStoOS_{uuid.uuid4()}")
+            # MUMU_inverted_SStoOS.Divide(MUMU_SS_inverted_FAKE_rebin)
+            # MUMU_inverted_SStoOS = SanityCheck(MUMU_inverted_SStoOS)
+            # MUMU_inverted_SStoOS.SetName("MUMU_inverted_SStoOS" + case)
+
+            MUMU_inverted_SStoOS = MUMU_OS_inverted_FAKE.Clone(f"MUMU_inverted_SStoOS_{uuid.uuid4()}")
+            MUMU_inverted_SStoOS.Divide(MUMU_SS_inverted_FAKE)
             MUMU_inverted_SStoOS = SanityCheck(MUMU_inverted_SStoOS)
             MUMU_inverted_SStoOS.SetName("MUMU_inverted_SStoOS" + case)
 
