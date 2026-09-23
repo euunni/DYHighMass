@@ -29,8 +29,6 @@ TotalMCList = [
     "ST_tW_AntiTop",
     "ST_tW_Top",
 
-    "WJetsToLNu",
-
     "TTTo2L2Nu",
     
     "WW",
@@ -54,26 +52,16 @@ TotalMCList = [
     "GGToMuMu_50to200_InelInel",
     "GGToMuMu_200to1500_InelInel",
     "GGToMuMu_1500toInf_InelInel",
-
-    "QCD_Pt-15To20_MuEnrichedPt5",
-    "QCD_Pt-20To30_MuEnrichedPt5",
-    "QCD_Pt-30To50_MuEnrichedPt5",
-    "QCD_Pt-50To80_MuEnrichedPt5",
-    "QCD_Pt-80To120_MuEnrichedPt5",
-    "QCD_Pt-120To170_MuEnrichedPt5",
-    "QCD_Pt-170To300_MuEnrichedPt5",
-    "QCD_Pt-300To470_MuEnrichedPt5",
-    "QCD_Pt-470To600_MuEnrichedPt5",
-    "QCD_Pt-600To800_MuEnrichedPt5",
-    "QCD_Pt-800To1000_MuEnrichedPt5",
-    "QCD_Pt-1000_MuEnrichedPt5",
 ]
 
-TWMCList = [
+TTMCList = [
     "TTTo2L2Nu",
-    "ST_tW_AntiTop",
-    "ST_tW_Top",
-    "WW"
+]
+
+DibosonMCList = [
+    "WW",
+    "WZ",
+    "ZZ",
 ]
 
 BkgMCList = [
@@ -710,13 +698,11 @@ class Plotter:
 
         data = self.GetDataHist(self.histName)
         DY = self.GetMCHist(self.histName, DYMCList, CheckSanity = False)
-        TT = self.GetMCHist(self.histName, TWMCList, CheckSanity = True)
+        TT = self.GetMCHist(self.histName, TTMCList, CheckSanity = True)
         DY_tau = self.GetMCHist(self.histName, ["NNLO_tautau"], CheckSanity = False)
-        EW = self.GetMCHist(self.histName, ["WZ", "ZZ"], CheckSanity = True)
+        EW = self.GetMCHist(self.histName, DibosonMCList, CheckSanity = True)
         GG = self.GetMCHist(self.histName, ["GG"], CheckSanity = True)
 
-        QCD = self.GetMCHist(self.histName, QCDList, CheckSanity = False)
-        WJet = self.GetMCHist(self.histName, ["WJetsToLNu"], CheckSanity = True)
         ST = self.GetMCHist(self.histName, STList, CheckSanity = True)
 
         Fake = None;
@@ -734,8 +720,6 @@ class Plotter:
         TotalMC.Add(GG)
         TotalMC.Add(EW)
         TotalMC.Add(TT)
-        TotalMC.Add(QCD)
-        TotalMC.Add(WJet)
         TotalMC.Add(ST)
 
         if self.IsSignalRegion:
@@ -800,44 +784,40 @@ class Plotter:
         leg = CMS.cmsLeg(0.70, 0.89 - 0.05 * 6, 0.89, 0.89, textSize=0.03)
 
         stackSeet = {
-            "QCD": QCD,
-            "WJets": WJet,
-            "Single Top": ST,
-            "DY#rightarrow#tau#tau": DY_tau,
             "#gamma#gamma#rightarrow#mu#mu": GG,
-            "ZZ + ZW": EW,
-            "tt + tW + WW": TT,
+            "DY#rightarrow#tau#tau": DY_tau,
+            "Single Top": ST,
+            "WW + WZ + ZZ": EW,
+            "TT": TT,
             "DY#rightarrow#mu#mu": DY
         }
 
         if not self.IsSignalRegion:
             stackSeet = {
-                "Single Top": ST,
-                "WJets": WJet,
-                "QCD": QCD,
-                "DY#rightarrow#tau#tau": DY_tau,
                 "#gamma#gamma#rightarrow#mu#mu": GG,
-                "ZZ + ZW": EW,
-                "tt + tW + WW": TT,
+                "DY#rightarrow#tau#tau": DY_tau,
+                "Single Top": ST,
+                "WW + WZ + ZZ": EW,
+                "TT": TT,
             }
 
         if self.HasFakes and self.IsSignalRegion:
             stackSeet = {
                 "Fake": Fake,
-                "DY#rightarrow#tau#tau": DY_tau,
                 "#gamma#gamma#rightarrow#mu#mu": GG,
-                "ZZ + ZW": EW,
-                "tt + tW + WW": TT,
+                "DY#rightarrow#tau#tau": DY_tau,
+                "WW + WZ + ZZ": EW,
+                "TT": TT,
                 "DY#rightarrow#mu#mu": DY
             }
 
         if self.HasFakes and not self.IsSignalRegion:
             stackSeet = {
                 "Fake": Fake,
-                "DY#rightarrow#tau#tau": DY_tau,
                 "#gamma#gamma#rightarrow#mu#mu": GG,
-                "ZZ + ZW": EW,
-                "tt + tW + WW": TT,
+                "DY#rightarrow#tau#tau": DY_tau,
+                "WW + WZ + ZZ": EW,
+                "TT": TT,
             }
         
         CMS.cmsDrawStack(stack, leg, stackSeet, data = data)
