@@ -6,55 +6,31 @@ import cmsstyle as CMS
 import array
 import plotterEngine_MUMU as plotterEngine
 
+INPUT_PATH = "./ROOT/EMU/output.root"
+FAKE_INPUT_PATH = "./Bck/EMU_FAKE.root"
+OUTPUT_PATH = "./plots/EMU"
+
 
 def main():
 
-    eras = ["merged", "2018", "2017", "2016_postVFP", "2016_preVFP"]
+    eras = ["2018", "2017", "2016_postVFP", "2016_preVFP"]
 
-    # cases = ["", "_0J", "_1J", "_mtJ", "_0BJ", "_1BJ", "_mt1BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
-    cases = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
-    # cases = ["_0BJ"]
-    # cases = [""]
-    # massBins = ["", "_m200_220", "_m220_243", "_m243_273", "_m273_320", "_m320_380", "_m380_440", "_m440_510", "_m510_600", "_m600_700", "_m700_830", "_m830_1000", "_m1000_1500", "_m1500_4000"]
+    cases = ["", "_0BJ"]
     massBins = [""] 
 
     addon_hook = {
         "": "",
-        "_0J": "N(jet) = 0",
-        "_1J": "N(jet) = 1",
-        "_mt1J": "N(jet) > 1",
         "_0BJ": "b-veto",
-        "_1BJ": "N(b-jet) = 1",
-        "_mt1BJ": "N(b-jet) > 1",
-        "_bVeto_0J": "b-veto, N(jet) = 0",
-        "_bVeto_1J": "b-veto, N(jet) = 1",
-        "_bVeto_mt1J": "b-veto, N(jet) > 1",
     }
 
     yrmax_vec = {
         "": 1 + 0.18,
-        "_0J": 1 + 0.18,
-        "_1J": 1 + 0.24,
-        "_mtJ": 1 + 0.48,
         "_0BJ": 1 + 0.18,
-        "_1BJ": 1 + 0.48,
-        "_mt1BJ": 1 + 0.48,
-        "_bVeto_0J": 1 + 0.48,
-        "_bVeto_1J": 1 + 0.48,
-        "_bVeto_mt1J": 1 + 0.48 
     }
 
     yrmin_vec = {
         "": 1 - 0.18,
-        "_0J": 1 - 0.18,
-        "_1J": 1 - 0.24,
-        "_mt1J": 1 - 0.48,
         "_0BJ": 1 - 0.18,
-        "_1BJ": 1 - 0.48,
-        "_mt1BJ": 1 - 0.48,
-        "_bVeto_0J": 1 - 0.48,
-        "_bVeto_1J": 1 - 0.48,
-        "_bVeto_mt1J": 1 - 0.48,
     }
  
     for era in eras:
@@ -76,16 +52,15 @@ def main():
 
         for type in type_list:
             plotter = plotterEngine.Plotter(era, 
-                                            rootPath = f"./Bck_260706/EMU_nominal.root", 
-                                            outputPath = f"./plots_260706/EMU_{type}_WithFake/plots_" + era + "/",
+                                            rootPath = INPUT_PATH,
+                                            outputPath = f"{OUTPUT_PATH}/{type}/era_{era}",
                                             channel = "EMU", 
                                             region = f"{type}")
 
-            plotter.SetFakes(rootPath = "./Bck/EMU_FAKE.root")
+            plotter.SetFakes(rootPath = FAKE_INPUT_PATH)
 
             for case in cases:
-                # plotter.Plot("h_PairMass", case, "", xTitle = "M(e#mu) [GeV]", xmin = 200, xmax = 4000, yrmin = yrmin_vec[case], yrmax = yrmax_vec[case], logy = True, logx = True)
-                plotter.Plot("PairMass", case, "", xTitle = "M(e#mu) [GeV]", xmin = 200, xmax = 4000, logy = True, logx = True)
+                plotter.Plot("PairMass", case, "", xTitle = "M(e#mu) [GeV]", xmin = 40, xmax = 3000, logy = True, logx = True)
                 
                 # for massbin in massBins:
 

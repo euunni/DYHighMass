@@ -3,15 +3,14 @@ Info:
   Channel: MUMU
 
 Z:
-  MassCut: 200
+  MassCut: 40
 
 Muon:
-  LeadingMuonPt: 52
-  SubLeadingMuonPt: 50
+  LeadingMuonPt: 26
+  SubLeadingMuonPt: 15
   Eta: 2.4
-  ID: global
-  ISO: 0.1
-  doMCSmearing: true
+  ISO: 0.15
+  doMCSmearing: false
   MCSmearing:
     barrel:
       smearing: -1
@@ -29,36 +28,40 @@ Jet:
   Cleaning: false
 
 Correction:
-  Reco: true
-  ID: true
-  ISO: true
-  Trigger: true
-  PileUp: true
-  L1PreFiring: true
-  JetPU: true
-  BTag: true
-  TopPtReweighing: true
+  # Reco: false  # Reserved for the high-pT workflow
+  RoccoR: false
+  ID: false
+  ISO: false
+  Trigger: false
+  PileUp: false
+  L1PreFiring: false
+  JetPU: false
+  BTag: false
+  TopPtReweighing: false
 
 Efficiency:
-  Reco:
-    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_RECO_2016_schemaV2.json
-    Name: NUM_GlobalMuons_DEN_TrackerMuonProbes
+  # Reco:
+  #   Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_RECO_2016_schemaV2.json
+  #   Name: NUM_GlobalMuons_DEN_TrackerMuonProbes
   ID:
-    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_schemaV2.json
-    Name: NUM_HighPtID_DEN_GlobalMuonProbes
+    Path: ../../correctionlib/muon/tight/ScaleFactors_Muon_IDISO_2016_postVFP.json
+    Name: NUM_TightID_DEN_TrackerMuons_abseta_pt
   ISO:
-    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_schemaV2.json
-    Name: NUM_probe_LooseRelTkIso_DEN_HighPtProbes
+    Path: ../../correctionlib/muon/tight/ScaleFactors_Muon_IDISO_2016_postVFP.json
+    Name: NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt
   Trigger:
-    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_HLT_2016_schemaV2.json
-    Data: NUM_HLT_DEN_HighPtLooseRelIsoProbes_DATAeff
-    MC: NUM_HLT_DEN_HighPtLooseRelIsoProbes_MCeff
+    Path: ../../correctionlib/muon/tight/ScaleFactors_Muon_Trigger_2016_postVFP.json
+    Data: NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt_efficiencyData
+    MC: NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt_efficiencyMC
   JetPU:
     Path: ../../correctionlib/JetPUID/2016postVFP.json
   BTag:
     Path: ../../correctionlib/bTag/2016postVFP.json
   BTagEff:
     Path: ../../correctionlib/bTag/eff/BTagEff_MUMU_eff_AbsEta_PtMerged.json
+
+RoccoR:
+  Path: ../../RoccoR/RoccoR2016bUL.txt
 
 Pileup:
   Data: PileupHistogram-goldenJSON-13tev-2016-postVFP-69200ub-99bins.root

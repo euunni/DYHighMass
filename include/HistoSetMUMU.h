@@ -124,8 +124,6 @@ public:
 
   std::string GetMassBin(double fDimuonMass);
   std::string GetJetBin(double fNJet);
-  std::string GetBJetBin(double fNBJet);
-  std::string GetbVetoJetBin(double fNJet);
 
   double SetPtOverflow(double fPt);
   double SetMassOverflow(double fMass);

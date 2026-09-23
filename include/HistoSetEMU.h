@@ -64,9 +64,6 @@ public:
   void SetHisto(std::string name, std::string binning1, std::string binning2, std::string binning3);
 
   std::string GetMassBin(double fDimuonMass);
-  std::string GetJetBin(double fNJet);
-  std::string GetBJetBin(double fNBJet);
-  std::string GetbVetoJetBin(double fNJet);
 
   double SetPtOverflow(double fPt);
   double SetMassOverflow(double fMass);

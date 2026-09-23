@@ -128,8 +128,8 @@ STList = [
     "ST_s",
     "ST_t_AntiTop",
     "ST_t_Top",
-    # "ST_tW_AntiTop",
-    # "ST_tW_Top",
+    "ST_tW_AntiTop",
+    "ST_tW_Top",
 ]
 
 GGELEL = [
@@ -316,22 +316,20 @@ addon_hook_jet = {
     "_bVeto_mt1J": "b-veto, N(jet) > 1",
 }
 
+mass_bin_edges = [
+    40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101, 106, 110,
+    115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220, 243, 273, 320,
+    380, 440, 510, 600, 700, 830, 1000, 1500, 2000, 3000,
+]
 addon_hook_mass = {
-    "": "M_{#mu#mu} > 200 GeV",
-    "_m200_220": "200 < M_{#mu#mu} < 220 GeV",
-    "_m220_243": "220 < M_{#mu#mu} < 243 GeV",
-    "_m243_273": "243 < M_{#mu#mu} < 273 GeV",
-    "_m273_320": "273 < M_{#mu#mu} < 320 GeV",
-    "_m320_380": "320 < M_{#mu#mu} < 380 GeV",
-    "_m380_440": "380 < M_{#mu#mu} < 440 GeV",
-    "_m440_510": "440 < M_{#mu#mu} < 510 GeV",
-    "_m510_600": "510 < M_{#mu#mu} < 600 GeV",
-    "_m600_700": "600 < M_{#mu#mu} < 700 GeV",
-    "_m700_830": "700 < M_{#mu#mu} < 830 GeV",
-    "_m830_1000": "830 < M_{#mu#mu} < 1000 GeV",
-    "_m1000_1500": "1000 < M_{#mu#mu} < 1500 GeV",
-    "_m1500_4000": "1500 < M_{#mu#mu} < 4000 GeV"
+    "": "M_{#mu#mu} > 40 GeV",
+    "_m39_40": "M_{#mu#mu} < 40 GeV",
+    "_m3000_3001": "M_{#mu#mu} #geq 3000 GeV",
 }
+addon_hook_mass.update({
+    f"_m{low}_{high}": f"{low} < M_{{#mu#mu}} < {high} GeV"
+    for low, high in zip(mass_bin_edges[:-1], mass_bin_edges[1:])
+})
 
 class Plotter:
     def __init__(self, era, rootPath = "output.root", 
@@ -368,7 +366,7 @@ class Plotter:
         self.plot_addon = [
             self.era + ", #mu#mu channel",
             "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
-            "M_{#mu#mu} > 200 GeV",
+            "M_{#mu#mu} > 40 GeV",
             "",
         ]
 
@@ -376,7 +374,7 @@ class Plotter:
             self.plot_addon = [
                 "Run2, #mu#mu channel",
                 "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
-                "M_{#mu#mu} > 200 GeV",
+                "M_{#mu#mu} > 40 GeV",
                 "",
             ]
 
@@ -385,7 +383,7 @@ class Plotter:
             if self.era == "merged":
                 self.plot_addon[0] = "Run2, e#mu channel"
             self.plot_addon[1] = "p_{T}(#mu(e)) > 52 (50) GeV, |#eta(#mu(e))| < 2.4 (2.5)"
-            self.plot_addon[2] = "M_{e#mu} > 200 GeV"
+            self.plot_addon[2] = "M_{e#mu} > 40 GeV"
 
         if self.region == "OS":          self.plot_addon[0] = self.plot_addon[0] + ", OS"
         if self.region == "OS_inverted": self.plot_addon[0] = self.plot_addon[0] + ", OS, Fake CR region"
@@ -589,7 +587,7 @@ class Plotter:
         dataN = 0
         totalN = 0
         for i in range(1, data.GetNbinsX() + 1):
-            if data.GetBinCenter(i) > 200 and data.GetBinCenter(i) < 4000:
+            if data.GetBinCenter(i) > 40 and data.GetBinCenter(i) < 3000:
                 dataN += data.GetBinContent(i)
                 totalN += TotalMC.GetBinContent(i)
 

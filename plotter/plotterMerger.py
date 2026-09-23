@@ -4,22 +4,22 @@ import os, ROOT, sys, pickle, argparse
 import uuid
 import cmsstyle as CMS
 import array
+import shutil
+from pathlib import Path
 
 import plotterEngine_MUMU as plotterEngine
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--channel', help=' : channel to merge')
+parser.add_argument('--channel', required=True, choices=['MUMU', 'EMU'], help='Channel to merge')
+parser.add_argument('--input', default='output.root', help='Input ROOT filename inside Batch/<channel>')
 args = parser.parse_args()
 
 class Merger:
-    def __init__(self, plot_list, case_list, type_list, input_path = "output.root"):
-
-        baseDir = "/pnfs/knu.ac.kr/data/cms/store/user/khwang/CMS/HighMassDY/"
-        inputFile = baseDir + input_path
-
-        output_path = "./" + input_path.replace(".root", "_merged.root")
+    def __init__(self, plot_list, case_list, type_list, input_path):
         
-        os.system(f"cp {inputFile} {output_path}")
+        input_file = Path(input_path)
+        output_path = input_file.with_name(input_file.stem + "_merged.root")
+        shutil.copy2(input_file, output_path)
 
         self.plot_list = plot_list
         self.case_list = case_list
@@ -27,12 +27,12 @@ class Merger:
         self.merge_list = plotterEngine.TotalMCList.copy()
         self.merge_list.append("Data")
     
-        self.p2016_preVFP = plotterEngine.Plotter("2016_preVFP", rootPath = inputFile)
-        self.p2016_postVFP = plotterEngine.Plotter("2016_postVFP", rootPath = inputFile)
-        self.p2017 = plotterEngine.Plotter("2017", rootPath = inputFile)
-        self.p2018 = plotterEngine.Plotter("2018", rootPath = inputFile)
+        self.p2016_preVFP = plotterEngine.Plotter("2016_preVFP", rootPath = str(input_file))
+        self.p2016_postVFP = plotterEngine.Plotter("2016_postVFP", rootPath = str(input_file))
+        self.p2017 = plotterEngine.Plotter("2017", rootPath = str(input_file))
+        self.p2018 = plotterEngine.Plotter("2018", rootPath = str(input_file))
 
-        self.merge_file = ROOT.TFile(output_path, "UPDATE")
+        self.merge_file = ROOT.TFile(str(output_path), "UPDATE")
 
     def Merge(self):
         self.merge_file.mkdir("merged")
@@ -73,7 +73,7 @@ class Merger:
 
 def main(args):
 
-    case_list = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
+    case_list = ["", "_0BJ"]
     type_list = ["OS", "SS", "OS_inverted", "SS_inverted"]
     
     plot_list_mumu = [
@@ -116,14 +116,18 @@ def main(args):
         "PairRap"
     ]
 
-    # input_name = "260824_MUMU_bothInverted.root"
-    # input_name = "260901_MUMU_OneInverted.root"
-    input_name = "260911_MUMU_GenUpdate.root"
+    workspace_batch = os.environ.get("DY_HIGHMASS_WORKSPACE_BATCH")
+    if workspace_batch is None:
+        workspace_batch = Path(__file__).resolve().parents[1] / "Batch"
+
+    input_path = Path(workspace_batch) / args.channel / args.input
+    if not input_path.is_file():
+        raise FileNotFoundError(f"Input ROOT file not found: {input_path}")
 
     if args.channel == "MUMU":
-        merger = Merger(plot_list_mumu, case_list, type_list, input_path = input_name)
+        merger = Merger(plot_list_mumu, case_list, type_list, input_path)
     elif args.channel == "EMU":
-        merger = Merger(plot_list_emu, case_list, type_list)
+        merger = Merger(plot_list_emu, case_list, type_list, input_path)
     else:
         print("Invalid channel")
         return

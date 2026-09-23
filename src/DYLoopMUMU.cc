@@ -183,10 +183,11 @@ void DYLoopMUMU::Loop() {
     if (tMuon_OS.size() == 2 && tPassingEventOfflineSelection) {
       tPassingSignalRegionSeletion = true;
 
-      if (fIsMC && fDoReco) {
-        fWeightEnvelope.AddWeight("OS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OS.at(0).fVecRaw));
-        fWeightEnvelope.AddWeight("OS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OS.at(1).fVecRaw));
-      }
+      // Re-enable with the high-pT Reco SF workflow.
+      // if (fIsMC && fDoReco) {
+      //   fWeightEnvelope.AddWeight("OS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OS.at(0).fVecRaw));
+      //   fWeightEnvelope.AddWeight("OS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OS.at(1).fVecRaw));
+      // }
       if (fIsMC && fDoID) {
         fWeightEnvelope.AddWeight("OS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OS.at(0).fVecRaw));
         fWeightEnvelope.AddWeight("OS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OS.at(1).fVecRaw));
@@ -249,10 +250,11 @@ void DYLoopMUMU::Loop() {
     
 
     if (tMuon_SS.size() == 2 && tPassingEventOfflineSelection) {
-      if (fIsMC && fDoReco) {
-        fWeightEnvelope.AddWeight("SS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SS.at(0).fVecRaw));
-        fWeightEnvelope.AddWeight("SS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SS.at(1).fVecRaw));
-      }
+      // Re-enable with the high-pT Reco SF workflow.
+      // if (fIsMC && fDoReco) {
+      //   fWeightEnvelope.AddWeight("SS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SS.at(0).fVecRaw));
+      //   fWeightEnvelope.AddWeight("SS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SS.at(1).fVecRaw));
+      // }
       if (fIsMC && fDoID) {
         fWeightEnvelope.AddWeight("SS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SS.at(0).fVecRaw));
         fWeightEnvelope.AddWeight("SS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SS.at(1).fVecRaw));
@@ -291,10 +293,11 @@ void DYLoopMUMU::Loop() {
     }
 
     if (tMuon_OSinverted.size() == 2 && tPassingEventOfflineSelection) {
-      if (fIsMC && fDoReco) {
-        fWeightEnvelope.AddWeight("OS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OSinverted.at(0).fVecRaw));
-        fWeightEnvelope.AddWeight("OS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OSinverted.at(1).fVecRaw));
-      }
+      // Re-enable with the high-pT Reco SF workflow.
+      // if (fIsMC && fDoReco) {
+      //   fWeightEnvelope.AddWeight("OS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OSinverted.at(0).fVecRaw));
+      //   fWeightEnvelope.AddWeight("OS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OSinverted.at(1).fVecRaw));
+      // }
       if (fIsMC && fDoID) {
         fWeightEnvelope.AddWeight("OS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OSinverted.at(0).fVecRaw));
         fWeightEnvelope.AddWeight("OS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OSinverted.at(1).fVecRaw));
@@ -326,10 +329,11 @@ void DYLoopMUMU::Loop() {
     }
 
     if (tMuon_SSinverted.size() == 2 && tPassingEventOfflineSelection) {
-      if (fIsMC && fDoReco) {
-        fWeightEnvelope.AddWeight("SS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SSinverted.at(0).fVecRaw));
-        fWeightEnvelope.AddWeight("SS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SSinverted.at(1).fVecRaw));
-      }
+      // Re-enable with the high-pT Reco SF workflow.
+      // if (fIsMC && fDoReco) {
+      //   fWeightEnvelope.AddWeight("SS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SSinverted.at(0).fVecRaw));
+      //   fWeightEnvelope.AddWeight("SS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SSinverted.at(1).fVecRaw));
+      // }
       if (fIsMC && fDoID) {
         fWeightEnvelope.AddWeight("SS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SSinverted.at(0).fVecRaw));
         fWeightEnvelope.AddWeight("SS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SSinverted.at(1).fVecRaw));
@@ -386,7 +390,7 @@ void DYLoopMUMU::Loop() {
 
 void DYLoopMUMU::EndOfJob() {
 
-  TString fOutputFileName = fOutputDir + "/output_" + fEra + "_" +  fSampleName + "_" + std::to_string(fJobID) + ".root";
+  TString fOutputFileName = "./ROOT/output_" + fEra + "_" +  fSampleName + "_" + std::to_string(fJobID) + ".root";
 
   TFile* fOutputFile = new TFile(fOutputFileName, "RECREATE");
 

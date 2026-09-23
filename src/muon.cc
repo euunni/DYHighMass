@@ -4,6 +4,7 @@
 #include "muon.h"
 
 #include "TChain.h"
+#include "TTree.h"
 #include "TTreeReader.h"
 #include "TTreeReaderArray.h"
 #include "TRandom.h"
@@ -12,16 +13,69 @@ void MUON::init(TTreeReader* fTreeReader) {
 
   nMuon = new TTreeReaderValue<unsigned int>(*fTreeReader, "nMuon");
   Muon_pt = new TTreeReaderArray<float>(*fTreeReader, "Muon_pt");
-  Muon_tunepRelPt = new TTreeReaderArray<float>(*fTreeReader, "Muon_tunepRelPt");
   Muon_eta = new TTreeReaderArray<float>(*fTreeReader, "Muon_eta");
   Muon_phi = new TTreeReaderArray<float>(*fTreeReader, "Muon_phi");
   Muon_charge = new TTreeReaderArray<int>(*fTreeReader, "Muon_charge");
   Muon_mass = new TTreeReaderArray<float>(*fTreeReader, "Muon_mass");
-  Muon_highPtId = new TTreeReaderArray<unsigned char>(*fTreeReader, "Muon_highPtId");
-  Muon_tkRelIso = new TTreeReaderArray<float>(*fTreeReader, "Muon_tkRelIso");
+  Muon_tightId = new TTreeReaderArray<bool>(*fTreeReader, "Muon_tightId");
+  Muon_pfRelIso04_all = new TTreeReaderArray<float>(*fTreeReader, "Muon_pfRelIso04_all");
   Muon_nTrackerLayers = new TTreeReaderArray<int>(*fTreeReader, "Muon_nTrackerLayers");
-  Muon_highPurity = new TTreeReaderArray<bool>(*fTreeReader, "Muon_highPurity");
-  Muon_mediumId = new TTreeReaderArray<bool>(*fTreeReader, "Muon_mediumId");
+
+  if (fIsMC && fTreeReader->GetTree() && fTreeReader->GetTree()->GetBranch("Muon_genPartIdx"))
+    Muon_genPartIdx = new TTreeReaderArray<int>(*fTreeReader, "Muon_genPartIdx");
+
+  if (fIsMC && fTreeReader->GetTree() && fTreeReader->GetTree()->GetBranch("GenPart_pt"))
+    GenPart_pt = new TTreeReaderArray<float>(*fTreeReader, "GenPart_pt");
+}
+
+TLorentzVector MUON::GetRochesterCorrectedMuon(TLorentzVector fMu, int fIndex) {
+
+  if (!fRoccoR)
+    return fMu;
+
+  const int tCharge = Muon_charge->At(fIndex);
+  double tCorrectionFactor = 1.;
+
+  if (fIsMC) {
+    const bool tHasGenMatch = (Muon_genPartIdx != nullptr && GenPart_pt != nullptr);
+    const int tGenIndex = tHasGenMatch ? Muon_genPartIdx->At(fIndex) : -1;
+
+    if (tGenIndex >= 0 && tGenIndex < GenPart_pt->GetSize()) {
+      tCorrectionFactor = fRoccoR->kSpreadMC(
+        tCharge,
+        fMu.Pt(),
+        fMu.Eta(),
+        fMu.Phi(),
+        GenPart_pt->At(tGenIndex),
+        5,
+        0
+      );
+    } else {
+      tCorrectionFactor = fRoccoR->kSmearMC(
+        tCharge,
+        fMu.Pt(),
+        fMu.Eta(),
+        fMu.Phi(),
+        Muon_nTrackerLayers->At(fIndex),
+        gRandom->Rndm(),
+        5,
+        0
+      );
+    }
+  } else {
+    tCorrectionFactor = fRoccoR->kScaleDT(
+      tCharge,
+      fMu.Pt(),
+      fMu.Eta(),
+      fMu.Phi(),
+      5,
+      0
+    );
+  }
+
+  TLorentzVector tCorrectedMuon = fMu;
+  tCorrectedMuon *= tCorrectionFactor;
+  return tCorrectedMuon;
 }
 
 TLorentzVector MUON::GetMCSmearing (TLorentzVector fMu) {
@@ -61,31 +115,27 @@ bool MUON::PrepareMuon() {
 
   for (int i = 0; i < **nMuon; i++) {
     
-    if ( !(Muon_highPtId->At(i) == fID) )
+    if ( !Muon_tightId->At(i) )
       continue;
-    
-    // if ( !Muon_mediumId->At(i) )
-    //   continue;
 
     if (std::abs(Muon_eta->At(i)) > fEta)
       continue;
 
-    if (!Muon_highPurity->At(i))
-      continue;
-
     TLorentzVector mu;
-    mu.SetPtEtaPhiM(Muon_pt->At(i) * Muon_tunepRelPt->At(i), Muon_eta->At(i), Muon_phi->At(i), Muon_mass->At(i));
+    mu.SetPtEtaPhiM(Muon_pt->At(i), Muon_eta->At(i), Muon_phi->At(i), Muon_mass->At(i));
 
-    TLorentzVector mu_corr;
+    TLorentzVector mu_corr = mu;
 
-    if (fDoMCSmearing)
+    if (fApplyRoccoR)
+      mu_corr = GetRochesterCorrectedMuon(mu, i);
+    else if (fDoMCSmearing)
       mu_corr = GetMCSmearing(mu);
     
     if ( !(mu_corr.Pt() > fSubLeadingMuonPt) )
       continue;
 
     int tIso = 1;
-    if (Muon_tkRelIso->At(i) > fISO) tIso = -1;
+    if (Muon_pfRelIso04_all->At(i) >= fISO) tIso = -1;
 
     StdMuon mu_std = StdMuon(mu_corr, mu, Muon_charge->At(i), tIso);
     fFVecMuons.push_back(mu_std);
@@ -109,6 +159,12 @@ bool MUON::PrepareMuon() {
                (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
          ) {
 
+        const auto tDiMuon = fFVecMuons.at(i).fVec + fFVecMuons.at(j).fVec;
+        if (tDiMuon.M() < fZMassCut)
+          continue;
+        if (tDiMuon.M() / fFVecMuons.at(j).fVec.Pt() >= 10.)
+          continue;
+
         fFVecOSMuons.push_back(fFVecMuons.at(i));
         fFVecOSMuons.push_back(fFVecMuons.at(j));
 
@@ -123,6 +179,12 @@ bool MUON::PrepareMuon() {
                (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
          ) {
 
+        const auto tDiMuon = fFVecMuons.at(i).fVec + fFVecMuons.at(j).fVec;
+        if (tDiMuon.M() < fZMassCut)
+          continue;
+        if (tDiMuon.M() / fFVecMuons.at(j).fVec.Pt() >= 10.)
+          continue;
+
         fFVecSSMuons.push_back(fFVecMuons.at(i));
         fFVecSSMuons.push_back(fFVecMuons.at(j));
 
@@ -135,6 +197,12 @@ bool MUON::PrepareMuon() {
           && ( (fFVecMuons.at(i).fVec.Pt() > fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fSubLeadingMuonPt) ||
                (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
          ) {
+
+        const auto tDiMuon = fFVecMuons.at(i).fVec + fFVecMuons.at(j).fVec;
+        if (tDiMuon.M() < fZMassCut)
+          continue;
+        if (tDiMuon.M() / fFVecMuons.at(j).fVec.Pt() >= 10.)
+          continue;
 
         fFVecOSinvertedMuons.push_back(fFVecMuons.at(i));
         fFVecOSinvertedMuons.push_back(fFVecMuons.at(j));
@@ -149,6 +217,12 @@ bool MUON::PrepareMuon() {
               (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
         ) {
       
+        const auto tDiMuon = fFVecMuons.at(i).fVec + fFVecMuons.at(j).fVec;
+        if (tDiMuon.M() < fZMassCut)
+          continue;
+        if (tDiMuon.M() / fFVecMuons.at(j).fVec.Pt() >= 10.)
+          continue;
+
         fFVecSSinvertedMuons.push_back(fFVecMuons.at(j));
         fFVecSSinvertedMuons.push_back(fFVecMuons.at(i));
 

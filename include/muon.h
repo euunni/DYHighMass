@@ -82,15 +82,15 @@ public:
     YAML::Node fMuonConf = fConfig["Muon"];
     YAML::Node fZConf = fConfig["Z"];
 
+    fRoccoR = nullptr;
+    fApplyRoccoR = false;
+    Muon_genPartIdx = nullptr;
+    GenPart_pt = nullptr;
+
     fLeadingMuonPt = fMuonConf["LeadingMuonPt"].as<float>();
     fSubLeadingMuonPt = fMuonConf["SubLeadingMuonPt"].as<float>();
     fEta = fMuonConf["Eta"].as<float>();
     fZMassCut = fZConf["MassCut"].as<float>();
-
-    std::string id_string = fMuonConf["ID"].as<std::string>();
-    if (id_string == "global") fID = (UChar_t)(2);
-    else if (id_string == "tracker") fID = (UChar_t)(1);
-    else throw std::runtime_error("Wrong definitions for HighPtID, allowed optsions: global, tracker");
 
     fISO = fMuonConf["ISO"].as<float>();
 
@@ -104,7 +104,7 @@ public:
     std::cout << " LeadingMuonPt: " << fLeadingMuonPt << std::endl;
     std::cout << " SubleadingMuonPt: " << fSubLeadingMuonPt << std::endl;
     std::cout << " Eta: " << fEta << std::endl;
-    std::cout << " ID: " << fMuonConf["ID"].as<std::string>() << " " << fID << std::endl;
+    std::cout << " ID: tight" << std::endl;
     std::cout << " ISO: " << fISO << std::endl;
     std::cout << " MassCut: " << fZMassCut << std::endl;
     std::cout << " doMCSmearing: " << fDoMCSmearing << std::endl;
@@ -130,9 +130,14 @@ public:
   void init(TTreeReader* fTreeReader);
 
   void IsMC(bool fIsMC_) { fIsMC = fIsMC_; }
+  void SetRoccoR(const RoccoR* fRoccoR_, bool fApplyRoccoR_) {
+    fRoccoR = fRoccoR_;
+    fApplyRoccoR = fApplyRoccoR_;
+  }
 
   bool PrepareMuon();
 
+  TLorentzVector GetRochesterCorrectedMuon(TLorentzVector fMu, int fIndex);
   TLorentzVector GetMCSmearing(TLorentzVector fMu);
 
   std::vector<StdMuon> GetMuons(std::string fType) {
@@ -147,16 +152,15 @@ public:
 
   TTreeReaderValue<unsigned int>* nMuon;
   TTreeReaderArray<float>* Muon_pt;
-  TTreeReaderArray<float>* Muon_tunepRelPt;
   TTreeReaderArray<float>* Muon_eta;
   TTreeReaderArray<float>* Muon_phi;
   TTreeReaderArray<int>* Muon_charge;
   TTreeReaderArray<float>* Muon_mass;
-  TTreeReaderArray<unsigned char>* Muon_highPtId;
-  TTreeReaderArray<float>* Muon_tkRelIso;
+  TTreeReaderArray<bool>* Muon_tightId;
+  TTreeReaderArray<float>* Muon_pfRelIso04_all;
   TTreeReaderArray<int>* Muon_nTrackerLayers;
-  TTreeReaderArray<bool>* Muon_highPurity;
-  TTreeReaderArray<bool>* Muon_mediumId;
+  TTreeReaderArray<int>* Muon_genPartIdx;
+  TTreeReaderArray<float>* GenPart_pt;
 
 private:
 
@@ -171,12 +175,13 @@ private:
   float fSubLeadingMuonPt;
   float fEta;
   float fZMassCut;
-  UChar_t fID;
   float fISO;
 
   SmearingEngine* fSmearingEngine;
   bool fDoMCSmearing;
 
+  const RoccoR* fRoccoR;
+  bool fApplyRoccoR;
   bool fIsMC;
 };
 

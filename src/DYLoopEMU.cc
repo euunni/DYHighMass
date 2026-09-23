@@ -139,7 +139,7 @@ void DYLoopEMU::Loop() {
       if (fIsMC && fDoElecID)          fWeightEnvelope.AddWeight("OS", "ElecIDEff", std::get<FuncSingleElecCorrection>(fCorrectionFuncs["ElecIDEff"])(tPair.second.fVec, tPair.second.fSCEta)); 
     
       fHistoSet->FillEMUPair(tPair.first.fVec, tPair.second.fVec, nJets, nBJets, fWeightEnvelope.GetTotalWeight("OS"), "OS");
-      if (tEMuPair.M() > 200) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("OS"), "OS");  
+      if (tEMuPair.M() > 40) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("OS"), "OS");  
     } 
 
     if (fEMU->HasPair_SS()) {
@@ -154,7 +154,7 @@ void DYLoopEMU::Loop() {
       if (fIsMC && fDoElecID)          fWeightEnvelope.AddWeight("SS", "ElecIDEff", std::get<FuncSingleElecCorrection>(fCorrectionFuncs["ElecIDEff"])(tPair.second.fVec, tPair.second.fSCEta)); 
     
       fHistoSet->FillEMUPair(tPair.first.fVec, tPair.second.fVec, nJets, nBJets, fWeightEnvelope.GetTotalWeight("SS"), "SS");
-      if (tEMuPair.M() > 200) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("SS"), "SS");  
+      if (tEMuPair.M() > 40) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("SS"), "SS");  
     } 
 
     if (fEMU->HasPair_OS_inverted()) {
@@ -166,7 +166,7 @@ void DYLoopEMU::Loop() {
       if (fIsMC && fDoElecReco)        fWeightEnvelope.AddWeight("OS_inverted", "ElecRecoEff", std::get<FuncSingleElecCorrection>(fCorrectionFuncs["ElecRecoEff"])(tPair.second.fVec, tPair.second.fSCEta)); 
 
       fHistoSet->FillEMUPair(tPair.first.fVec, tPair.second.fVec, nJets, nBJets, fWeightEnvelope.GetTotalWeight("OS_inverted"), "OS_inverted");
-      if (tEMuPair.M() > 200) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("OS_inverted"), "OS_inverted");  
+      if (tEMuPair.M() > 40) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("OS_inverted"), "OS_inverted");  
     } 
 
     if (fEMU->HasPair_SS_inverted()) {
@@ -178,7 +178,7 @@ void DYLoopEMU::Loop() {
       if (fIsMC && fDoElecReco)        fWeightEnvelope.AddWeight("SS_inverted", "ElecRecoEff", std::get<FuncSingleElecCorrection>(fCorrectionFuncs["ElecRecoEff"])(tPair.second.fVec, tPair.second.fSCEta));     
 
       fHistoSet->FillEMUPair(tPair.first.fVec, tPair.second.fVec, nJets, nBJets, fWeightEnvelope.GetTotalWeight("SS_inverted"), "SS_inverted");
-      if (tEMuPair.M() > 200) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("SS_inverted"), "SS_inverted");  
+      if (tEMuPair.M() > 40) fHistoSet->FillJet(vJets, vBJets, tEMuPair.M(), fWeightEnvelope.GetTotalWeight("SS_inverted"), "SS_inverted");  
     } 
   } // End of event loop
 

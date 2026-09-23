@@ -1,0 +1,1232 @@
+{
+  "schema_version": 2,
+  "description": "Muon Tight ID and Tight relative-isolation scale factors for 2017",
+  "corrections": [
+    {
+      "name": "NUM_TightID_DEN_TrackerMuons_abseta_pt",
+      "description": "Muon POG scale factor for NUM_TightID_DEN_TrackerMuons_abseta_pt, era 2017",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "abseta",
+          "type": "real",
+          "description": "Absolute value of the muon eta"
+        },
+        {
+          "name": "pt",
+          "type": "real",
+          "description": "Muon pt"
+        },
+        {
+          "name": "scale_factors",
+          "type": "string",
+          "description": "nominal, stat, or syst"
+        }
+      ],
+      "output": {
+        "name": "weight",
+        "type": "real",
+        "description": "Scale factor or uncertainty"
+      },
+      "data": {
+        "nodetype": "binning",
+        "input": "abseta",
+        "edges": [
+          0.0,
+          0.9,
+          1.2,
+          2.1,
+          2.4
+        ],
+        "content": [
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9889737367630005
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9889737367630005
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9889737367630005
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9901639819145203
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9901639819145203
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9901639819145203
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9894505739212036
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9894505739212036
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9894505739212036
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.989058792591095
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.989058792591095
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.989058792591095
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9885695576667786
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9885695576667786
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9885695576667786
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9881736040115356
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9881736040115356
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9881736040115356
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.987163782119751
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.987163782119751
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.987163782119751
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          },
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9838660955429077
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9838660955429077
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9838660955429077
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9820592999458313
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9820592999458313
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9820592999458313
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9816256165504456
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9816256165504456
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9816256165504456
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.982679545879364
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.982679545879364
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.982679545879364
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9832114577293396
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9832114577293396
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9832114577293396
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9824017882347107
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9824017882347107
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9824017882347107
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9826989769935608
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9826989769935608
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9826989769935608
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          },
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9897274374961853
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9897274374961853
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9897274374961853
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9894166588783264
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9894166588783264
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9894166588783264
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9908099174499512
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9908099174499512
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9908099174499512
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9909172654151917
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9909172654151917
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9909172654151917
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9913614988327026
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9913614988327026
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9913614988327026
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9901265501976013
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9901265501976013
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9901265501976013
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9893528819084167
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9893528819084167
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9893528819084167
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          },
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9729565382003784
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9729565382003784
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9729565382003784
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9740614295005798
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9740614295005798
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9740614295005798
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9760308861732483
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9760308861732483
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9760308861732483
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9753358960151672
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9753358960151672
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9753358960151672
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9752601385116577
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9752601385116577
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9752601385116577
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9703583121299744
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9703583121299744
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9703583121299744
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9677621722221375
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9677621722221375
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9677621722221375
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          }
+        ],
+        "flow": "clamp"
+      }
+    },
+    {
+      "name": "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+      "description": "Muon POG scale factor for NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt, era 2017",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "abseta",
+          "type": "real",
+          "description": "Absolute value of the muon eta"
+        },
+        {
+          "name": "pt",
+          "type": "real",
+          "description": "Muon pt"
+        },
+        {
+          "name": "scale_factors",
+          "type": "string",
+          "description": "nominal, stat, or syst"
+        }
+      ],
+      "output": {
+        "name": "weight",
+        "type": "real",
+        "description": "Scale factor or uncertainty"
+      },
+      "data": {
+        "nodetype": "binning",
+        "input": "abseta",
+        "edges": [
+          0.0,
+          0.9,
+          1.2,
+          2.1,
+          2.4
+        ],
+        "content": [
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9939271807670593
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9939271807670593
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9939271807670593
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0024375915527344
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0024375915527344
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0024375915527344
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9972085952758789
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9972085952758789
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9972085952758789
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9974343776702881
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9974343776702881
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9974343776702881
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9978744983673096
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9978744983673096
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9978744983673096
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9979273676872253
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9979273676872253
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9979273676872253
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9987873435020447
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9987873435020447
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9987873435020447
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          },
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.019513726234436
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.019513726234436
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.019513726234436
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0041526556015015
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0041526556015015
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0041526556015015
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0083245038986206
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0083245038986206
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0083245038986206
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.002616047859192
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.002616047859192
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.002616047859192
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9995790123939514
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9995790123939514
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9995790123939514
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 0.9991145133972168
+                  },
+                  {
+                    "key": "stat",
+                    "value": 0.9991145133972168
+                  },
+                  {
+                    "key": "syst",
+                    "value": 0.9991145133972168
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0007742643356323
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0007742643356323
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0007742643356323
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          },
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0285438299179077
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0285438299179077
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0285438299179077
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0232475996017456
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0232475996017456
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0232475996017456
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.016739845275879
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.016739845275879
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.016739845275879
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.006456732749939
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.006456732749939
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.006456732749939
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0025027990341187
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0025027990341187
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0025027990341187
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0010111331939697
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0010111331939697
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0010111331939697
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0003504753112793
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0003504753112793
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0003504753112793
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          },
+          {
+            "nodetype": "binning",
+            "input": "pt",
+            "edges": [
+              15.0,
+              20.0,
+              25.0,
+              30.0,
+              40.0,
+              50.0,
+              60.0,
+              120.0
+            ],
+            "content": [
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0287609100341797
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0287609100341797
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0287609100341797
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0250275135040283
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0250275135040283
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0250275135040283
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.015794038772583
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.015794038772583
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.015794038772583
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.006430983543396
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.006430983543396
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.006430983543396
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.002976655960083
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.002976655960083
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.002976655960083
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0007100105285645
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0007100105285645
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0007100105285645
+                  }
+                ]
+              },
+              {
+                "nodetype": "category",
+                "input": "scale_factors",
+                "content": [
+                  {
+                    "key": "nominal",
+                    "value": 1.0004130601882935
+                  },
+                  {
+                    "key": "stat",
+                    "value": 1.0004130601882935
+                  },
+                  {
+                    "key": "syst",
+                    "value": 1.0004130601882935
+                  }
+                ]
+              }
+            ],
+            "flow": "clamp"
+          }
+        ],
+        "flow": "clamp"
+      }
+    }
+  ]
+}

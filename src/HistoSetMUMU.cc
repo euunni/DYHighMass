@@ -22,13 +22,16 @@ void HistoSetMUMU::Init() {
   fPtBins = {-9999, 300, 0., 1500.};
   fEtaBins = {-9999, 60, -3., 3.};
   fPhiBins = {-9999, 60, -3.141593, 3.141593};
-  fMassBins = {199, 200,  220,  243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
+  fMassBins = {39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101,
+               106, 110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220,
+               243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 2000,
+               3000, 3001};
   fDeltaRBins = {-9999, 100, 0.0, 6.0};
   fNJetBins = {-9999, 20, 0, 20};
   fChargeBins = {-9999, 2, -1, 1};
 
   std::vector<std::string> fAddonMass = {""};
-  std::vector<std::string> fAddonJet = {"", "_0J", "_1J", "_mt1J", "_0BJ", "_1BJ", "_mt1BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"};
+  std::vector<std::string> fAddonJet = {"", "_0BJ"};
   std::vector<std::string> fAddonType = {"OS", "SS", "OS_inverted", "SS_inverted"};
   
   for (int i = 0; i < fMassBins.size() -1; i++) {
@@ -132,9 +135,11 @@ void HistoSetMUMU::InitGenInfo() {
     SetHistoGenInfo("h_dimuonRap" + tHistSuffix, fEtaBins);
   }
   
-  fHistSet2D["h_ResponseMatrix"] = new TH2D("h_ResponseMatrix", "h_ResponseMatrix", 45, 0., 45., 45, 0., 45.);
-  fHistSet2D["h_ResponseMatrix_inc"] = new TH2D("h_ResponseMatrix_inc", "h_ResponseMatrix_inc", 15, 0., 15., 15, 0., 15.);
-  fHistSet2D["h_ResponseMatrix_merged"] = new TH2D("h_ResponseMatrix_merged", "h_ResponseMatrix_merged", 180, 0., 180., 45, 0., 45.);
+  const int nMassBins = fMassBins.size() - 1;
+  const int nMassJetBins = 3 * nMassBins;
+  fHistSet2D["h_ResponseMatrix"] = new TH2D("h_ResponseMatrix", "h_ResponseMatrix", nMassJetBins, 0., nMassJetBins, nMassJetBins, 0., nMassJetBins);
+  fHistSet2D["h_ResponseMatrix_inc"] = new TH2D("h_ResponseMatrix_inc", "h_ResponseMatrix_inc", nMassBins, 0., nMassBins, nMassBins, 0., nMassBins);
+  fHistSet2D["h_ResponseMatrix_merged"] = new TH2D("h_ResponseMatrix_merged", "h_ResponseMatrix_merged", 4 * nMassJetBins, 0., 4 * nMassJetBins, nMassJetBins, 0., nMassJetBins);
 
 }
 
@@ -333,30 +338,14 @@ std::string HistoSetMUMU::GetJetBin(double fNJet) {
   else return "";
 }
 
-std::string HistoSetMUMU::GetBJetBin(double fNBJet) {
-  
-  if (fNBJet == 0) return "_0BJ";
-  else if (fNBJet == 1) return "_1BJ";
-  else if (fNBJet >= 2) return "_mt1BJ";
-  else return "";
-}
-
-std::string HistoSetMUMU::GetbVetoJetBin(double fNJet) {
-  
-  if (fNJet == 0) return "_bVeto_0J";
-  else if (fNJet == 1) return "_bVeto_1J";
-  else if (fNJet >= 2) return "_bVeto_mt1J";
-  else return "";
-}
-
 double HistoSetMUMU::SetPtOverflow(double fPt) {
   if (fPt > 1500) return 1510;
   else return fPt;
 }
 double HistoSetMUMU::SetMassOverflow(double fMass) {
   if (fMass < 0) return -0.5;
-  if (fMass < 200) return 199.5;
-  if (fMass >= 4000) return 4000.5;
+  if (fMass < 40) return 39.5;
+  if (fMass >= 3000) return 3000.5;
   else return fMass;
 }
 
@@ -374,17 +363,14 @@ void HistoSetMUMU::FillMuon(
   TLorentzVector fDimuon = fLeadingMuon + fSubleadingMuon;
 
   std::string tMassSuffix = GetMassBin(SetMassOverflow(fDimuon.M()));
-  std::string tJetSuffix = GetJetBin(nJet);
-  std::string tBJetSuffix = GetBJetBin(nBJet);
-  std::string tbVetoJetSuffix = GetbVetoJetBin(nJet);
 
   std::vector<std::string> tHistSuffix;
-  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
-  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, "_0BJ", "_0BJ" + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix};
   
   for (auto suffix : tHistSuffix) {
 
-    if (fDimuon.M() > 200) {
+    if (fDimuon.M() > 40) {
       fHistSet["h_" + fType + "_LeadingMuonPt" + suffix]->Fill(SetPtOverflow(fLeadingMuon.Pt()), fWeight);
       fHistSet["h_" + fType + "_LeadingMuonEta" + suffix]->Fill(fLeadingMuon.Eta(), fWeight);
       fHistSet["h_" + fType + "_LeadingMuonPhi" + suffix]->Fill(fLeadingMuon.Phi(), fWeight);
@@ -420,15 +406,12 @@ void HistoSetMUMU::FillJet(
 ) {
   
   std::string tMassSuffix = GetMassBin(SetMassOverflow(fDimuonMass));
-  std::string tJetSuffix = GetJetBin(fJet.size());
-  std::string tBJetSuffix = GetBJetBin(fBJet.size());
-  std::string tbVetoJetSuffix = GetbVetoJetBin(fJet.size());
 
   std::vector<std::string> tHistSuffix;
-  if (fBJet.size() == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
-  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+  if (fBJet.empty()) tHistSuffix = {"", tMassSuffix, "_0BJ", "_0BJ" + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix};
 
-  if (fDimuonMass > 200) {
+  if (fDimuonMass > 40) {
     for (auto suffix : tHistSuffix) {
 
       fHistSet["h_" + fType + "_nJet" + suffix]->Fill(fJet.size(), fWeight);
@@ -464,8 +447,6 @@ void HistoSetMUMU::FillGenInfo(
   double tTotalWeight = fMCWeight * fRecoWeight;
 
   std::string tGenJetSuffix = GetJetBin(tNGenJets);
-  std::string tRecoJetSuffix = GetJetBin(nJets);
-  std::string tRecoBJetSuffix = GetBJetBin(nBJets);
 
   auto tGenDiMuon = tDressedLeptons.at(0) + tDressedLeptons.at(1);
   auto tGenMass = SetMassOverflow(tGenDiMuon.M());
@@ -480,7 +461,7 @@ void HistoSetMUMU::FillGenInfo(
 
     fHistSetGenInfo["h_dimuonMass_WithReco" + suffix]->Fill(tGenMass, tTotalWeight);
     
-    if (tGenMass > 200) {
+    if (tGenMass > 40) {
       fHistSetGenInfo["h_nJet_WithReco" + suffix]->Fill(tNGenJets, tTotalWeight);
 
       fHistSetGenInfo["h_LeadingMuonPt_WithReco" + suffix]->Fill(tDressedLeptons.at(0).Pt(), tTotalWeight);
@@ -504,23 +485,6 @@ void HistoSetMUMU::FillGenInfo(
     }
   }
 
-  // double tGenMassIndex = GetMassBinIndex(tGenMass);
-  // double tRecoMassIndex = GetMassBinIndex(tRecoMass);
-  // double tGenJetIndex = GetNJetBinIndex(tNGenJets);
-  // double tRecoJetIndex = GetNJetBinIndex(nJets);
-
-  // double tXbin = 15. * tRecoJetIndex + tRecoMassIndex + 0.5;
-  // double tYbin = 15. * tGenJetIndex + tGenMassIndex + 0.5;
-
-  // // std::cout << tGenMassIndex << " " << tGenMass << std::endl;
-  // // std::cout << tRecoMassIndex << " " << tRecoMass << std::endl;
-  // // std::cout << tGenJetIndex << " " << tNGenJets << std::endl;
-  // // std::cout << tRecoJetIndex << " " << nJets << std::endl;
-  // // std::cout << tXbin << " " << tYbin << std::endl;
-
-  // fHistSet2D["h_ResponseMatrix"]->Fill(tXbin, tYbin, tTotalWeight);
-
-
 }
 
 void HistoSetMUMU::FillGenInfoIndependently(
@@ -541,7 +505,7 @@ void HistoSetMUMU::FillGenInfoIndependently(
 
     fHistSetGenInfo["h_dimuonMass" + suffix]->Fill(tGenMass, fMCWeight);
     
-    if (tGenMass > 200) {
+    if (tGenMass > 40) {
       fHistSetGenInfo["h_nJet" + suffix]->Fill(tNGenJets, fMCWeight);
 
       fHistSetGenInfo["h_LeadingMuonPt" + suffix]->Fill(tDressedLeptons.at(0).Pt(), fMCWeight);
@@ -583,11 +547,12 @@ void HistoSetMUMU::FillResponseMatrix(
   double tRecoMassIndex = GetMassBinIndex(SetMassOverflow(tRecoMass));
   double tGenJetIndex = GetNJetBinIndex(tNGenJets);
   double tRecoJetIndex = GetNJetBinIndex(nJets);
+  const double nMassBins = fMassBins.size() - 1;
 
   bool tPassingOffline = (nBJets == 0) && (tRecoMass > 0) && tPassingOfflineEventSelection;
 
-  double tXbin = 15. * tRecoJetIndex + tRecoMassIndex + 0.5;
-  double tYbin = 15. * tGenJetIndex + tGenMassIndex + 0.5;
+  double tXbin = nMassBins * tRecoJetIndex + tRecoMassIndex + 0.5;
+  double tYbin = nMassBins * tGenJetIndex + tGenMassIndex + 0.5;
 
   double tXbin_inc = tRecoMassIndex + 0.5;
   double tYbin_inc = tGenMassIndex + 0.5;
@@ -636,18 +601,20 @@ void HistoSetMUMU::FillResponseMatrix_v2(
   const bool& tPassingReco
 ) {
 
+  const double nMassBins = fMassBins.size() - 1;
+  const double nMassJetBins = 3. * nMassBins;
   double fEraOffset = 0;
-  if (fEra == "2016_postVFP") fEraOffset = 45.;
-  if (fEra == "2017") fEraOffset = 90.;
-  if (fEra == "2018") fEraOffset = 135.;
+  if (fEra == "2016_postVFP") fEraOffset = nMassJetBins;
+  if (fEra == "2017") fEraOffset = 2. * nMassJetBins;
+  if (fEra == "2018") fEraOffset = 3. * nMassJetBins;
 
   double tGenMassIndex = GetMassBinIndex(SetMassOverflow(tGenMass));
   double tRecoMassIndex = GetMassBinIndex(SetMassOverflow(tRecoMass));
   double tGenJetIndex = GetNJetBinIndex(tNGenJets);
   double tRecoJetIndex = GetNJetBinIndex(nJets);
 
-  double tXbin = 15. * tRecoJetIndex + tRecoMassIndex + 0.5;
-  double tYbin = 15. * tGenJetIndex + tGenMassIndex + 0.5;
+  double tXbin = nMassBins * tRecoJetIndex + tRecoMassIndex + 0.5;
+  double tYbin = nMassBins * tGenJetIndex + tGenMassIndex + 0.5;
 
   double tXbin_inc = tRecoMassIndex + 0.5;
   double tYbin_inc = tGenMassIndex + 0.5;

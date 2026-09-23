@@ -26,7 +26,7 @@ public:
 
   void Init();
 
-  void FillElec(TLorentzVector& fLeadingElec, TLorentzVector& fSubleadingElec, int nJet, int nBJet, double weight = 1.);
+  void FillElec(TLorentzVector& fLeadingElec, TLorentzVector& fSubleadingElec, int nBJet, double weight = 1.);
   void FillJet(std::vector<JET::StdJet>* fJet, std::vector<JET::StdJet>* fBJet, double fDielecMass, double weight = 1.);
 
   void FillHisto(std::string name, double value, double weight = 1.);
@@ -43,9 +43,6 @@ public:
   void SetHisto(std::string name, std::string binning1, std::string binning2, std::string binning3);
 
   std::string GetMassBin(double fDimuonMass);
-  std::string GetJetBin(double fNJet);
-  std::string GetBJetBin(double fNBJet);
-  std::string GetbVetoJetBin(double fNJet);
 
   double SetPtOverflow(double fPt);
   double SetMassOverflow(double fMass);

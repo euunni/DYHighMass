@@ -560,11 +560,11 @@ int main(int argc, char* argv[]) {
   fs::path fBaseDirFS(fBaseDirStr.data());
   if( !(fs::exists(fBaseDirFS)) ) fs::create_directory(fBaseDirFS);
 
-  if (fChannelTemp == "MUMU") {
-    std::string fBaseEOS = "/pnfs/knu.ac.kr/data/cms/store/user/khwang/CMS/HighMassDY/" + fBaseDir;
-    fs::path fBaseEOSFS(fBaseEOS.data());
-    if( !(fs::exists(fBaseEOSFS)) ) fs::create_directory(fBaseEOSFS);
-  }
+  // if (fChannelTemp == "MUMU") {
+  //   std::string fBaseEOS = "./ROOT/" + fBaseDir;
+  //   fs::path fBaseEOSFS(fBaseEOS.data());
+  //   if( !(fs::exists(fBaseEOSFS)) ) fs::create_directory(fBaseEOSFS);
+  // }
 
   std::string fOutputDirStr = fBaseDirStr + "/ROOT";
   fs::path fOutputDirFS(fOutputDirStr.data());
@@ -609,10 +609,10 @@ int main(int argc, char* argv[]) {
 
   std::string fCondorSubmit = "";
 
-  if (fChannelTemp == "MUMU") fCondorSubmit = R"(universe              = vanilla
+  fCondorSubmit = R"(universe              = vanilla
 executable            = condor_wrapper.sh
 getenv                = True
-arguments             = analysis_)" + fChannel + R"( --config $(config) --era $(era) --sample $(sample) --id $(id) --OutputDir $(base)
+arguments             = analysis_)" + fChannel + R"( --config $(config) --era $(era) --sample $(sample) --id $(id)
 
 request_memory        = 500 MB
 should_transfer_files = YES
@@ -627,28 +627,8 @@ output                = log/$(era)_$(sample)_$(id).out
 error                 = log/$(era)_$(sample)_$(id).err
 log                   = log/$(era)_$(sample)_$(id).log
 
-queue config,era,sample,id,base from joblist.txt
-)"; 
-  else fCondorSubmit = R"(universe              = vanilla
-  executable            = condor_wrapper.sh
-  getenv                = True
-  arguments             = analysis_)" + fChannel + R"( --config $(config) --era $(era) --sample $(sample) --id $(id)
-  
-  request_memory        = 500 MB
-  should_transfer_files = YES
-  transfer_input_files = )" + fWorkspaceStr + R"(/envset.sh, \
-                         )" + fWorkspaceStr + R"(/install/lib, \
-                         )" + fWorkspaceStr + R"(/install/bin
-  
-  JobBatchName          = )" + fBaseDir + R"(
-  +JobType = "heavy"
-  
-  output                = log/$(era)_$(sample)_$(id).out
-  error                 = log/$(era)_$(sample)_$(id).err
-  log                   = log/$(era)_$(sample)_$(id).log
-  
-  queue config,era,sample,id from joblist.txt
-  )";
+queue config,era,sample,id from joblist.txt
+)";
 
   std::string fCondorSubmitStr = fBaseDirStr + "/condor_submit.sub";
   std::ofstream fCondorSubmitStream(fCondorSubmitStr);
@@ -744,8 +724,7 @@ eval "$@"
         int nList = fConfig[fEraVec[i]][fSampleMap[k]]["nList"].as<int>();
         for (int l = 0; l < nList; l++) {
 
-          if (fChannelTemp == "MUMU") fJobList += R"(../../config/)" + fChannel + fSuffix + R"(/UL)" + fEraVec[i] + R"(.yml )" + fEraVec[i] + R"( )" + fSampleMap[k] + R"( )" + std::to_string(l + 1) + R"( /pnfs/knu.ac.kr/data/cms/store/user/khwang/CMS/HighMassDY/)" + fBaseDir + "\n";
-          else fJobList += R"(../../config/)" + fChannel + fSuffix + R"(/UL)" + fEraVec[i] + R"(.yml )" + fEraVec[i] + R"( )" + fSampleMap[k] + R"( )" + std::to_string(l + 1) + "\n";
+          fJobList += R"(../../config/)" + fChannel + fSuffix + R"(/UL)" + fEraVec[i] + R"(.yml )" + fEraVec[i] + R"( )" + fSampleMap[k] + R"( )" + std::to_string(l + 1) + "\n";
         }
       }
     }

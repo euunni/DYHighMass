@@ -5,8 +5,11 @@ import uuid
 import cmsstyle as CMS
 import array
 
+INPUT_PATH = "./ROOT/EE/output.root"
+OUTPUT_PATH = "./plots/EE"
+
 parser = argparse.ArgumentParser()
-parser.add_argument('--era', help=' : era to plot')
+parser.add_argument('--era', required=True, choices=['2016_preVFP', '2016_postVFP', '2017', '2018'], help='Era to plot')
 args = parser.parse_args()
 
 
@@ -223,10 +226,9 @@ normFactor = {}
 
 class Plotter:
     def __init__(self, era):
-        # self.rootPath = "/u/user/haeun/SE_UserHome/CMSAnalysis/DYHighMass/260105/ROOT/260219/output.root"
-        self.rootPath = "./ROOT/260313/output.root"
+        self.rootPath = INPUT_PATH
         self.era = era
-        self.outputPath = "./plots/260313/plot_" + era + "/"
+        self.outputPath = f"{OUTPUT_PATH}/era_{era}"
 
         os.makedirs(self.outputPath, exist_ok=True)
 
@@ -580,73 +582,16 @@ class Plotter:
 def main(args):
     plotter = Plotter(args.era)
 
-    # cases = ["", "_0J", "_1J", "_mtJ", "_0BJ", "_1BJ", "_mt1BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
-    cases = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
-    # cases = ["_0BJ"]
-    # cases = [""]
-    # massBins = ["", "_m200_220", "_m220_243", "_m243_273", "_m273_320", "_m320_380", "_m380_440", "_m440_510", "_m510_600", "_m600_700", "_m700_830", "_m830_1000", "_m1000_1500", "_m1500_4000"]
+    cases = ["", "_0BJ"]
     massBins = [""] 
 
     addon_hook = {
         "": "",
-        "_0J": "N(jet) = 0",
-        "_1J": "N(jet) = 1",
-        "_mt1J": "N(jet) > 1",
         "_0BJ": "b-veto",
-        "_1BJ": "N(b-jet) = 1",
-        "_mt1BJ": "N(b-jet) > 1",
-        "_bVeto_0J": "b-veto, N(jet) = 0",
-        "_bVeto_1J": "b-veto, N(jet) = 1",
-        "_bVeto_mt1J": "b-veto, N(jet) > 1",
-    }
-
-    yrmax_vec = {
-        "": -1,
-        "_0J": -1,
-        "_1J": -1,
-        "_mtJ": -1,
-        "_0BJ": 1.5,
-        "_1BJ": -1,
-        "_mt1BJ": -1,
-        # "_bVeto_0J": 1.3,
-        # "_bVeto_1J": 1.5,
-        # "_bVeto_mt1J": 1.5,    
-        "_bVeto_0J": 1.5,
-        "_bVeto_1J": 1.5,
-        "_bVeto_mt1J": 1.5  
-    }
-
-    yrmin_vec = {
-        "": -1,
-        "_0J": -1,
-        "_1J": -1,
-        "_mt1J": -1,
-        "_0BJ": 0.5,
-        "_1BJ": -1,
-        "_mt1BJ": -1,
-        # "_bVeto_0J": 0.7,
-        # "_bVeto_1J": 0.5,
-        # "_bVeto_mt1J": 0.5
-        "_bVeto_0J": 0.5,
-        "_bVeto_1J": 0.5,
-        "_bVeto_mt1J": 0.5 
     }
 
     addon_hook_mass = {
-        "": "M_{ee} > 200 GeV",
-        "_m200_220": "200 < M_{ee} < 220 GeV",
-        "_m220_243": "220 < M_{ee} < 243 GeV",
-        "_m243_273": "243 < M_{ee} < 273 GeV",
-        "_m273_320": "273 < M_{ee} < 320 GeV",
-        "_m320_380": "320 < M_{ee} < 380 GeV",
-        "_m380_440": "380 < M_{ee} < 440 GeV",
-        "_m440_510": "440 < M_{ee} < 510 GeV",
-        "_m510_600": "510 < M_{ee} < 600 GeV",
-        "_m600_700": "600 < M_{ee} < 700 GeV",
-        "_m700_830": "700 < M_{ee} < 830 GeV",
-        "_m830_1000": "830 < M_{ee} < 1000 GeV",
-        "_m1000_1500": "1000 < M_{ee} < 1500 GeV",
-        "_m1500_4000": "1500 < M_{ee} < 4000 GeV"
+        "": "M_{ee} > 40 GeV",
     }
 
     latex = [
@@ -664,8 +609,7 @@ def main(args):
         latex_temp = latex.copy()
         latex_temp[2] = addon_hook[case]
 # 
-        plotter.Plot("h_dielecMass", case, ""                     , latex_temp, xTitle = "M(ee) [GeV]"  ,xmin = 200, xmax = 2000, yrmin = -3., yrmax = 5., logy = True, logx = True)
-        # plotter.Plot("h_dielecMass", case, ""                     , latex_temp, xTitle = "M(ee) [GeV]"  ,xmin = 200, xmax = 4000, yrmin = yrmin_vec[case], yrmax = yrmax_vec[case], logy = True, logx = True)
+        plotter.Plot("h_dielecMass", case, "", latex_temp, xTitle = "M(ee) [GeV]", xmin = 40, xmax = 3000, yrmin = -3., yrmax = 5., logy = True, logx = True)
 
         for massbin in massBins:
             latex_temp[3] = addon_hook_mass[massbin]

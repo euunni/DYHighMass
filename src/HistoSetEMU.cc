@@ -22,12 +22,15 @@ void HistoSetEMU::Init() {
   fPtBins = {-9999, 300, 0., 1500.};
   fEtaBins = {-9999, 60, -3., 3.};
   fPhiBins = {-9999, 60, -3.141593, 3.141593};
-  fMassBins = {199, 200,  220,  243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 4000, 4001};
+  fMassBins = {39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101,
+               106, 110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220,
+               243, 273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 2000,
+               3000, 3001};
   fDeltaRBins = {-9999, 100, 0.0, 6.0};
   fNJetBins = {-9999, 20, 0, 20};
 
   std::vector<std::string> fAddonMass = {""};
-  std::vector<std::string> fAddonJet = {"", "_0J", "_1J", "_mt1J", "_0BJ", "_1BJ", "_mt1BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"};
+  std::vector<std::string> fAddonJet = {"", "_0BJ"};
   std::vector<std::string> fAddonType = {"OS", "SS", "OS_inverted", "SS_inverted"};
   
   for (int i = 0; i < fMassBins.size() -1; i++) {
@@ -82,13 +85,10 @@ void HistoSetEMU::Init() {
 void HistoSetEMU::FillHistoSet(std::string name, double mass, int nJet, int nBJet, double value, double weight) {
 
   std::string tMassSuffix = GetMassBin(SetMassOverflow(mass));
-  std::string tJetSuffix = GetJetBin(nJet);
-  std::string tBJetSuffix = GetBJetBin(nBJet);
-  std::string tbVetoJetSuffix = GetbVetoJetBin(nJet);
 
   std::vector<std::string> tHistSuffix;
-  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
-  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, "_0BJ", "_0BJ" + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix};
   
   for (auto suffix : tHistSuffix) {
     if (!(fHistSet.find(name + suffix) == fHistSet.end())) {
@@ -100,13 +100,10 @@ void HistoSetEMU::FillHistoSet(std::string name, double mass, int nJet, int nBJe
 void HistoSetEMU::FillHistoSet(std::string name, double mass, int nJet, int nBJet, float value, double weight) {
 
   std::string tMassSuffix = GetMassBin(SetMassOverflow(mass));
-  std::string tJetSuffix = GetJetBin(nJet);
-  std::string tBJetSuffix = GetBJetBin(nBJet);
-  std::string tbVetoJetSuffix = GetbVetoJetBin(nJet);
 
   std::vector<std::string> tHistSuffix;
-  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
-  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, "_0BJ", "_0BJ" + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix};
   
   for (auto suffix : tHistSuffix) {
     if (!(fHistSet.find(name + suffix) == fHistSet.end())) {
@@ -118,13 +115,10 @@ void HistoSetEMU::FillHistoSet(std::string name, double mass, int nJet, int nBJe
 void HistoSetEMU::FillHistoSet(std::string name, double mass, int nJet, int nBJet, int value, double weight) {
 
   std::string tMassSuffix = GetMassBin(SetMassOverflow(mass));
-  std::string tJetSuffix = GetJetBin(nJet);
-  std::string tBJetSuffix = GetBJetBin(nBJet);
-  std::string tbVetoJetSuffix = GetbVetoJetBin(nJet);
 
   std::vector<std::string> tHistSuffix;
-  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
-  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, "_0BJ", "_0BJ" + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix};
   
   for (auto suffix : tHistSuffix) {
     if (!(fHistSet.find(name + suffix) == fHistSet.end())) {
@@ -299,37 +293,13 @@ std::string HistoSetEMU::GetMassBin(double fDimuonMass) {
   return "";
 }
 
-std::string HistoSetEMU::GetJetBin(double fNJet) {
-  
-  if (fNJet == 0) return "_0J";
-  else if (fNJet == 1) return "_1J";
-  else if (fNJet >= 2) return "_mt1J";
-  else return "";
-}
-
-std::string HistoSetEMU::GetBJetBin(double fNBJet) {
-  
-  if (fNBJet == 0) return "_0BJ";
-  else if (fNBJet == 1) return "_1BJ";
-  else if (fNBJet >= 2) return "_mt1BJ";
-  else return "";
-}
-
-std::string HistoSetEMU::GetbVetoJetBin(double fNJet) {
-  
-  if (fNJet == 0) return "_bVeto_0J";
-  else if (fNJet == 1) return "_bVeto_1J";
-  else if (fNJet >= 2) return "_bVeto_mt1J";
-  else return "";
-}
-
 double HistoSetEMU::SetPtOverflow(double fPt) {
   if (fPt > 1500) return 1510;
   else return fPt;
 }
 double HistoSetEMU::SetMassOverflow(double fMass) {
-  if (fMass < 200) return 199.5;
-  if (fMass >= 4000) return 4000.5;
+  if (fMass < 40) return 39.5;
+  if (fMass >= 3000) return 3000.5;
   else return fMass;
 }
 
@@ -345,19 +315,16 @@ void HistoSetEMU::FillEMUPair(
   TLorentzVector tEMuPair = fMuon + fElec;
 
   std::string tMassSuffix = GetMassBin(SetMassOverflow(tEMuPair.M()));
-  std::string tJetSuffix = GetJetBin(nJet);
-  std::string tBJetSuffix = GetBJetBin(nBJet);
-  std::string tbVetoJetSuffix = GetbVetoJetBin(nJet);
 
   std::vector<std::string> tHistSuffix;
-  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
-  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, "_0BJ", "_0BJ" + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix};
   
   for (auto suffix : tHistSuffix) {
     
     fHistSet["h_" + fType + "_PairMass" + suffix]->Fill(SetMassOverflow(tEMuPair.M()), weight);
 
-    if (tEMuPair.M() > 200) {
+    if (tEMuPair.M() > 40) {
       fHistSet["h_" + fType + "_MuonPt" + suffix]->Fill(fMuon.Pt(), weight);
       fHistSet["h_" + fType + "_MuonEta" + suffix]->Fill(fMuon.Eta(), weight);
       fHistSet["h_" + fType + "_MuonPhi" + suffix]->Fill(fMuon.Phi(), weight);
@@ -381,13 +348,10 @@ void HistoSetEMU::FillJet(
 ) {
 
   std::string tMassSuffix = GetMassBin(SetMassOverflow(fDimuonMass));
-  std::string tJetSuffix = GetJetBin(fJet.size());
-  std::string tBJetSuffix = GetBJetBin(fBJet.size());
-  std::string tbVetoJetSuffix = GetbVetoJetBin(fJet.size());
 
   std::vector<std::string> tHistSuffix;
-  if (fBJet.size() == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
-  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+  if (fBJet.empty()) tHistSuffix = {"", tMassSuffix, "_0BJ", "_0BJ" + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix};
 
   for (auto suffix : tHistSuffix) {
 

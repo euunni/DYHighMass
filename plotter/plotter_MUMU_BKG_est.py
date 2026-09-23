@@ -22,7 +22,7 @@ def GetYRange(hist):
     yrmax = -9999
 
     for i in range(1, hist.GetNbinsX() + 1):
-        if (hist.GetBinCenter(i) > 200 and hist.GetBinCenter(i) < 4000):
+        if (hist.GetBinCenter(i) > 40 and hist.GetBinCenter(i) < 3000):
             if (hist.GetBinContent(i) != 0):
                 yrmin = min(yrmin, hist.GetBinContent(i))
                 yrmax = max(yrmax, hist.GetBinContent(i))
@@ -36,7 +36,12 @@ def GetYRange(hist):
 
 def Rebin(hist):
       
-    fRebinBins = np.array([199, 200, 220, 273, 380, 510, 700, 1000, 4000, 4001], dtype=np.double)
+    fRebinBins = np.array([
+        39, 40, 45, 50, 55, 60, 64, 68, 72, 76, 81, 86, 91, 96, 101, 106,
+        110, 115, 120, 126, 133, 141, 150, 160, 171, 185, 200, 220, 243,
+        273, 320, 380, 440, 510, 600, 700, 830, 1000, 1500, 2000, 3000,
+        3001,
+    ], dtype=np.double)
     fReturnHist = hist.Rebin(len(fRebinBins) - 1, f"h_dimuonMass_rebin_{uuid.uuid4()}", fRebinBins)
 
     return fReturnHist
@@ -45,15 +50,7 @@ def Rebin(hist):
 
 addon_hook_jet = {
     "": "",
-    "_0J": "N(jet) = 0",
-    "_1J": "N(jet) = 1",
-    "_mt1J": "N(jet) > 1",
     "_0BJ": "b-veto",
-    "_1BJ": "N(b-jet) = 1",
-    "_mt1BJ": "N(b-jet) > 1",
-    "_bVeto_0J": "b-veto, N(jet) = 0",
-    "_bVeto_1J": "b-veto, N(jet) = 1",
-    "_bVeto_mt1J": "b-veto, N(jet) > 1",
 }
 
 mcList = [
@@ -162,7 +159,7 @@ def GetHistoName(name, type, jet):
 def main():
 
     eras = ["2016_preVFP", "2016_postVFP", "2017", "2018", "merged"]
-    cases = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
+    cases = ["", "_0BJ"]
     
     histoName_MUMU = "h_dimuonMass"
     outputPath = "./plots_260917/MUMU_FAKE/"
@@ -180,7 +177,7 @@ def main():
         latex_mumu = [
             f"{era}",
             "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
-            "M_{#mu#mu} > 200 GeV",
+            "M_{#mu#mu} > 40 GeV",
             ""
         ]
 

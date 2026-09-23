@@ -15,128 +15,69 @@ class TriggerBase {
     virtual bool PassingTrigger() = 0;
 };
 
-class Trigger_2016v1 : public TriggerBase {
+class Trigger_MUMU_2016 : public TriggerBase {
   public:
-    
-    Trigger_2016v1(TTreeReader* fTreeReader) {
-      HLT_Mu50 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_Mu50");
-      HLT_TkMu50 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_TkMu50");
+    Trigger_MUMU_2016(TTreeReader* fTreeReader) {
+      HLT_IsoMu24 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_IsoMu24");
+      HLT_IsoTkMu24 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_IsoTkMu24");
 
       std::cout << "######################################################################" << std::endl;
       std::cout << "                            Trigger setting                           " << std::endl;
       std::cout << "----------------------------------------------------------------------" << std::endl;
-      std::cout << " Trigger_2016v1         HLT_Mu50 || HLT_TkMu50                        " << std::endl;
+      std::cout << " MUMU 2016        HLT_IsoMu24 || HLT_IsoTkMu24                        " << std::endl;
       std::cout << "######################################################################" << std::endl;
       std::cout << " " << std::endl;
     }
     
     bool PassingTrigger() override {
-      return (**HLT_Mu50 || **HLT_TkMu50);
+      return (**HLT_IsoMu24 || **HLT_IsoTkMu24);
     }
 
   private:
-    TTreeReaderValue<bool>* HLT_Mu50;
-    TTreeReaderValue<bool>* HLT_TkMu50;
+    TTreeReaderValue<bool>* HLT_IsoMu24;
+    TTreeReaderValue<bool>* HLT_IsoTkMu24;
 };
 
-class Trigger_2016v2 : public TriggerBase {
+class Trigger_MUMU_2017 : public TriggerBase {
   public:
-    
-    Trigger_2016v2(TTreeReader* fTreeReader) {
-      HLT_Mu50 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_Mu50");
+    Trigger_MUMU_2017(TTreeReader* fTreeReader) {
+      HLT_IsoMu27 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_IsoMu27");
       
       std::cout << "######################################################################" << std::endl;
       std::cout << "                            Trigger setting                           " << std::endl;
       std::cout << "----------------------------------------------------------------------" << std::endl;
-      std::cout << " Trigger_2016v2                HLT_Mu50                               " << std::endl;
+      std::cout << " MUMU 2017                    HLT_IsoMu27                              " << std::endl;
       std::cout << "######################################################################" << std::endl;
       std::cout << " " << std::endl;
     }
     
     bool PassingTrigger() override {
-      return **HLT_Mu50;
+      return **HLT_IsoMu27;
     }
 
   private:
-    TTreeReaderValue<bool>* HLT_Mu50;
+    TTreeReaderValue<bool>* HLT_IsoMu27;
 };
-    
 
-class Trigger_2017v1 : public TriggerBase {
+class Trigger_MUMU_2018 : public TriggerBase {
   public:
-    
-    Trigger_2017v1(TTreeReader* fTreeReader) {
-      HLT_Mu50 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_Mu50");
-
-      std::cout << "######################################################################" << std::endl;
-      std::cout << "                            Trigger setting                           " << std::endl;
-      std::cout << "----------------------------------------------------------------------" << std::endl;
-      std::cout << " Trigger_2017v1                HLT_Mu50                               " << std::endl;
-      std::cout << "######################################################################" << std::endl;
-      std::cout << " " << std::endl;
-    }
-    
-    bool PassingTrigger() override {
-      return **HLT_Mu50;
-    }
-
-  private:
-    TTreeReaderValue<bool>* HLT_Mu50;
-};
-    
-class Trigger_2017v2 : public TriggerBase {
-  public:
-    
-    Trigger_2017v2(TTreeReader* fTreeReader) {
-      HLT_Mu50 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_Mu50");
-      HLT_TkMu100 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_TkMu100");
-      HLT_OldMu100 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_OldMu100");
+    Trigger_MUMU_2018(TTreeReader* fTreeReader) {
+      HLT_IsoMu24 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_IsoMu24");
     
       std::cout << "######################################################################" << std::endl;
       std::cout << "                            Trigger setting                           " << std::endl;
       std::cout << "----------------------------------------------------------------------" << std::endl;
-      std::cout << " Trigger_2017v2            HLT_Mu50 || HLT_TkMu100 || HLT_OldMu100    " << std::endl;
+      std::cout << " MUMU 2018                    HLT_IsoMu24                              " << std::endl;
       std::cout << "######################################################################" << std::endl;
       std::cout << " " << std::endl;
     }
     
     bool PassingTrigger() override {
-      return (**HLT_Mu50 || **HLT_TkMu100 || **HLT_OldMu100);
+      return **HLT_IsoMu24;
     }
   
   private:
-    TTreeReaderValue<bool>* HLT_Mu50;
-    TTreeReaderValue<bool>* HLT_TkMu100;
-    TTreeReaderValue<bool>* HLT_OldMu100;
-};
-      
-    
-class Trigger_2018 : public TriggerBase {
-  public:
-    
-    Trigger_2018(TTreeReader* fTreeReader) {
-      HLT_Mu50 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_Mu50");
-      HLT_TkMu100 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_TkMu100");
-      HLT_OldMu100 = new TTreeReaderValue<bool>(*fTreeReader, "HLT_OldMu100");
-    
-      std::cout << "######################################################################" << std::endl;
-      std::cout << "                            Trigger setting                           " << std::endl;
-      std::cout << "----------------------------------------------------------------------" << std::endl;
-      std::cout << " Trigger_2018              HLT_Mu50 || HLT_TkMu100 || HLT_OldMu100    " << std::endl;
-      std::cout << "######################################################################" << std::endl;
-      std::cout << " " << std::endl;
-    }
-    
-    bool PassingTrigger() override {
-
-      // std::cout << "DEBUG: " << **HLT_Mu50 << " " << **HLT_TkMu100 << " " << **HLT_OldMu100 << std::endl;
-      return (**HLT_Mu50 || **HLT_TkMu100 || **HLT_OldMu100);
-    }
-  
-  private:
-    TTreeReaderValue<bool>* HLT_Mu50;
-    TTreeReaderValue<bool>* HLT_TkMu100;
-    TTreeReaderValue<bool>* HLT_OldMu100;
+    TTreeReaderValue<bool>* HLT_IsoMu24;
 };
 
 class Trigger_EE_2016 : public TriggerBase {
@@ -188,12 +129,9 @@ class TriggerFactory {
     static std::unique_ptr<TriggerBase> createTrigger(TString fEra, TString fChannel, TString fSample, int fID, TTreeReader* fTreeReader) {
 
       if (fChannel == "MUMU") {
-        if (fEra == "2018")                                     return std::make_unique<Trigger_2018>(fTreeReader);
-        else if (fEra == "2017" && fSample != "Run2017B_SingleMuon")       return std::make_unique<Trigger_2017v2>(fTreeReader);
-        else if (fEra == "2017" && fSample == "Run2017B_SingleMuon")       return std::make_unique<Trigger_2017v1>(fTreeReader);
-        else if (fEra == "2016_preVFP" && !(fSample == "Run2016B_SingleMuon_v2" && fID == 8))    return std::make_unique<Trigger_2016v1>(fTreeReader);
-        else if (fEra == "2016_preVFP" && fSample == "Run2016B_SingleMuon_v2" && fID == 8)       return std::make_unique<Trigger_2016v2>(fTreeReader);
-        else if (fEra == "2016_postVFP")                         return std::make_unique<Trigger_2016v1>(fTreeReader);
+        if (fEra == "2016_preVFP" || fEra == "2016_postVFP") return std::make_unique<Trigger_MUMU_2016>(fTreeReader);
+        else if (fEra == "2017")                            return std::make_unique<Trigger_MUMU_2017>(fTreeReader);
+        else if (fEra == "2018")                            return std::make_unique<Trigger_MUMU_2018>(fTreeReader);
         else {
           std::cerr << "Unknown era: " << fEra << std::endl;
           return nullptr;

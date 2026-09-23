@@ -328,7 +328,7 @@ void DYLoopEE::Loop() {
     tTotalGenWeight += tEventGenWeight;
 
     fHistoSet->FillHisto((std::string)"h_nPVGood_Count", **(fNtuples->PV_npvsGood), tEventGenWeight);
-    fHistoSet->FillElec(tFVecLeadingElec, tFVecSubLeadingElec, nJets, nBJets, tEventGenWeight);
+    fHistoSet->FillElec(tFVecLeadingElec, tFVecSubLeadingElec, nBJets, tEventGenWeight);
     fHistoSet->FillJet(&vJets, &vBJets, tDiElec.M(), tEventGenWeight);
 
   } // End of event loop

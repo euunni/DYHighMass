@@ -537,7 +537,7 @@ int main(int argc, char* argv[]) {
   TFile* fFile = new TFile(fInput.c_str(), "READ");
 
   auto fChannelMap = InputMap[fChannelTemp];
-  std::vector<std::string> fEraVec = {"2016_preVFP", "2016_postVFP", "2017", "2018"};
+  std::vector<std::string> fEraVec = {"2018"};
   std::vector<std::string> fTierVec = {"Data", "MC"};
   YAML::Node fConfig = YAML::LoadFile(std::string("../../input/dataset.yml"));
 
@@ -546,7 +546,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> fErrorRef;
   std::vector<double> fErrorTarget;
 
-  for (int i = 0; i < fChannelMap.size(); i++) {
+  for (int i = 0; i < fEraVec.size(); i++) {
 
     auto fEraMap = fChannelMap[fEraVec[i]];
     for (int j = 0; j < fTierVec.size(); j++) {

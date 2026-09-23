@@ -22,7 +22,7 @@ def GetYRange(hist):
     yrmax = -9999
 
     for i in range(1, hist.GetNbinsX() + 1):
-        if (hist.GetBinCenter(i) > 200 and hist.GetBinCenter(i) < 4000):
+        if (hist.GetBinCenter(i) > 40 and hist.GetBinCenter(i) < 3000):
             if (hist.GetBinContent(i) != 0):
                 yrmin = min(yrmin, hist.GetBinContent(i))
                 yrmax = max(yrmax, hist.GetBinContent(i))
@@ -34,15 +34,7 @@ def GetYRange(hist):
 
 addon_hook_jet = {
     "": "",
-    "_0J": "N(jet) = 0",
-    "_1J": "N(jet) = 1",
-    "_mt1J": "N(jet) > 1",
     "_0BJ": "b-veto",
-    "_1BJ": "N(b-jet) = 1",
-    "_mt1BJ": "N(b-jet) > 1",
-    "_bVeto_0J": "b-veto, N(jet) = 0",
-    "_bVeto_1J": "b-veto, N(jet) = 1",
-    "_bVeto_mt1J": "b-veto, N(jet) > 1",
 }
 
 mumu_mcList = [
@@ -179,7 +171,7 @@ def GetHistoName(name, type, jet):
 def main():
 
     eras = ["2016_preVFP", "2016_postVFP", "2017", "2018", "merged"]
-    cases = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
+    cases = ["", "_0BJ"]
     
     outputPath = "./plots_260706/EMU_FAKE/"
     outputRoot = "./Bck_260706/EMU_FAKE.root"
@@ -195,14 +187,14 @@ def main():
         latex_mumu = [
             f"{era}",
             "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
-            "M_{#mu#mu} > 200 GeV",
+            "M_{#mu#mu} > 40 GeV",
             ""
         ]
 
         latex_emu = [
             f"{era}",
             "p_{T}(#mu(e)) > 52 (50) GeV, |#eta(#mu(e))| < 2.4 (2.5)",
-            "M_{e#mu} > 200 GeV",
+            "M_{e#mu} > 40 GeV",
             ""
         ]
 

@@ -10,6 +10,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
@@ -58,7 +59,6 @@ public:
     fOpt->GetVariable("era", &fEra);
     fOpt->GetVariable("sample", &fSampleName);
     fOpt->GetVariable("debug", &fDebug);
-    fOpt->GetVariable("OutputDir", &fOutputDir);
 
     fCorrectionFuncs = {}; 
 
@@ -90,8 +90,13 @@ public:
     fNtuples->init();
     std::cout << " " << std::endl;
 
+    fDoRoccoR = fConfig["Correction"]["RoccoR"].as<bool>();
+    if (fDoRoccoR)
+      fRoccoR = std::make_unique<RoccoR>(fConfig["RoccoR"]["Path"].as<std::string>());
+
     fMuons = new MUON(fConfig);
     fMuons->IsMC(fIsMC);
+    fMuons->SetRoccoR(fRoccoR.get(), fDoRoccoR);
     fMuons->init(fNtuples->GetTreeReader());
     
     fJets = new JET(fConfig);
@@ -109,26 +114,19 @@ public:
     fDoPU = fConfig["Correction"]["PileUp"].as<bool>();    
     fDoTopPtReweighing = fConfig["Correction"]["TopPtReweighing"].as<bool>();
     fDoL1Pre = fConfig["Correction"]["L1PreFiring"].as<bool>();
+    fTriggerPt = (fEra == "2017") ? 29. : 26.;
 
-    fDoReco = fConfig["Correction"]["Reco"].as<bool>(); 
-    fReco_SF = correction::CorrectionSet::from_file(fConfig["Efficiency"]["Reco"]["Path"].as<std::string>())->at(fConfig["Efficiency"]["Reco"]["Name"].as<std::string>());
-    if (fIsMC && fDoReco) {
-
-      fCorrectionFuncs["RecoEff"] = FuncSingleMuonCorrection([this](const TLorentzVector& fMuon) -> double {
-
-        float tP = fMuon.P();
-        if (fMuon.P() < 50.) tP = 50.01;
-
-        // std::cout << "######################################################################" << std::endl;
-        // std::cout << "                       Reco efficiency debugging                      " << std::endl;
-        // std::cout << "----------------------------------------------------------------------" << std::endl;
-        // std::cout << " RESULT: " << fMuon.P() << " " << fMuon.Eta() << " " << fReco_SF->evaluate({std::abs(fMuon.Eta()), tP, "nominal"}) << std::endl;
-        // std::cout << "######################################################################" << std::endl;
-        // std::cout << " " << std::endl;
-
-        return fReco_SF->evaluate({std::abs(fMuon.Eta()), tP, "nominal"});
-      });
-    }
+    fDoReco = false;
+    // Reco SF is reserved for the high-pT workflow.
+    // fDoReco = fConfig["Correction"]["Reco"].as<bool>();
+    // fReco_SF = correction::CorrectionSet::from_file(fConfig["Efficiency"]["Reco"]["Path"].as<std::string>())->at(fConfig["Efficiency"]["Reco"]["Name"].as<std::string>());
+    // if (fIsMC && fDoReco) {
+    //   fCorrectionFuncs["RecoEff"] = FuncSingleMuonCorrection([this](const TLorentzVector& fMuon) -> double {
+    //     float tP = fMuon.P();
+    //     if (fMuon.P() < 50.) tP = 50.01;
+    //     return fReco_SF->evaluate({std::abs(fMuon.Eta()), tP, "nominal"});
+    //   });
+    // }
 
     fDoID = fConfig["Correction"]["ID"].as<bool>();
     fID_SF = correction::CorrectionSet::from_file(fConfig["Efficiency"]["ID"]["Path"].as<std::string>())->at(fConfig["Efficiency"]["ID"]["Name"].as<std::string>());
@@ -136,17 +134,14 @@ public:
 
       fCorrectionFuncs["IDEff"] = FuncSingleMuonCorrection([this](const TLorentzVector& fMuon) -> double {
 
-        float tPt = fMuon.Pt();
-        if (fMuon.Pt() < 50.) tPt = 50.01;
-
         // std::cout << "######################################################################" << std::endl;
         // std::cout << "                        ID efficiency debugging                       " << std::endl;
         // std::cout << "----------------------------------------------------------------------" << std::endl;
-        // std::cout << " RESULT: " << fMuon.P() << " " << fMuon.Eta() << " " << fID_SF->evaluate({std::abs(fMuon.Eta()), tPt, "nominal"}) << std::endl;
+        // std::cout << " RESULT: " << fMuon.P() << " " << fMuon.Eta() << " " << fID_SF->evaluate({std::abs(fMuon.Eta()), fMuon.Pt(), "nominal"}) << std::endl;
         // std::cout << "######################################################################" << std::endl;
         // std::cout << " " << std::endl;
 
-        return fID_SF->evaluate({std::abs(fMuon.Eta()), tPt, "nominal"});
+        return fID_SF->evaluate({std::abs(fMuon.Eta()), fMuon.Pt(), "nominal"});
       });
     }
 
@@ -156,17 +151,14 @@ public:
 
       fCorrectionFuncs["IsoEff"] = FuncSingleMuonCorrection([this](const TLorentzVector& fMuon) -> double {
 
-        float tPt = fMuon.Pt();
-        if (fMuon.Pt() < 50.) tPt = 50.01;
-
         // std::cout << "######################################################################" << std::endl;
         // std::cout << "                       ISO efficiency debugging                       " << std::endl;
         // std::cout << "----------------------------------------------------------------------" << std::endl;
-        // std::cout << " RESULT: " << fMuon.P() << " " << fMuon.Eta() << " " << fISO_SF->evaluate({std::abs(fMuon.Eta()), tPt, "nominal"}) << std::endl;
+        // std::cout << " RESULT: " << fMuon.P() << " " << fMuon.Eta() << " " << fISO_SF->evaluate({std::abs(fMuon.Eta()), fMuon.Pt(), "nominal"}) << std::endl;
         // std::cout << "######################################################################" << std::endl;
         // std::cout << " " << std::endl;
 
-        return fISO_SF->evaluate({std::abs(fMuon.Eta()), tPt, "nominal"});
+        return fISO_SF->evaluate({std::abs(fMuon.Eta()), fMuon.Pt(), "nominal"});
       });
     }
 
@@ -184,16 +176,12 @@ public:
         double mu_1_mc = 0;
         double mu_2_mc = 0;
 
-        double mu_1_pt = fLMu.Pt();
-        if (mu_1_pt < 52.) mu_1_pt = 52.01;
+        if (fLMu.Pt() >= fTriggerPt) {
+          mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(fLMu.Eta()), fLMu.Pt(), "nominal"});
+          mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(fLMu.Eta()), fLMu.Pt(), "nominal"});
+        }
 
-        mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(fLMu.Eta()), mu_1_pt, "nominal"});
-        mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(fLMu.Eta()), mu_1_pt, "nominal"});
-
-        if (fSMu.Pt() < 52.) {
-          mu_2_data = 0.;
-          mu_2_mc = 0.;
-        } else {
+        if (fSMu.Pt() >= fTriggerPt) {
           mu_2_data = fTRIG_Eff_Data->evaluate({std::abs(fSMu.Eta()), fSMu.Pt(), "nominal"});
           mu_2_mc = fTRIG_Eff_MC->evaluate({std::abs(fSMu.Eta()), fSMu.Pt(), "nominal"});
         }
@@ -201,7 +189,7 @@ public:
         double data_tot = 1. - (1. - mu_1_data) * (1. - mu_2_data);
         double mc_tot = 1. - (1. - mu_1_mc) * (1. - mu_2_mc);
 
-        double eventTriggerEffSF = 0.;
+        double eventTriggerEffSF = 1.;
         if ( mc_tot != 0 )
           eventTriggerEffSF = data_tot / mc_tot;
 
@@ -223,11 +211,11 @@ public:
         
         double mu_1_data = 0;
         double mu_1_mc = 0;
-        double mu_1_pt = fLMu.Pt();
-        if (mu_1_pt < 52.) mu_1_pt = 52.01;
 
-        mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(fLMu.Eta()), mu_1_pt, "nominal"});
-        mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(fLMu.Eta()), mu_1_pt, "nominal"});
+        if (fLMu.Pt() >= fTriggerPt) {
+          mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(fLMu.Eta()), fLMu.Pt(), "nominal"});
+          mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(fLMu.Eta()), fLMu.Pt(), "nominal"});
+        }
 
         // std::cout << "######################################################################" << std::endl;
         // std::cout << "                       TRIGG efficiency debugging                     " << std::endl;
@@ -236,7 +224,7 @@ public:
         // std::cout << "######################################################################" << std::endl;
         // std::cout << " " << std::endl;
 
-        return mu_1_data / mu_1_mc;
+        return (mu_1_mc > 0.) ? mu_1_data / mu_1_mc : 1.;
       });
     }
 
@@ -284,8 +272,8 @@ public:
     std::cout << "######################################################################" << std::endl;
     std::cout << "                             Loop setting                             " << std::endl;
     std::cout << "----------------------------------------------------------------------" << std::endl;
-    std::cout << " fDoReco    : " << fDoReco << " " << fConfig["Efficiency"]["Reco"]["Path"].as<std::string>() << std::endl;
-    std::cout << "              " << fDoReco << " " << fConfig["Efficiency"]["Reco"]["Name"].as<std::string>() << std::endl;
+    std::cout << " fDoRoccoR  : " << fDoRoccoR << " " << fConfig["RoccoR"]["Path"].as<std::string>() << std::endl;
+    std::cout << " fDoReco    : " << fDoReco << " (reserved for high-pT workflow)" << std::endl;
     std::cout << " fDoID      : " << fDoID << " " << fConfig["Efficiency"]["ID"]["Path"].as<std::string>() << std::endl;
     std::cout << "              " << fDoID << " " << fConfig["Efficiency"]["ID"]["Name"].as<std::string>() << std::endl;
     std::cout << " fDoISO     : " << fDoISO << " " << fConfig["Efficiency"]["ISO"]["Path"].as<std::string>() << std::endl;
@@ -344,9 +332,9 @@ private:
   TString fSampleName;
   int fJobID;
   bool fIsMC;
-  TString fOutputDir;
 
   LumiReWeighting* fPuReweighting;
+  std::unique_ptr<RoccoR> fRoccoR;
   std::shared_ptr<const correction::Correction> fReco_SF;
   std::shared_ptr<const correction::Correction> fID_SF;
   std::shared_ptr<const correction::Correction> fISO_SF;
@@ -354,6 +342,7 @@ private:
   std::shared_ptr<const correction::Correction> fTRIG_Eff_MC;
 
   bool fDoReco;
+  bool fDoRoccoR;
   bool fDoID;
   bool fDoISO;
   bool fDoTRIGG;
@@ -373,6 +362,7 @@ private:
   JET* fJets;
 
   double fMaxEntries;
+  double fTriggerPt;
 
   HistoSetMUMU* fHistoSet;
 
