@@ -84,6 +84,19 @@ public:
     fDoTopPtReweighing = false;
     fDoTopPtReweighing = fConfig["Correction"]["TopPtReweighing"].as<bool>();
 
+    // fDoFakeSStoOS = false;
+    // fFakeSStoOSP0 = 0.;
+    // fFakeSStoOSP1 = 0.;
+    // fFakeSStoOSP2 = 0.;
+    // fFakeSStoOSP3 = 0.;
+    // if (fConfig["FakeSStoOS"]) {
+      // fDoFakeSStoOS = fConfig["FakeSStoOS"]["Use"].as<bool>(false);
+      // fFakeSStoOSP0 = fConfig["FakeSStoOS"]["P0"].as<double>(fFakeSStoOSP0);
+      // fFakeSStoOSP1 = fConfig["FakeSStoOS"]["P1"].as<double>(fFakeSStoOSP1);
+      // fFakeSStoOSP2 = fConfig["FakeSStoOS"]["P2"].as<double>(fFakeSStoOSP2);
+      // fFakeSStoOSP3 = fConfig["FakeSStoOS"]["P3"].as<double>(fFakeSStoOSP3);
+    // }
+
     Print();
 
     fHistoSet = new HistoSetEE(); 
@@ -133,6 +146,8 @@ public:
     std::cout << " fDoBTag: " << fDoBTag << " " << fConfig["Efficiency"]["BTag"]["Path"].as<std::string>() << std::endl;
     std::cout << "            " << fConfig["Efficiency"]["BTagEff"]["Path"].as<std::string>() << std::endl;
     std::cout << " fDoTopPtReweighing: " << fDoTopPtReweighing << std::endl;
+    // std::cout << " fDoFakeSStoOS: " << fDoFakeSStoOS << std::endl;
+    // std::cout << "                " << fFakeSStoOSP0 << " " << fFakeSStoOSP1 << " " << fFakeSStoOSP2 << " " << fFakeSStoOSP3 << std::endl;
     std::cout << "######################################################################" << std::endl;
     std::cout << " " << std::endl;
   }
@@ -156,6 +171,7 @@ public:
 
   std::string getCurrentTimeString();
   std::string formatDuration(const std::chrono::high_resolution_clock::duration& duration); 
+  // double GetFakeSStoOSWeight(double met) const;
 
   void SetEra(TString fEra_) { fEra = fEra_; }
   void SetSample(TString fSampleName_) { fSampleName = fSampleName_; }
@@ -192,6 +208,11 @@ private:
   bool fDoJetPUID;
   bool fDoBTag;
   bool fDoTopPtReweighing;
+  // bool fDoFakeSStoOS;
+  // double fFakeSStoOSP0;
+  // double fFakeSStoOSP1;
+  // double fFakeSStoOSP2;
+  // double fFakeSStoOSP3;
 
   NT* fNtuples;
   YAML::Node fConfig;

@@ -30,6 +30,9 @@ void HistoSetEE::Init() {
             810, 820, 830, 840, 850, 860, 870, 880, 890, 900, 910, 920, 930, 940, 950, 960, 970, 980, 990, 1000,
             1020, 1040, 1060, 1080, 1100, 1120, 1140, 1160, 1180, 1200, 1220, 1240, 1260, 1280, 1300, 1320, 1340, 1360, 1380, 1400,
             1420, 1440, 1460, 1480, 1500, 1520};
+  fMETBins = { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+               110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+               210, 220, 230, 240, 250, 260, 270, 280, 290, 300 };
 
   fEtaBins = {-9999, 60, -3., 3.};
   fPhiBins = {-9999, 60, -3.141593, 3.141593};
@@ -75,9 +78,11 @@ void HistoSetEE::Init() {
       SetHisto("h_ElecDeltaR" + tHistSuffix, fDeltaRBins);
 
       SetHisto("h_dielecMass" + tHistSuffix);
+      // SetHisto("h_dielecMass_SStoOSWeighted" + tHistSuffix);
       SetHisto("h_dielecMass_1GeVBin" + tHistSuffix, std::vector<double>{-9999, 6000, 0., 6000.});
       SetHisto("h_dielecPt" + tHistSuffix);
       SetHisto("h_dielecRap" + tHistSuffix, "Eta");
+      SetHisto("h_MET" + tHistSuffix, fMETBins);
     }
   }
 
@@ -169,6 +174,9 @@ void HistoSetEE::SetHisto(std::string name) {
   else if (name.find("Mass") != std::string::npos) {
     SetHisto(name, fMassBins);
   }
+  else if (name.find("MET") != std::string::npos) {
+    SetHisto(name, fMETBins);
+  }
   else if (name.find("DeltaR") != std::string::npos) {
     SetHisto(name, fDeltaRBins);
   }
@@ -194,6 +202,9 @@ void HistoSetEE::SetHisto(std::string name, std::string binning) {
   }
   else if (binning.find("Mass") != std::string::npos) {
     SetHisto(name, fMassBins);
+  }
+  else if (binning.find("MET") != std::string::npos) {
+    SetHisto(name, fMETBins);
   }
   else if (binning.find("DeltaR") != std::string::npos) {
     SetHisto(name, fDeltaRBins);
@@ -222,6 +233,9 @@ void HistoSetEE::SetHisto(std::string name, std::string binning1, std::string bi
   else if (binning1.find("Mass") != std::string::npos) {
     binEdge1 = fMassBins;
   }
+  else if (binning1.find("MET") != std::string::npos) {
+    binEdge1 = fMETBins;
+  }
   else if (binning1.find("DeltaR") != std::string::npos) {
     binEdge1 = fDeltaRBins;
   }
@@ -245,6 +259,9 @@ void HistoSetEE::SetHisto(std::string name, std::string binning1, std::string bi
   }
   else if (binning2.find("Mass") != std::string::npos) {
     binEdge2 = fMassBins;
+  }
+  else if (binning2.find("MET") != std::string::npos) {
+    binEdge2 = fMETBins;
   }
   else if (binning2.find("DeltaR") != std::string::npos) {
     binEdge2 = fDeltaRBins;
@@ -345,6 +362,40 @@ void HistoSetEE::FillElec(TLorentzVector& fLeadingElec, TLorentzVector& fSublead
   }
 }
 
+// void HistoSetEE::FillElecSStoOSWeighted(TLorentzVector& fLeadingElec, TLorentzVector& fSubleadingElec, int nJet, int nBJet, double weight) {
+
+  // TLorentzVector fDielec = fLeadingElec + fSubleadingElec;
+
+  // std::string tMassSuffix = GetMassBin(SetMassOverflow(fDielec.M()));
+  // std::string tJetSuffix = GetJetBin(nJet);
+  // std::string tBJetSuffix = GetBJetBin(nBJet);
+  // std::string tbVetoJetSuffix = GetbVetoJetBin(nJet);
+
+  // std::vector<std::string> tHistSuffix;
+  // if (nBJet == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
+  // else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+
+  // for (auto suffix : tHistSuffix) {
+    // fHistSet["h_dielecMass_SStoOSWeighted" + suffix]->Fill(SetMassOverflow(fDielec.M()), weight);
+  // }
+// }
+
+void HistoSetEE::FillMET(double fMET, double fDielecMass, int nJet, int nBJet, double weight) {
+
+  std::string tMassSuffix = GetMassBin(SetMassOverflow(fDielecMass));
+  std::string tJetSuffix = GetJetBin(nJet);
+  std::string tBJetSuffix = GetBJetBin(nBJet);
+  std::string tbVetoJetSuffix = GetbVetoJetBin(nJet);
+
+  std::vector<std::string> tHistSuffix;
+  if (nBJet == 0) tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix, tbVetoJetSuffix, tbVetoJetSuffix + tMassSuffix};
+  else tHistSuffix = {"", tMassSuffix, tJetSuffix, tJetSuffix + tMassSuffix, tBJetSuffix, tBJetSuffix + tMassSuffix};
+
+  for (auto suffix : tHistSuffix) {
+    fHistSet["h_MET" + suffix]->Fill(SetPtOverflow(fMET), weight);
+  }
+}
+
 void HistoSetEE::FillJet(std::vector<JET::StdJet>* fJet, std::vector<JET::StdJet>* fBJet, double fDielecMass, double weight) {
   
   std::string tMassSuffix = GetMassBin(SetMassOverflow(fDielecMass));
@@ -414,9 +465,11 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
 
     fHistSet["h_ElecDeltaR" + tSuffix]->Write();
     fHistSet["h_dielecMass" + tSuffix]->Write();
+    // fHistSet["h_dielecMass_SStoOSWeighted" + tSuffix]->Write();
     fHistSet["h_dielecMass_1GeVBin" + tSuffix]->Write();
     fHistSet["h_dielecPt" + tSuffix]->Write();
     fHistSet["h_dielecRap" + tSuffix]->Write();
+    fHistSet["h_MET" + tSuffix]->Write();
     
     fHistSet["h_nJet" + tSuffix]->Write();
     fHistSet["h_JetPt" + tSuffix]->Write();
@@ -464,9 +517,11 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
 
       fHistSet["h_ElecDeltaR" + tSuffix]->Write();
       fHistSet["h_dielecMass" + tSuffix]->Write();
+      // fHistSet["h_dielecMass_SStoOSWeighted" + tSuffix]->Write();
       fHistSet["h_dielecMass_1GeVBin" + tSuffix]->Write();
       fHistSet["h_dielecPt" + tSuffix]->Write();
       fHistSet["h_dielecRap" + tSuffix]->Write();
+      fHistSet["h_MET" + tSuffix]->Write();
       
       fHistSet["h_nJet" + tSuffix]->Write();
       fHistSet["h_JetPt" + tSuffix]->Write();

@@ -27,6 +27,8 @@ public:
   void Init();
 
   void FillElec(TLorentzVector& fLeadingElec, TLorentzVector& fSubleadingElec, int nJet, int nBJet, double weight = 1.);
+  // void FillElecSStoOSWeighted(TLorentzVector& fLeadingElec, TLorentzVector& fSubleadingElec, int nJet, int nBJet, double weight = 1.);
+  void FillMET(double fMET, double fDielecMass, int nJet, int nBJet, double weight = 1.);
   void FillJet(std::vector<JET::StdJet>* fJet, std::vector<JET::StdJet>* fBJet, double fDielecMass, double weight = 1.);
 
   void FillHisto(std::string name, double value, double weight = 1.);
@@ -59,6 +61,7 @@ private:
   std::vector<std::string> fSuffix;
 
   std::vector<double> fPtBins;
+  std::vector<double> fMETBins;
   std::vector<double> fEtaBins;
   std::vector<double> fPhiBins;
   std::vector<double> fMassBins;

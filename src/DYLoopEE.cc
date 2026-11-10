@@ -39,6 +39,12 @@ std::string DYLoopEE::formatDuration(const std::chrono::high_resolution_clock::d
   return ss.str();
 }
 
+// double DYLoopEE::GetFakeSStoOSWeight(double met) const {
+  // double weight = fFakeSStoOSP0 - fFakeSStoOSP1 * met - std::exp(fFakeSStoOSP2 - fFakeSStoOSP3 * met);
+  // if (!std::isfinite(weight)) return 0.;
+  // return weight;
+// }
+
 void DYLoopEE::SetNT() {
 
 }
@@ -328,7 +334,12 @@ void DYLoopEE::Loop() {
     tTotalGenWeight += tEventGenWeight;
 
     fHistoSet->FillHisto((std::string)"h_nPVGood_Count", **(fNtuples->PV_npvsGood), tEventGenWeight);
+    fHistoSet->FillMET(**(fNtuples->MET_pt), tDiElec.M(), nJets, nBJets, tEventGenWeight);
     fHistoSet->FillElec(tFVecLeadingElec, tFVecSubLeadingElec, nJets, nBJets, tEventGenWeight);
+    // if (fDoFakeSStoOS) {
+      // double tFakeSStoOSWeight = GetFakeSStoOSWeight(**(fNtuples->MET_pt));
+      // fHistoSet->FillElecSStoOSWeighted(tFVecLeadingElec, tFVecSubLeadingElec, nJets, nBJets, tEventGenWeight * tFakeSStoOSWeight);
+    // }
     fHistoSet->FillJet(&vJets, &vBJets, tDiElec.M(), tEventGenWeight);
 
   } // End of event loop

@@ -31,6 +31,13 @@ Correction:
   BTag: true
   TopPtReweighing: true
 
+# FakeSStoOS:
+#   Use: false
+#   P0: 1.488906194
+#   P1: 0.0005606751754
+#   P2: -1.517544071
+#   P3: 0.04136876156
+
 Efficiency:
   Reco:
     Path: ../../correctionlib/electron/reco/EGM_2017.json

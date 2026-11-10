@@ -477,7 +477,7 @@ void NT::init() {
   // MET_covXY = new TTreeReaderValue<float>(*fTreeReader, "MET_covXY");
   // MET_covYY = new TTreeReaderValue<float>(*fTreeReader, "MET_covYY");
   // MET_phi = new TTreeReaderValue<float>(*fTreeReader, "MET_phi");
-  // MET_pt = new TTreeReaderValue<float>(*fTreeReader, "MET_pt");
+  MET_pt = new TTreeReaderValue<float>(*fTreeReader, "MET_pt");
   // MET_significance = new TTreeReaderValue<float>(*fTreeReader, "MET_significance");
   // MET_sumEt = new TTreeReaderValue<float>(*fTreeReader, "MET_sumEt");
   // MET_sumPtUnclustered = new TTreeReaderValue<float>(*fTreeReader, "MET_sumPtUnclustered");
