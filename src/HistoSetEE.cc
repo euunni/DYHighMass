@@ -15,6 +15,7 @@ void HistoSetEE::Init() {
   SetHisto("h_GenWeight", std::vector<double>{-9999, 20000, -10000., 10000.});
   SetHisto("h_LHEDielecMass", std::vector<double>{-9999, 6000, 0., 6000.});
   SetHisto("h_LHEnElec", std::vector<double>{-9999, 10, 0., 10.});
+  SetHisto("h_ElecRecoGenDeltaR", std::vector<double>{-9999, 100, 0., 10.});
 
   SetHisto("h_nPVGood_Count", std::vector<double>{-9999, 100, 0., 100.});
   SetHisto("h_PileUp_Count_Interaction_before", std::vector<double>{-9999, 100, 0., 100.});
@@ -443,6 +444,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
   fHistSet["h_GenWeight"]->Write();
   fHistSet["h_LHEDielecMass"]->Write();
   fHistSet["h_LHEnElec"]->Write();
+  fHistSet["h_ElecRecoGenDeltaR"]->Write();
   fHistSet["h_nPVGood_Count"]->Write();
   fHistSet["h_PileUp_Count_Interaction_before"]->Write();
   fHistSet["h_PileUp_Count_Interaction_after"]->Write();
@@ -491,6 +493,7 @@ void HistoSetEE::WriteHisto(TString fEra, TString fSampleName, TString fOutputDi
     fHistSet["h_GenWeight"]->Write();
     fHistSet["h_LHEDielecMass"]->Write();
     fHistSet["h_LHEnElec"]->Write();
+    fHistSet["h_ElecRecoGenDeltaR"]->Write();
     fHistSet["h_nPVGood_Count"]->Write();
     fHistSet["h_PileUp_Count_Interaction_before"]->Write();
     fHistSet["h_PileUp_Count_Interaction_after"]->Write();

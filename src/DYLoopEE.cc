@@ -235,7 +235,7 @@ void DYLoopEE::Loop() {
     // Get gen-lv electrons (status == 1, abs(pdgId) == 11)
     std::vector<std::pair<int, TLorentzVector>> tGenElecs = {};
     if (fIsMC) tGenElecs = fNtuples->GetGenPart(11, 1);
-    if (fIsMC && fDoElecMisCharge && tGenElecs.size() > 0) {
+    if (fIsMC && tGenElecs.size() > 0) {
       int tLeadMatchedIndex = -1;
       int tSubMatchedIndex = -1;
       double tLeadMatchedDeltaR = 9999.;
@@ -290,32 +290,37 @@ void DYLoopEE::Loop() {
         // Only one gen: whichever reco had the global best gets matched; the other stays unmatched
       }
 
-      // Apply mis-charge SF to the matched reco electrons.
-      if (tLeadMatchedIndex != -1) {
+      // Event weight before mis-charge SF, so that per-electron diagnostic histograms
+      // of leading and subleading electrons are filled with the same weight
+      double tPreMisChargeWeight = tEventGenWeight;
+
+      if (fDoElecMisCharge && tLeadMatchedIndex != -1) {
         int tBinIndexX = fElecMisCharge_SF->GetXaxis()->FindBin(std::abs(tLeadingElec.SCEta()));
         if (tBinIndexX == 0) tBinIndexX = 1;
         else if (tBinIndexX > fElecMisCharge_SF->GetNbinsX()) tBinIndexX = fElecMisCharge_SF->GetNbinsX();
-        
+
         int tBinIndexY = fElecMisCharge_SF->GetYaxis()->FindBin(tFVecLeadingElec.Pt());
         if (tBinIndexY == 0) tBinIndexY = 1;
         else if (tBinIndexY > fElecMisCharge_SF->GetNbinsY()) tBinIndexY = fElecMisCharge_SF->GetNbinsY();
-        
+
         if (tLeadingElec.fCharge * tGenElecs.at(tLeadMatchedIndex).first < 0) {
+          fHistoSet->FillHisto("h_ElecRecoGenDeltaR", tLeadMatchedDeltaR, tPreMisChargeWeight);
           double tElecMisChargeSFWeight = fElecMisCharge_SF->GetBinContent(tBinIndexX, tBinIndexY);
           tEventGenWeight *= tElecMisChargeSFWeight;
         }
       }
 
-      if (tSubMatchedIndex != -1) {
+      if (fDoElecMisCharge && tSubMatchedIndex != -1) {
         int tBinIndexX = fElecMisCharge_SF->GetXaxis()->FindBin(std::abs(tSubLeadingElec.SCEta()));
         if (tBinIndexX == 0) tBinIndexX = 1;
         else if (tBinIndexX > fElecMisCharge_SF->GetNbinsX()) tBinIndexX = fElecMisCharge_SF->GetNbinsX();
-        
+
         int tBinIndexY = fElecMisCharge_SF->GetYaxis()->FindBin(tFVecSubLeadingElec.Pt());
         if (tBinIndexY == 0) tBinIndexY = 1;
         else if (tBinIndexY > fElecMisCharge_SF->GetNbinsY()) tBinIndexY = fElecMisCharge_SF->GetNbinsY();
-        
+
         if (tSubLeadingElec.fCharge * tGenElecs.at(tSubMatchedIndex).first < 0) {
+          fHistoSet->FillHisto("h_ElecRecoGenDeltaR", tSubMatchedDeltaR, tPreMisChargeWeight);
           double tElecMisChargeSFWeight = fElecMisCharge_SF->GetBinContent(tBinIndexX, tBinIndexY);
           tEventGenWeight *= tElecMisChargeSFWeight;
         }
