@@ -16,7 +16,7 @@ make -j4 install
 cd DYHighMass
 source envset.sh
 
-pip3 install --user uproot, pickle, uuid, cmsstyle, array # only need first time
+pip3 install --user uproot pickle uuid cmsstyle array # only need first time
 chmod +x ./plotter/* # only need first time
 ```
 
