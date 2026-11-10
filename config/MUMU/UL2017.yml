@@ -7,14 +7,10 @@ Z:
 
 Muon:
   LeadingMuonPt: 52
-  SubLeadingMuonPt: 15
+  SubLeadingMuonPt: 50
   Eta: 2.4
   ID: global
   ISO: 0.1
-  ISOinverted: false
-  Charge: opposite
-  doRoccoR: false
-  RoccoR: ../../RoccoR/RoccoR2018UL.txt
   doMCSmearing: true
   MCSmearing:
     barrel:
@@ -45,16 +41,16 @@ Correction:
 
 Efficiency:
   Reco:
-    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_RECO_2017_schemaV2.json
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_RECO_2017_schemaV2.json
     Name: NUM_GlobalMuons_DEN_TrackerMuonProbes
   ID:
-    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_IDISO_2017_schemaV2.json
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_IDISO_2017_schemaV2.json
     Name: NUM_HighPtID_DEN_GlobalMuonProbes
   ISO:
-    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_IDISO_2017_schemaV2.json
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_IDISO_2017_schemaV2.json
     Name: NUM_probe_LooseRelTkIso_DEN_HighPtProbes
   Trigger:
-    Path: ../../correctionlib/muon/high/2017/ScaleFactors_Muon_highPt_HLT_2017_schemaV2.json
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_HLT_2017_schemaV2.json
     Data: NUM_HLT_DEN_HighPtLooseRelIsoProbes_DATAeff
     MC: NUM_HLT_DEN_HighPtLooseRelIsoProbes_MCeff
   JetPU:
@@ -62,9 +58,7 @@ Efficiency:
   BTag:
     Path: ../../correctionlib/bTag/2017.json
   BTagEff:
-    bQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_B.txt
-    cQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_C.txt
-    lQuark: ../../EfficiencyTable/BTagEff/DY_2017_h_BTagEff_L.txt
+    Path: ../../correctionlib/bTag/eff/BTagEff_MUMU_eff_AbsEta_PtMerged.json
 
 Pileup:
   Data: PileupHistogram-goldenJSON-13tev-2017-69200ub-99bins.root

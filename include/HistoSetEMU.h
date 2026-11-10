@@ -1,77 +1,59 @@
 #ifndef HistoSetEMU_h
 #define HistoSetEMU_h 1
 
-#include <iostream>
-#include <map>
 #include <string>
-#include <typeinfo>
+#include <vector>
 
+#include "HistoSetBase.h"
 #include "jet.h"
 
-#include "TFile.h"
-#include "TROOT.h"
-#include "TStopwatch.h"
-#include "TChain.h"
 #include "TLorentzVector.h"
-#include "TH1.h"
-#include "TH2.h"
 
-
-class HistoSetEMU
+class HistoSetEMU : public HistoSetBase
 {
 public:
-  HistoSetEMU() {
+  HistoSetEMU(TString fEra_, TString fSampleName_)
+    : HistoSetBase(fEra_, fSampleName_) {
+    // SetMassExclusive();
     Init();
   }
-  
-  ~HistoSetEMU() {}
 
   void Init();
 
-  void FillEMUPair(TLorentzVector& fMuon, TLorentzVector& fElec, int nJet, int nBJet, double weight = 1.);
-  void FillJet(std::vector<JET::StdJet>* fJet, std::vector<JET::StdJet>* fBJet, double fEMUMass, double weight = 1.);
+  std::vector<double> GetBinning(std::string name) override {
+    if (name.find("Pt") != std::string::npos) return fPtBins;
+    if (name.find("Eta") != std::string::npos || name.find("Rap") != std::string::npos) return fEtaBins;
+    if (name.find("Phi") != std::string::npos) return fPhiBins;
+    if (name.find("Mass") != std::string::npos) return fMassBins;
+    if (name.find("DeltaR") != std::string::npos) return fDeltaRBins;
+    if (name.find("nJet") != std::string::npos || name.find("nBJet") != std::string::npos) return fNJetBins;
+    return {};
+  }
 
-  void FillHisto(std::string name, double value, double weight = 1.);
-  void FillHisto(std::string name, float value, double weight = 1.);
-  void FillHisto(std::string name, int value, double weight = 1.);
+  void FillEMUPair(
+    const TLorentzVector& fMuon,
+    const TLorentzVector& fElec,
+    const int& nJet,
+    const int& nBJet,
+    const double& fWeight,
+    const std::string& fType
+  );
 
-  void FillHistoSet(std::string name, double mass, int nJet, int nBJet, double value, double weight = 1.);
-  void FillHistoSet(std::string name, double mass, int nJet, int nBJet, float value, double weight = 1.);
-  void FillHistoSet(std::string name, double mass, int nJet, int nBJet, int value, double weight = 1.);
+  void FillJet(
+    const std::vector<JET::StdJet>& fJet,
+    const std::vector<JET::StdJet>& fBJet,
+    const double& fEMUMass,
+    const double& fWeight,
+    const std::string& fType
+  );
 
-  void Fill2DHisto(std::string name, double value1, double value2, double weight = 1.) {}
-
-  void SetHisto(std::string name, std::vector<double> bins);
-  void SetHisto(std::string name, std::vector<double> bins1, std::vector<double> bins2);
-
-  void SetHisto(std::string name);
-  void SetHisto(std::string name, std::string binning);
-  void SetHisto(std::string name, std::string binning1, std::string binning2);
-  void SetHisto(std::string name, std::string binning1, std::string binning2, std::string binning3);
-
-  std::string GetMassBin(double fDimuonMass);
+  std::string GetMassBin(double fPairMass);
   std::string GetJetBin(double fNJet);
   std::string GetBJetBin(double fNBJet);
   std::string GetbVetoJetBin(double fNJet);
 
   double SetPtOverflow(double fPt);
   double SetMassOverflow(double fMass);
-
-  void WriteHisto(TString fEra, TString fSampleName, TString fOutputDir, bool fIsData);
-
-private:
-  std::map<std::string, TH1D*> fHistSet;
-  std::map<std::string, TH2D*> fHistSet2D;
-
-  std::vector<std::string> fSuffix;
-
-  std::vector<double> fPtBins;
-  std::vector<double> fEtaBins;
-  std::vector<double> fPhiBins;
-  std::vector<double> fMassBins;
-  std::vector<double> fDeltaRBins;
-  std::vector<double> fNJetBins;
-
 };
 
 #endif

@@ -4,7 +4,7 @@ import os, ROOT, sys, pickle, argparse
 import uuid
 import cmsstyle as CMS
 import array
-import plotterEngine
+import plotterEngine_MUMU as plotterEngine
 
 CMS.SetExtraText("Private Work")
 CMS.SetEnergy("13")
@@ -46,17 +46,7 @@ addon_hook_jet = {
 }
 
 mumu_mcList = [
-    "NNLO_MUMU_10to50",
-    "NNLO_MUMU_inc",
-    "NNLO_MUMU_100to200",
-    "NNLO_MUMU_200to400",
-    "NNLO_MUMU_400to500",
-    "NNLO_MUMU_500to700",
-    "NNLO_MUMU_700to800",
-    "NNLO_MUMU_800to1000",
-    "NNLO_MUMU_1000to1500",
-    "NNLO_MUMU_1500to2000",
-    "NNLO_MUMU_2000toInf",
+    "DY",
 
     "NNLO_tautau",
 
@@ -69,23 +59,7 @@ mumu_mcList = [
     "WZ",
     "ZZ",
 
-    "GGToMuMu_10to30_ElEl",
-    "GGToMuMu_30to50_ElEl",
-    "GGToMuMu_50to200_ElEl",
-    "GGToMuMu_200to1500_ElEl",
-    "GGToMuMu_1500toInf_ElEl",
-
-    "GGToMuMu_10to30_InelElElInel",
-    "GGToMuMu_30to50_InelElElInel",
-    "GGToMuMu_50to200_InelElElInel",
-    "GGToMuMu_200to1500_InelElElInel",
-    "GGToMuMu_1500toInf_InelElElInel",
-
-    "GGToMuMu_10to30_InelInel",
-    "GGToMuMu_30to50_InelInel",
-    "GGToMuMu_50to200_InelInel",
-    "GGToMuMu_200to1500_InelInel",
-    "GGToMuMu_1500toInf_InelInel",
+    "GG",
 ]
 
 emu_mcList = [
@@ -100,23 +74,7 @@ emu_mcList = [
     "WZ",
     "ZZ",
 
-    "GGToMuMu_10to30_ElEl",
-    "GGToMuMu_30to50_ElEl",
-    "GGToMuMu_50to200_ElEl",
-    "GGToMuMu_200to1500_ElEl",
-    "GGToMuMu_1500toInf_ElEl",
-
-    "GGToMuMu_10to30_InelElElInel",
-    "GGToMuMu_30to50_InelElElInel",
-    "GGToMuMu_50to200_InelElElInel",
-    "GGToMuMu_200to1500_InelElElInel",
-    "GGToMuMu_1500toInf_InelElElInel",
-
-    "GGToMuMu_10to30_InelInel",
-    "GGToMuMu_30to50_InelInel",
-    "GGToMuMu_50to200_InelInel",
-    "GGToMuMu_200to1500_InelInel",
-    "GGToMuMu_1500toInf_InelInel",
+    "GG"
 ]
 
 emu_mcList_woTop = [
@@ -147,35 +105,36 @@ emu_mcList_woTop = [
 refLumi = {
     "2016_preVFP": 19.5,
     "2016_postVFP": 16.8,
-    "2017": 41.5,
-    "2018": 59.8,
-    "merged": 137.6
+    "2017": 42.12,
+    "2018": 59.45,
+    "merged": 137.88
 }
 
 def GetOSFromSS(EMU_SS_FAKE, SStoOS):
 
     EMU_OS_FAKE_DataDriven = EMU_SS_FAKE.Clone(f"EMU_OS_FAKE_DataDriven_{uuid.uuid4()}")
-    EMU_OS_FAKE_DataDriven.Reset("ICES");
-
-    for i in range(1, SStoOS.GetNbinsX() + 1):
-        if SStoOS.GetBinContent(i) == 0 or EMU_SS_FAKE.GetBinContent(i) <= 0:
-            EMU_OS_FAKE_DataDriven.SetBinContent(i, 0)
-        else:
-            EMU_OS_FAKE_DataDriven.SetBinContent(i, EMU_SS_FAKE.GetBinContent(i) * SStoOS.GetBinContent(i))
+    EMU_OS_FAKE_DataDriven.Multiply(SStoOS)
 
     return EMU_OS_FAKE_DataDriven
 
+
+def GetHistoName(name, type, jet):
+    
+    histoName = ""
+    if jet != "":
+        histoName = f"{jet}/h_{type}_{name}{jet}"
+    if jet == "":
+        histoName = f"h_{type}_{name}"
+
+    return histoName
 
 def main():
 
     eras = ["2016_preVFP", "2016_postVFP", "2017", "2018", "merged"]
     cases = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
     
-
-    histoName = "h_PairMass"
-    histoName_MUMU = "h_dimuonMass"
-    outputPath = "./Bck/EMU_FAKE/"
-    outputRoot = "./Bck/EMU_FAKE.root"
+    outputPath = "./plots_260921/EMU_old/"
+    outputRoot = "./Bck/EMU_FAKE_old.root"
 
     os.makedirs(outputPath, exist_ok=True)
 
@@ -187,14 +146,14 @@ def main():
 
         latex_mumu = [
             f"{era}",
-            "p_{T}(#mu) > 52 (15) GeV, |#eta(#mu)| < 2.4",
+            "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
             "M_{#mu#mu} > 200 GeV",
             ""
         ]
 
         latex_emu = [
             f"{era}",
-            "p_{T}(#mu(e)) > 52 (20) GeV, |#eta(#mu(e))| < 2.4 (2.5)",
+            "p_{T}(#mu(e)) > 52 (50) GeV, |#eta(#mu(e))| < 2.4 (2.5)",
             "M_{e#mu} > 200 GeV",
             ""
         ]
@@ -211,27 +170,27 @@ def main():
         outputFile.mkdir(f"{era}/TOP_EMUtoMUMU")
         outputFile.mkdir(f"{era}/TOP_MUMU")
 
-        EMU_OS = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/EMU_OS.root", 
+        EMU_OS = plotterEngine.Plotter(era, rootPath = "./root/260706_EMU_merged.root", 
                                         outputPath = "./plots/temp/plots" + era + "/",
                                         channel = "EMU", 
                                         region = "OS")
 
-        EMU_SS = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/EMU_SS.root", 
+        EMU_SS = plotterEngine.Plotter(era, rootPath = "./root/260706_EMU_merged.root", 
                                         outputPath = "./plots/temp/plots" + era + "/",
                                         channel = "EMU", 
                                         region = "SS")
 
-        EMU_OS_inverted = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/EMU_OS_inverted.root", 
+        EMU_OS_inverted = plotterEngine.Plotter(era, rootPath = "./root/260706_EMU_merged.root", 
                                         outputPath = "./plots/temp/plots" + era + "/",
                                         channel = "EMU", 
                                         region = "OS_inverted")
 
-        EMU_SS_inverted = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/EMU_SS_inverted.root", 
+        EMU_SS_inverted = plotterEngine.Plotter(era, rootPath = "./root/260706_EMU_merged.root", 
                                         outputPath = "./plots/temp/plots" + era + "/",
                                         channel = "EMU", 
                                         region = "SS_inverted")
 
-        MUMU = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/MUMU_OS.root", 
+        MUMU = plotterEngine.Plotter(era, rootPath = "./root/260911_MUMU_GenUpdate_merged.root", 
                                         outputPath = "./plots/temp/plots" + era + "/",
                                         channel = "MUMU", 
                                         region = "OS")
@@ -245,61 +204,65 @@ def main():
                 latex_copy_mumu[2] = f"{latex_copy_mumu[2]}, {addon_hook_jet[case]}"
                 latex_copy_emu[2] = f"{latex_copy_emu[2]}, {addon_hook_jet[case]}"
 
-            histoName = "h_PairMass"
-            histoName_MUMU = "h_dimuonMass"
-            if case != "":
-                histoName = case + "/" + histoName + case
-                histoName_MUMU = case + "/" + histoName_MUMU + case
-            if case == "":
-                histoName = histoName
-                histoName_MUMU = histoName_MUMU
 
-            EMU_OS_TotalMC = EMU_OS.GetMCHist(histoName, emu_mcList)
-            EMU_OS_data = EMU_OS.GetDataHist(histoName)
 
-            EMU_OS_TT = EMU_OS.GetMCHist(histoName, ["TTTo2L2Nu"])
+            EMU_OS_TotalMC = EMU_OS.GetMCHist(GetHistoName("PairMass", "OS", case), emu_mcList)
+            EMU_OS_data = EMU_OS.GetDataHist(GetHistoName("PairMass", "OS", case))
+
+            EMU_OS_TT = EMU_OS.GetMCHist(GetHistoName("PairMass", "OS", case), ["TTTo2L2Nu"])
             EMU_OS_TT.SetName("EMU_OS_TT" + case)
-            EMU_OS_TW = EMU_OS.GetMCHist(histoName, ["ST_tW_AntiTop", "ST_tW_Top"])
+            EMU_OS_TW = EMU_OS.GetMCHist(GetHistoName("PairMass", "OS", case), ["ST_tW_AntiTop", "ST_tW_Top"])
             EMU_OS_TW.SetName("EMU_OS_TW" + case)
-            EMU_OS_WW = EMU_OS.GetMCHist(histoName, ["WW"])
+            EMU_OS_WW = EMU_OS.GetMCHist(GetHistoName("PairMass", "OS", case), ["WW"])
             EMU_OS_WW.SetName("EMU_OS_WW" + case)
 
             EMU_OS_TOP = EMU_OS_TT.Clone("EMU_OS_TOP" + case)
             EMU_OS_TOP.Add(EMU_OS_TW)
             EMU_OS_TOP.Add(EMU_OS_WW)
 
-            MUMU_OS_TT = MUMU.GetMCHist(histoName_MUMU, ["TTTo2L2Nu"])
+            MUMU_OS_TT = MUMU.GetMCHist(GetHistoName("dimuonMass", "OS", case), ["TTTo2L2Nu"])
             MUMU_OS_TT.SetName("MUMU_OS_TT" + case)
-            MUMU_OS_TW = MUMU.GetMCHist(histoName_MUMU, ["ST_tW_AntiTop", "ST_tW_Top"])
+            MUMU_OS_TW = MUMU.GetMCHist(GetHistoName("dimuonMass", "OS", case), ["ST_tW_AntiTop", "ST_tW_Top"])
             MUMU_OS_TW.SetName("MUMU_OS_TW" + case)
-            MUMU_OS_WW = MUMU.GetMCHist(histoName_MUMU, ["WW"])
+            MUMU_OS_WW = MUMU.GetMCHist(GetHistoName("dimuonMass", "OS", case), ["WW"])
             MUMU_OS_WW.SetName("MUMU_OS_WW" + case)
 
             MUMU_OS_TOP = MUMU_OS_TT.Clone("MUMU_OS_TOP" + case)
             MUMU_OS_TOP.Add(MUMU_OS_TW)
             MUMU_OS_TOP.Add(MUMU_OS_WW)
 
+            TT_EMUtoMUMU = MUMU_OS_TT.Clone(f"TT_EMUtoMUMU_{uuid.uuid4()}")
+            TT_EMUtoMUMU.Divide(EMU_OS_TT)
+            TT_EMUtoMUMU.SetName("TT_EMUtoMUMU" + case)
+
+            TW_EMUtoMUMU = MUMU_OS_TW.Clone(f"TW_EMUtoMUMU_{uuid.uuid4()}")
+            TW_EMUtoMUMU.Divide(EMU_OS_TW)
+            TW_EMUtoMUMU.SetName("TW_EMUtoMUMU" + case)
+
+            WW_EMUtoMUMU = MUMU_OS_WW.Clone(f"WW_EMUtoMUMU_{uuid.uuid4()}")
+            WW_EMUtoMUMU.Divide(EMU_OS_WW)
+            WW_EMUtoMUMU.SetName("WW_EMUtoMUMU" + case)
+
             TOP_EMUtoMUMU = MUMU_OS_TOP.Clone(f"TOP_EMUtoMUMU_{uuid.uuid4()}")
             TOP_EMUtoMUMU.Divide(EMU_OS_TOP)
             TOP_EMUtoMUMU.SetName("TOP_EMUtoMUMU" + case)
+            TOP_EMUtoMUMU = SanityCheck(TOP_EMUtoMUMU)
 
-            EMU_SS_TotalMC = EMU_SS.GetMCHist(histoName, emu_mcList)
-            EMU_SS_data = EMU_SS.GetDataHist(histoName)
+            EMU_SS_TotalMC = EMU_SS.GetMCHist(GetHistoName("PairMass", "SS", case), emu_mcList)
+            EMU_SS_data = EMU_SS.GetDataHist(GetHistoName("PairMass", "SS", case))
             
             EMU_SS_FAKE = EMU_SS_data.Clone(f"EMU_SS_FAKE_{uuid.uuid4()}")
             EMU_SS_FAKE.Add(EMU_SS_TotalMC, -1)
             EMU_SS_FAKE.SetName("EMU_SS_FAKE" + case)
-            EMU_SS_FAKE = SanityCheck(EMU_SS_FAKE)
 
-            EMU_OS_inverted_TotalMC = EMU_OS_inverted.GetMCHist(histoName, emu_mcList)
-            EMU_OS_inverted_data = EMU_OS_inverted.GetDataHist(histoName)
+            EMU_OS_inverted_TotalMC = EMU_OS_inverted.GetMCHist(GetHistoName("PairMass", "OS_inverted", case), emu_mcList)
+            EMU_OS_inverted_data = EMU_OS_inverted.GetDataHist(GetHistoName("PairMass", "OS_inverted", case))
             
             EMU_OS_inverted_FAKE = EMU_OS_inverted_data.Clone(f"EMU_OS_inverted_FAKE_{uuid.uuid4()}")
             EMU_OS_inverted_FAKE.Add(EMU_OS_inverted_TotalMC, -1)
-            EMU_OS_inverted_FAKE = SanityCheck(EMU_OS_inverted_FAKE)
 
-            EMU_SS_inverted_TotalMC = EMU_SS_inverted.GetMCHist(histoName, emu_mcList)
-            EMU_SS_inverted_data = EMU_SS_inverted.GetDataHist(histoName)
+            EMU_SS_inverted_TotalMC = EMU_SS_inverted.GetMCHist(GetHistoName("PairMass", "SS_inverted", case), emu_mcList)
+            EMU_SS_inverted_data = EMU_SS_inverted.GetDataHist(GetHistoName("PairMass", "SS_inverted", case))
 
             EMU_SS_inverted_FAKE = EMU_SS_inverted_data.Clone(f"EMU_SS_inverted_FAKE_{uuid.uuid4()}")
             EMU_SS_inverted_FAKE.Add(EMU_SS_inverted_TotalMC, -1)
@@ -308,11 +271,13 @@ def main():
             EMU_inverted_SStoOS = EMU_OS_inverted_FAKE.Clone(f"EMU_inverted_SStoOS_{uuid.uuid4()}")
             EMU_inverted_SStoOS.Divide(EMU_SS_inverted_FAKE)
             EMU_inverted_SStoOS.SetName("EMU_inverted_SStoOS" + case)
+            EMU_inverted_SStoOS = SanityCheck(EMU_inverted_SStoOS)
 
             EMU_OS_FAKE_DataDriven = GetOSFromSS(EMU_SS_FAKE, EMU_inverted_SStoOS)
             EMU_OS_FAKE_DataDriven.SetName("EMU_OS_FAKE_DataDriven" + case)
+            EMU_OS_FAKE_DataDriven = SanityCheck(EMU_OS_FAKE_DataDriven)
 
-            EMU_OS_TotalMC_ex_TOP = EMU_OS.GetMCHist(histoName, emu_mcList_woTop)
+            EMU_OS_TotalMC_ex_TOP = EMU_OS.GetMCHist(GetHistoName("PairMass", "OS", case), emu_mcList_woTop)
             EMU_OS_TotalMC_ex_TOP.Add(EMU_OS_FAKE_DataDriven)
 
             EMU_OS_TOP_DataDriven = EMU_OS_data.Clone(f"EMU_OS_TOP_DataDriven_{uuid.uuid4()}")
@@ -320,6 +285,7 @@ def main():
             EMU_OS_TOP_DataDriven.SetName("EMU_OS_TOP_DataDriven" + case)
 
             MUMU_OS_TOP_DataDriven = GetOSFromSS(EMU_OS_TOP_DataDriven, TOP_EMUtoMUMU)
+            MUMU_OS_TOP_DataDriven = SanityCheck(MUMU_OS_TOP_DataDriven)
             MUMU_OS_TOP_DataDriven.SetName("MUMU_OS_TOP_DataDriven" + case)
             MUMU_OS_TOP_DataDriven_Ratio = MUMU_OS_TOP_DataDriven.Clone(f"MUMU_OS_TOP_DataDriven_Ratio_{uuid.uuid4()}")
             MUMU_OS_TOP_DataDriven_Ratio.Divide(MUMU_OS_TOP)
@@ -344,7 +310,7 @@ def main():
                 200,
                 4000,
                 0,
-                EMU_SS_FAKE.GetMaximum() * 1.3,
+                EMU_SS_FAKE.GetBinContent(2) * 1.3,
                 "M(e#mu) [GeV]",
                 "Events",
                 square = True,
@@ -388,7 +354,7 @@ def main():
                 200,
                 4000,
                 0,
-                EMU_SS_inverted_FAKE.GetMaximum() * 1.3,
+                EMU_SS_inverted_FAKE.GetBinContent(2) * 1.3,
                 "M(e#mu) [GeV]",
                 "Events",
                 square = True,
@@ -432,7 +398,7 @@ def main():
                 200,
                 4000,
                 0,
-                EMU_OS_FAKE_DataDriven.GetMaximum() * 1.3,
+                EMU_OS_FAKE_DataDriven.GetBinContent(2) * 1.3,
                 "M(e#mu) [GeV]",
                 "Events",
                 square = True,
@@ -475,7 +441,7 @@ def main():
                 200,
                 4000,
                 0,
-                EMU_OS_inverted_FAKE.GetMaximum() * 1.3,
+                EMU_OS_inverted_FAKE.GetBinContent(2) * 1.3,
                 "M(e#mu) [GeV]",
                 "Events",
                 square = True,
@@ -521,7 +487,7 @@ def main():
                 200,
                 4000,
                 2e-2,
-                EMU_OS_inverted_FAKE.GetMaximum() * 1e3,
+                EMU_OS_inverted_FAKE.GetBinContent(2) * 1e3,
                 yrmin,
                 yrmax,
                 "M(e#mu) [GeV]",
@@ -575,7 +541,7 @@ def main():
                 200,
                 4000,
                 2e-2,
-                MUMU_OS_TOP.GetMaximum() * 1e3,
+                MUMU_OS_TOP.GetBinContent(2) * 1e3,
                 1 - 0.55,
                 1 + 0.55,
                 "Mass [GeV]",
@@ -627,7 +593,7 @@ def main():
                 200,
                 4000,
                 2e-2,
-                MUMU_OS_TOP_DataDriven.GetMaximum() * 1e3,
+                MUMU_OS_TOP_DataDriven.GetBinContent(2) * 1e3,
                 1 - 0.55,
                 1 + 0.55,
                 "M(#mu#mu) [GeV]",
@@ -645,7 +611,7 @@ def main():
             Canv_TOP_Comparision.cd(1)
 
             Leg_TOP_Comparision = CMS.cmsLeg(0.56, 0.89 - 0.05 * 4, 0.89, 0.89, textSize=0.03)
-            Leg_TOP_Comparision.AddEntry(MUMU_OS_TOP_DataDriven, "TTbar + Single Top, data-diven", "lp")
+            Leg_TOP_Comparision.AddEntry(MUMU_OS_TOP_DataDriven, "tt + tW + WW, data-driven", "lp")
 
             TOP_Comparision_Stack = ROOT.THStack("TOP_Comparision_Stack", "Stacked")
             TOP_Comparision_StackSheet = {
@@ -677,6 +643,165 @@ def main():
             CMS.cmsDrawLine(ref_line, lcolor=ROOT.kRed, lstyle=ROOT.kDotted)
 
             CMS.SaveCanvas(Canv_TOP_Comparision, os.path.join(outputPath, "era_" + era + "/plot_" + era + "_TOP_DataDriven" + case + ".pdf"))
+
+
+            #################################################################
+            # TT EMUtoMUMU
+            #################################################################
+            Canv_TT_EMUtoMUMU = CMS.cmsDiCanvas(
+                "Canv_TT_EMUtoMUMU",
+                200,
+                4000,
+                2e-2,
+                MUMU_OS_TT.GetBinContent(2) * 1e3,
+                1 - 0.55,
+                1 + 0.55,
+                "Mass [GeV]",
+                "Events",
+                "#mu#mu/e#mu",
+                square = CMS.kSquare,
+                extraSpace = 0.1,
+                iPos = 0,
+            )
+
+            Canv_TT_EMUtoMUMU.cd(1).SetLogy(True)
+            Canv_TT_EMUtoMUMU.cd(1).SetLogx(True)
+            Canv_TT_EMUtoMUMU.cd(2).SetLogx(True)
+
+            Canv_TT_EMUtoMUMU.cd(1)
+
+            Leg_TT_EMUtoMUMU = CMS.cmsLeg(0.50, 0.70 - 0.05 * 2, 0.89, 0.70, textSize=0.03)
+            Leg_TT_EMUtoMUMU.AddEntry(MUMU_OS_TT, "#mu#mu, tt, MC", "lp")
+            Leg_TT_EMUtoMUMU.AddEntry(EMU_OS_TT, "e#mu, tt, MC", "lp")
+
+            Canv_TT_EMUtoMUMU.cd(1)
+            CMS.cmsDraw(MUMU_OS_TT, "P", mcolor=ROOT.kBlack)
+            CMS.cmsDraw(EMU_OS_TT, "P", mcolor=ROOT.kRed)
+
+
+            latex_TT_EMUtoMUMU_item = latex_copy_emu.copy()
+            latex_TT_EMUtoMUMU_item[0] = f"{latex_TT_EMUtoMUMU_item[0]}, #mu#mu/e#mu"
+
+            Latex_TT_EMUtoMUMU = ROOT.TLatex()
+            Latex_TT_EMUtoMUMU.SetTextAlign(14);
+            Latex_TT_EMUtoMUMU.SetTextSize(0.04);
+            Latex_TT_EMUtoMUMU.SetTextFont(42);
+            for idx, addon in enumerate(latex_TT_EMUtoMUMU_item):
+                Latex_TT_EMUtoMUMU.DrawLatexNDC(0.18, 0.86 - idx * 0.065, addon.encode('utf-8'))
+
+            Canv_TT_EMUtoMUMU.cd(2)
+            CMS.cmsDraw(TT_EMUtoMUMU, "P", mcolor=ROOT.kBlack)
+
+            ref_line = ROOT.TLine(200, 1, 4000, 1)
+            CMS.cmsDrawLine(ref_line, lcolor=ROOT.kRed, lstyle=ROOT.kDotted)
+
+            CMS.SaveCanvas(Canv_TT_EMUtoMUMU, os.path.join(outputPath, "era_" + era + "/plot_" + era + "_TT_EMUtoMUMU" + case + ".pdf"))
+
+
+            #################################################################
+            # TW EMUtoMUMU
+            #################################################################
+            Canv_TW_EMUtoMUMU = CMS.cmsDiCanvas(
+                "Canv_TW_EMUtoMUMU",
+                200,
+                4000,
+                2e-2,
+                MUMU_OS_TW.GetBinContent(2) * 1e3,
+                1 - 0.55,
+                1 + 0.55,
+                "Mass [GeV]",
+                "Events",
+                "#mu#mu/e#mu",
+                square = CMS.kSquare,
+                extraSpace = 0.1,
+                iPos = 0,
+            )
+
+            Canv_TW_EMUtoMUMU.cd(1).SetLogy(True)
+            Canv_TW_EMUtoMUMU.cd(1).SetLogx(True)
+            Canv_TW_EMUtoMUMU.cd(2).SetLogx(True)
+
+            Canv_TW_EMUtoMUMU.cd(1)
+
+            Leg_TW_EMUtoMUMU = CMS.cmsLeg(0.50, 0.70 - 0.05 * 2, 0.89, 0.70, textSize=0.03)
+            Leg_TW_EMUtoMUMU.AddEntry(MUMU_OS_TW, "#mu#mu, tW, MC", "lp")
+            Leg_TW_EMUtoMUMU.AddEntry(EMU_OS_TW, "e#mu, tW, MC", "lp")
+
+            Canv_TW_EMUtoMUMU.cd(1)
+            CMS.cmsDraw(MUMU_OS_TW, "P", mcolor=ROOT.kBlack)
+            CMS.cmsDraw(EMU_OS_TW, "P", mcolor=ROOT.kRed)
+
+
+            latex_TW_EMUtoMUMU_item = latex_copy_emu.copy()
+            latex_TW_EMUtoMUMU_item[0] = f"{latex_TW_EMUtoMUMU_item[0]}, #mu#mu/e#mu"
+
+            Latex_TW_EMUtoMUMU = ROOT.TLatex()
+            Latex_TW_EMUtoMUMU.SetTextAlign(14);
+            Latex_TW_EMUtoMUMU.SetTextSize(0.04);
+            Latex_TW_EMUtoMUMU.SetTextFont(42);
+            for idx, addon in enumerate(latex_TW_EMUtoMUMU_item):
+                Latex_TW_EMUtoMUMU.DrawLatexNDC(0.18, 0.86 - idx * 0.065, addon.encode('utf-8'))
+
+            Canv_TW_EMUtoMUMU.cd(2)
+            CMS.cmsDraw(TW_EMUtoMUMU, "P", mcolor=ROOT.kBlack)
+
+            ref_line = ROOT.TLine(200, 1, 4000, 1)
+            CMS.cmsDrawLine(ref_line, lcolor=ROOT.kRed, lstyle=ROOT.kDotted)
+
+            CMS.SaveCanvas(Canv_TW_EMUtoMUMU, os.path.join(outputPath, "era_" + era + "/plot_" + era + "_TW_EMUtoMUMU" + case + ".pdf"))
+
+
+            #################################################################
+            # WW EMUtoMUMU
+            #################################################################
+            Canv_WW_EMUtoMUMU = CMS.cmsDiCanvas(
+                "Canv_WW_EMUtoMUMU",
+                200,
+                4000,
+                2e-2,
+                MUMU_OS_WW.GetBinContent(2) * 1e3,
+                1 - 0.55,
+                1 + 0.55,
+                "Mass [GeV]",
+                "Events",
+                "#mu#mu/e#mu",
+                square = CMS.kSquare,
+                extraSpace = 0.1,
+                iPos = 0,
+            )
+
+            Canv_WW_EMUtoMUMU.cd(1).SetLogy(True)
+            Canv_WW_EMUtoMUMU.cd(1).SetLogx(True)
+            Canv_WW_EMUtoMUMU.cd(2).SetLogx(True)
+
+            Canv_WW_EMUtoMUMU.cd(1)
+
+            Leg_WW_EMUtoMUMU = CMS.cmsLeg(0.50, 0.70 - 0.05 * 2, 0.89, 0.70, textSize=0.03)
+            Leg_WW_EMUtoMUMU.AddEntry(MUMU_OS_WW, "#mu#mu, WW, MC", "lp")
+            Leg_WW_EMUtoMUMU.AddEntry(EMU_OS_WW, "e#mu, WW, MC", "lp")
+
+            Canv_WW_EMUtoMUMU.cd(1)
+            CMS.cmsDraw(MUMU_OS_WW, "P", mcolor=ROOT.kBlack)
+            CMS.cmsDraw(EMU_OS_WW, "P", mcolor=ROOT.kRed)
+
+
+            latex_WW_EMUtoMUMU_item = latex_copy_emu.copy()
+            latex_WW_EMUtoMUMU_item[0] = f"{latex_WW_EMUtoMUMU_item[0]}, #mu#mu/e#mu"
+
+            Latex_WW_EMUtoMUMU = ROOT.TLatex()
+            Latex_WW_EMUtoMUMU.SetTextAlign(14);
+            Latex_WW_EMUtoMUMU.SetTextSize(0.04);
+            Latex_WW_EMUtoMUMU.SetTextFont(42);
+            for idx, addon in enumerate(latex_WW_EMUtoMUMU_item):
+                Latex_WW_EMUtoMUMU.DrawLatexNDC(0.18, 0.86 - idx * 0.065, addon.encode('utf-8'))
+
+            Canv_WW_EMUtoMUMU.cd(2)
+            CMS.cmsDraw(WW_EMUtoMUMU, "P", mcolor=ROOT.kBlack)
+
+            ref_line = ROOT.TLine(200, 1, 4000, 1)
+            CMS.cmsDrawLine(ref_line, lcolor=ROOT.kRed, lstyle=ROOT.kDotted)
+
+            CMS.SaveCanvas(Canv_WW_EMUtoMUMU, os.path.join(outputPath, "era_" + era + "/plot_" + era + "_WW_EMUtoMUMU" + case + ".pdf"))
 
 
 

@@ -25,6 +25,8 @@ class JET
 public:
   JET(YAML::Node fConfig) {
 
+    fEra = fConfig["Info"]["Era"].as<std::string>();
+
     YAML::Node fJetConf = fConfig["Jet"];
 
     fJetPt = fJetConf["Pt"].as<float>();
@@ -40,9 +42,7 @@ public:
     std::shared_ptr<const correction::Correction> fDeepJetWP = correction::CorrectionSet::from_file(fConfig["Efficiency"]["BTag"]["Path"].as<std::string>())->at("deepJet_wp_values");
     fBJetTaggerCut = fDeepJetWP->evaluate({fBTagWP});
 
-    fJetBTagEffB = EffTable(fConfig["Efficiency"]["BTagEff"]["bQuark"].as<std::string>());
-    fJetBTagEffC = EffTable(fConfig["Efficiency"]["BTagEff"]["cQuark"].as<std::string>());
-    fJetBTagEffL = EffTable(fConfig["Efficiency"]["BTagEff"]["lQuark"].as<std::string>());
+    fJetBTagEff = correction::CorrectionSet::from_file(fConfig["Efficiency"]["BTagEff"]["Path"].as<std::string>())->at("BTagEff");
 
     fBTagMuJets = correction::CorrectionSet::from_file(fConfig["Efficiency"]["BTag"]["Path"].as<std::string>())->at("deepJet_mujets");
     fBTagIncl = correction::CorrectionSet::from_file(fConfig["Efficiency"]["BTag"]["Path"].as<std::string>())->at("deepJet_incl");    
@@ -78,11 +78,22 @@ public:
   void init(TTreeReader* fTreeReader);
 
   void IsMC(bool fIsMC_) { fIsMC = fIsMC_; }
+  void SetSampleName(std::string fSampleName_) { 
+
+    if (fSampleName_.find("NNLO") != std::string::npos && fSampleName_.find("tau") == std::string::npos)
+      fSampleName = "DY";
+    else if (fSampleName_ == "TTTo2L2Nu")
+      fSampleName = fSampleName_;
+    else if (fSampleName_.find("GG") != std::string::npos)
+      fSampleName = "GG";
+    else
+      fSampleName = "Merged";
+  }
 
   bool PrepareJet();
 
-  std::vector<StdJet> GetJets() { return fFVecJets; }
-  std::vector<StdJet> GetBJets() { return fFVecBJets; }
+  const std::vector<StdJet>& GetJets() const { return fFVecJets; }
+  const std::vector<StdJet>& GetBJets() const { return fFVecBJets; }
 
   double GetPUIDSF();
   double GetBTagSF();
@@ -113,11 +124,12 @@ private:
   bool fCleaning;
   bool fIsMC;
 
+  std::string fEra;
+  std::string fSampleName;
+
   std::shared_ptr<const correction::Correction> fJetPUIDSF;
   
-  EffTable fJetBTagEffB;
-  EffTable fJetBTagEffC;
-  EffTable fJetBTagEffL;
+  std::shared_ptr<const correction::Correction> fJetBTagEff;
 
   std::shared_ptr<const correction::Correction> fBTagMuJets;
   std::shared_ptr<const correction::Correction> fBTagIncl;

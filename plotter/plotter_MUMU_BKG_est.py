@@ -4,7 +4,8 @@ import os, ROOT, sys, pickle, argparse
 import uuid
 import cmsstyle as CMS
 import array
-import plotterEngine
+import plotterEngine_MUMU as plotterEngine
+import numpy as np
 
 CMS.SetExtraText("Private Work")
 CMS.SetEnergy("13")
@@ -29,7 +30,18 @@ def GetYRange(hist):
     yrmin = yrmin * 0.9
     yrmax = yrmax * 1.1
 
+    if yrmin > 1: yrmin = 0
+
     return yrmin, yrmax
+
+def Rebin(hist):
+      
+    fRebinBins = np.array([199, 200, 220, 273, 380, 510, 700, 1000, 4000, 4001], dtype=np.double)
+    fReturnHist = hist.Rebin(len(fRebinBins) - 1, f"h_dimuonMass_rebin_{uuid.uuid4()}", fRebinBins)
+
+    return fReturnHist
+
+
 
 addon_hook_jet = {
     "": "",
@@ -100,13 +112,14 @@ emu_mcList_woTop = [
     "GGToMuMu_1500toInf_InelInel",
 ]
 
-refLumi = {
-    "2016_preVFP": 19.5,
-    "2016_postVFP": 16.8,
-    "2017": 41.5,
-    "2018": 59.8,
-    "merged": 137.6
-}
+def ErrorPropagation(x1, dx1, x2, dx2):
+
+    if x1 == 0 or x2 == 0:
+        # print(f"Error Zero Central value x1: {x1}, dx1: {dx1}, x2: {x2}, dx2: {dx2}")
+        return 0
+
+    return (x1 * x2) * np.sqrt((dx1 / x1)**2 + (dx2 / x2)**2)
+
 
 def GetOSFromSS(SS_Fake, SStoOS):
 
@@ -121,6 +134,30 @@ def GetOSFromSS(SS_Fake, SStoOS):
 
     return FAKE_DataDriven
 
+def GetOSFromSS_rebin(SS_Fake, SStoOS):
+
+    FAKE_DataDriven = SS_Fake.Clone(f"FAKE_DataDriven_rebin_{uuid.uuid4()}")
+    FAKE_DataDriven.Reset("ICES");
+
+    for i in range(1, SS_Fake.GetNbinsX() + 1):
+        if SStoOS.GetBinContent(SStoOS.FindBin(SS_Fake.GetBinCenter(i))) == 0 or SS_Fake.GetBinContent(i) <= 0:
+            FAKE_DataDriven.SetBinContent(i, 0)
+            FAKE_DataDriven.SetBinError(i, ErrorPropagation(SStoOS.GetBinContent(SStoOS.FindBin(SS_Fake.GetBinCenter(i))), SStoOS.GetBinError(SStoOS.FindBin(SS_Fake.GetBinCenter(i))), SS_Fake.GetBinContent(i), SS_Fake.GetBinError(i)))
+        else:
+            FAKE_DataDriven.SetBinContent(i, SS_Fake.GetBinContent(i) * SStoOS.GetBinContent(SStoOS.FindBin(SS_Fake.GetBinCenter(i))))
+            FAKE_DataDriven.SetBinError(i, ErrorPropagation(SStoOS.GetBinContent(SStoOS.FindBin(SS_Fake.GetBinCenter(i))), SStoOS.GetBinError(SStoOS.FindBin(SS_Fake.GetBinCenter(i))), SS_Fake.GetBinContent(i), SS_Fake.GetBinError(i)))
+            
+    return FAKE_DataDriven
+
+def GetHistoName(name, type, jet):
+
+    histoName = ""
+    if jet != "":
+        histoName = f"{jet}/h_{type}_{name}{jet}"
+    if jet == "":
+        histoName = f"h_{type}_{name}"
+
+    return histoName
 
 def main():
 
@@ -128,7 +165,7 @@ def main():
     cases = ["", "_0BJ", "_bVeto_0J", "_bVeto_1J", "_bVeto_mt1J"]
     
     histoName_MUMU = "h_dimuonMass"
-    outputPath = "./Bck/MUMU_FAKE/"
+    outputPath = "./plots_260921_v4/MUMU_FAKE/"
     outputRoot = "./Bck/MUMU_FAKE.root"
 
     os.makedirs(outputPath, exist_ok=True)
@@ -137,12 +174,12 @@ def main():
 
     for era in eras:
 
-        CMS.SetLumi(refLumi[era])
+        CMS.SetLumi(plotterEngine.refLumi[era])
         os.makedirs(f"{outputPath}era_{era}", exist_ok=True)
 
         latex_mumu = [
             f"{era}",
-            "p_{T}(#mu) > 52 (15) GeV, |#eta(#mu)| < 2.4",
+            "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
             "M_{#mu#mu} > 200 GeV",
             ""
         ]
@@ -154,23 +191,25 @@ def main():
         outputFile.mkdir(f"{era}/FAKE_MUMU_OS")
         outputFile.mkdir(f"{era}/FAKE_MUMU_SS")
         outputFile.mkdir(f"{era}/FAKE_MUMU_SStoOS")
+        outputFile.mkdir(f"{era}/FAKE_MUMU_OS_Inv_rebin")
+        outputFile.mkdir(f"{era}/FAKE_MUMU_SS_Inv_rebin")
 
-        MUMU_OS = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/MUMU_OS.root", 
+        MUMU_OS = plotterEngine.Plotter(era, rootPath = "./root/260911_MUMU_GenUpdate_merged.root",
                                             outputPath = "./plots/temp/plots" + era + "/",
                                             channel = "MUMU", 
                                             region = "OS")
 
-        MUMU_SS = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/MUMU_SS.root", 
+        MUMU_SS = plotterEngine.Plotter(era, rootPath = "./root/260911_MUMU_GenUpdate_merged.root",
                                             outputPath = "./plots/temp/plots" + era + "/",
                                             channel = "MUMU", 
                                             region = "SS")
 
-        MUMU_OS_inverted = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/MUMU_OS_inverted.root", 
+        MUMU_OS_inverted = plotterEngine.Plotter(era, rootPath = "./root/260911_MUMU_GenUpdate_merged.root",
                                             outputPath = "./plots/temp/plots" + era + "/",
                                             channel = "MUMU", 
                                             region = "OS_inverted")
 
-        MUMU_SS_inverted = plotterEngine.Plotter(era, rootPath = "./Bck/ROOT/MUMU_SS_inverted.root", 
+        MUMU_SS_inverted = plotterEngine.Plotter(era, rootPath = "./root/260911_MUMU_GenUpdate_merged.root",
                                             outputPath = "./plots/temp/plots" + era + "/",
                                             channel = "MUMU", 
                                             region = "SS_inverted")
@@ -182,48 +221,59 @@ def main():
             if case != "":
                 latex_copy_mumu[2] = f"{latex_copy_mumu[2]}, {addon_hook_jet[case]}"
 
-            histoName = "h_dimuonMass"
-            if case != "":
-                histoName = case + "/" + histoName + case
-            if case == "":
-                histoName = histoName
-
-            MUMU_SS_TotalMC = MUMU_SS.GetMCHist(histoName, mcList)
-            MUMU_SS_data = MUMU_SS.GetDataHist(histoName)
+            MUMU_SS_TotalMC = MUMU_SS.GetMCHist(GetHistoName("dimuonMass", "SS", case), mcList)
+            MUMU_SS_data = MUMU_SS.GetDataHist(GetHistoName("dimuonMass", "SS", case))
 
             MUMU_SS_FAKE = MUMU_SS_data.Clone(f"MUMU_SS_FAKE_{uuid.uuid4()}")
             MUMU_SS_FAKE.Add(MUMU_SS_TotalMC, -1)
-            MUMU_SS_FAKE = SanityCheck(MUMU_SS_FAKE)
+            # MUMU_SS_FAKE = SanityCheck(MUMU_SS_FAKE)
             MUMU_SS_FAKE.SetName("MUMU_SS_FAKE" + case)
 
-            MUMU_OS_inverted_TotalMC = MUMU_OS_inverted.GetMCHist(histoName, mcList)
-            MUMU_OS_inverted_data = MUMU_OS_inverted.GetDataHist(histoName)
+            MUMU_OS_inverted_TotalMC = MUMU_OS_inverted.GetMCHist(GetHistoName("dimuonMass", "OS_inverted", case), mcList)
+            MUMU_OS_inverted_data = MUMU_OS_inverted.GetDataHist(GetHistoName("dimuonMass", "OS_inverted", case))
             
             MUMU_OS_inverted_FAKE = MUMU_OS_inverted_data.Clone(f"MUMU_OS_inverted_FAKE_{uuid.uuid4()}")
             MUMU_OS_inverted_FAKE.Add(MUMU_OS_inverted_TotalMC, -1)
-            MUMU_OS_inverted_FAKE = SanityCheck(MUMU_OS_inverted_FAKE)
+            # MUMU_OS_inverted_FAKE = SanityCheck(MUMU_OS_inverted_FAKE)
 
-            MUMU_SS_inverted_TotalMC = MUMU_SS_inverted.GetMCHist(histoName, mcList)
-            MUMU_SS_inverted_data = MUMU_SS_inverted.GetDataHist(histoName)
+            MUMU_SS_inverted_TotalMC = MUMU_SS_inverted.GetMCHist(GetHistoName("dimuonMass", "SS_inverted", case), mcList)
+            MUMU_SS_inverted_data = MUMU_SS_inverted.GetDataHist(GetHistoName("dimuonMass", "SS_inverted", case))
 
             MUMU_SS_inverted_FAKE = MUMU_SS_inverted_data.Clone(f"MUMU_SS_inverted_FAKE_{uuid.uuid4()}")
             MUMU_SS_inverted_FAKE.Add(MUMU_SS_inverted_TotalMC, -1)
-            MUMU_SS_inverted_FAKE = SanityCheck(MUMU_SS_inverted_FAKE)
+            # MUMU_SS_inverted_FAKE = SanityCheck(MUMU_SS_inverted_FAKE)
 
-            MUMU_inverted_SStoOS = MUMU_OS_inverted_FAKE.Clone(f"MUMU_inverted_SStoOS_{uuid.uuid4()}")
-            MUMU_inverted_SStoOS.Divide(MUMU_SS_inverted_FAKE)
+            MUMU_OS_inverted_FAKE_rebin = Rebin(MUMU_OS_inverted_FAKE)
+            MUMU_SS_inverted_FAKE_rebin = Rebin(MUMU_SS_inverted_FAKE)
+
+            MUMU_inverted_SStoOS = MUMU_OS_inverted_FAKE_rebin.Clone(f"MUMU_inverted_SStoOS_{uuid.uuid4()}")
+            MUMU_inverted_SStoOS.Divide(MUMU_SS_inverted_FAKE_rebin)
+            MUMU_inverted_SStoOS = SanityCheck(MUMU_inverted_SStoOS)
             MUMU_inverted_SStoOS.SetName("MUMU_inverted_SStoOS" + case)
 
-            MUMU_OS_FAKE_DataDriven = GetOSFromSS(MUMU_SS_FAKE, MUMU_inverted_SStoOS)
+            # MUMU_inverted_SStoOS = MUMU_OS_inverted_FAKE.Clone(f"MUMU_inverted_SStoOS_{uuid.uuid4()}")
+            # MUMU_inverted_SStoOS.Divide(MUMU_SS_inverted_FAKE)
+            # MUMU_inverted_SStoOS = SanityCheck(MUMU_inverted_SStoOS)
+            # MUMU_inverted_SStoOS.SetName("MUMU_inverted_SStoOS" + case)
+
+            MUMU_OS_FAKE_DataDriven = GetOSFromSS_rebin(MUMU_SS_FAKE, MUMU_inverted_SStoOS)
+            MUMU_OS_FAKE_DataDriven = SanityCheck(MUMU_OS_FAKE_DataDriven)
             MUMU_OS_FAKE_DataDriven.SetName("MUMU_OS_FAKE_DataDriven" + case)
 
             outputFile.cd(f"{era}/FAKE_MUMU_SStoOS")
             MUMU_inverted_SStoOS.Write()
+
             outputFile.cd(f"{era}/FAKE_MUMU_SS")
             MUMU_SS_FAKE.Write()
+
             outputFile.cd(f"{era}/FAKE_MUMU_OS")
             MUMU_OS_FAKE_DataDriven.Write()
 
+            outputFile.cd(f"{era}/FAKE_MUMU_OS_Inv_rebin")
+            MUMU_OS_inverted_FAKE_rebin.Write()
+            
+            outputFile.cd(f"{era}/FAKE_MUMU_SS_Inv_rebin")
+            MUMU_SS_inverted_FAKE_rebin.Write()
 
             #################################################################
             # Fake SS
@@ -233,7 +283,7 @@ def main():
                 200,
                 4000,
                 0,
-                MUMU_SS_FAKE.GetMaximum() * 1.3,
+                MUMU_SS_FAKE.GetBinContent(2) * 1.3,
                 "M(#mu#mu) [GeV]",
                 "Events",
                 square = True,
@@ -276,7 +326,7 @@ def main():
                 200,
                 4000,
                 0,
-                MUMU_SS_inverted_FAKE.GetMaximum() * 1.3,
+                MUMU_SS_inverted_FAKE.GetBinContent(2) * 1.3,
                 "M(#mu#mu) [GeV]",
                 "Events",
                 square = True,
@@ -320,7 +370,7 @@ def main():
                 200,
                 4000,
                 0,
-                MUMU_OS_FAKE_DataDriven.GetMaximum() * 1.3,
+                MUMU_OS_FAKE_DataDriven.GetBinContent(2) * 1.3,
                 "M(#mu#mu) [GeV]",
                 "Events",
                 square = True,
@@ -363,7 +413,7 @@ def main():
                 200,
                 4000,
                 0,
-                MUMU_OS_inverted_FAKE.GetMaximum() * 1.3,
+                MUMU_OS_inverted_FAKE.GetBinContent(2) * 1.3,
                 "M(#mu#mu) [GeV]",
                 "Events",
                 square = True,
@@ -411,7 +461,7 @@ def main():
                 200,
                 4000,
                 2e-2,
-                MUMU_OS_inverted_FAKE.GetMaximum() * 1e3,
+                MUMU_OS_inverted_FAKE.GetBinContent(2) * 1e3,
                 yrmin,
                 yrmax,
                 "M(#mu#mu) [GeV]",
@@ -439,7 +489,7 @@ def main():
 
 
             latex_SStoOS_item = latex_copy_mumu.copy()
-            latex_SStoOS_item[0] = f"{latex_SStoOS_item[0]}, OS/SS, only one muon with inverted ISO"
+            latex_SStoOS_item[0] = f"{latex_SStoOS_item[0]}, OS/SS, One or Both muons with inverted ISO"
 
             Latex_SStoOS = ROOT.TLatex()
             Latex_SStoOS.SetTextAlign(14);
@@ -464,4 +514,6 @@ def main():
 
 if __name__ == "__main__" :
     ROOT.TH1.AddDirectory(False)
+    ROOT.TH1.SetDefaultSumw2()
+    
     main()

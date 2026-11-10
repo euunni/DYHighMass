@@ -132,9 +132,9 @@ GGList = [
 refLumi = {
     "2016_preVFP": 19.5,
     "2016_postVFP": 16.8,
-    "2017": 41.5,
-    "2018": 59.8,
-    "merged": 137.6
+    "2017": 42.12,
+    "2018": 59.45,
+    "merged": 137.88
 }
 
 xSec = {
@@ -292,7 +292,7 @@ class Plotter:
 
         self.plot_addon = [
             self.era + ", #mu#mu channel",
-            "p_{T}(#mu) > 52 (15) GeV, |#eta(#mu)| < 2.4",
+            "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
             "M_{#mu#mu} > 200 GeV",
             "",
         ]
@@ -300,7 +300,7 @@ class Plotter:
         if self.era == "merged":
             self.plot_addon = [
                 "Run2, #mu#mu channel",
-                "p_{T}(#mu) > 52 (15) GeV, |#eta(#mu)| < 2.4",
+                "p_{T}(#mu) > 52 (50) GeV, |#eta(#mu)| < 2.4",
                 "M_{#mu#mu} > 200 GeV",
                 "",
             ]
@@ -309,7 +309,7 @@ class Plotter:
             self.plot_addon[0] = self.era + ", e#mu channel"
             if self.era == "merged":
                 self.plot_addon[0] = "Run2, e#mu channel"
-            self.plot_addon[1] = "p_{T}(#mu(e)) > 52 (20) GeV, |#eta(#mu(e))| < 2.4 (2.5)"
+            self.plot_addon[1] = "p_{T}(#mu(e)) > 52 (50) GeV, |#eta(#mu(e))| < 2.4 (2.5)"
             self.plot_addon[2] = "M_{e#mu} > 200 GeV"
 
         if self.region == "OS":          self.plot_addon[0] = self.plot_addon[0] + ", OS"
@@ -417,11 +417,32 @@ class Plotter:
         return hist
 
     def GetDataHist(self, histName):
+
         hist = self.fileSet.Get(self.era + "/Data/" + histName).Clone(f"{histName}_{uuid.uuid4()}")
         hist.SetDirectory(0)
         hist.SetStats(0);
         
         return hist
+
+    def GetDYGenInfo(self, histName):
+
+        histSet = {}
+        for mc in DYMCList:
+            hist = self.fileSet.Get(self.era + "/" + mc + "/GenInfo/" + histName).Clone(f"{histName}_{uuid.uuid4()}")
+            hist.SetDirectory(0)
+            hist.SetStats(0);
+            # hist.Sumw2();
+            if (self.era != "merged"):
+                hist.Scale(self.normFactor[mc]);
+            hist = self.CheckSanity(hist)
+
+            histSet[mc] = hist
+
+        return_hist = histSet[list[0]].Clone(f"{histName}_{uuid.uuid4()}")
+        for mc in list[1:]:
+            return_hist.Add(histSet[mc])
+        
+        return return_hist
 
     def GetDataRelStat(self, hist):
         return_hist = ROOT.TGraphErrors()
@@ -459,6 +480,23 @@ class Plotter:
         signalFraction.Divide(data)
 
         return data_signalOnly, signalFraction
+
+    def GetRatioString(self, data, TotalMC):
+        dataN = 0
+        totalN = 0
+        for i in range(1, data.GetNbinsX() + 1):
+            if data.GetBinCenter(i) > 200 and data.GetBinCenter(i) < 4000:
+                dataN += data.GetBinContent(i)
+                totalN += TotalMC.GetBinContent(i)
+
+        total_ratio = 1
+        if totalN == 0:
+            total_ratio = 0
+        else:
+            total_ratio = dataN / totalN
+
+        
+        return f"data/Pred. = {(total_ratio):.3f}"
 
     def GetRatioRange(self, hist, xmin, xmax):
         if self.IsSignalRegion or self.IsEMUSignalRegion:
@@ -619,6 +657,7 @@ class Plotter:
         if not self.IsSignalRegion: 
             ratioTitle = "Pred./Data"
 
+        totalRatioString = "#font[42]{#scale[2]{" + self.GetRatioString(data, TotalMC) + "}" + "}"
 
         dicanv = CMS.cmsDiCanvas(
             canvasName,
@@ -692,6 +731,7 @@ class Plotter:
 
         dicanv.cd(2)
         if logx: dicanv.cd(2).SetLogx(True)
+        latex.DrawLatexNDC(0.72, 0.83, totalRatioString.encode('utf-8'))
 
 
         if self.IsSignalRegion:

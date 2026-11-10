@@ -6,19 +6,8 @@
 #include "TChain.h"
 #include "TTreeReader.h"
 #include "TTreeReaderArray.h"
-#include "TRandom.h"
 
 void MUON::init(TTreeReader* fTreeReader) {
-
-  // if (fIsMC) {
-
-  //   nGenPart = new TTreeReaderValue<unsigned int>(*fTreeReader, "nGenPart");
-  //   GenPart_pt = new TTreeReaderArray<float>(*fTreeReader, "GenPart_pt");
-  //   GenPart_eta = new TTreeReaderArray<float>(*fTreeReader, "GenPart_eta");
-  //   GenPart_phi = new TTreeReaderArray<float>(*fTreeReader, "GenPart_phi");
-  //   GenPart_mass = new TTreeReaderArray<float>(*fTreeReader, "GenPart_mass");
-  //   GenPart_pdgId = new TTreeReaderArray<int>(*fTreeReader, "GenPart_pdgId");
-  // }
 
   nMuon = new TTreeReaderValue<unsigned int>(*fTreeReader, "nMuon");
   Muon_pt = new TTreeReaderArray<float>(*fTreeReader, "Muon_pt");
@@ -31,98 +20,15 @@ void MUON::init(TTreeReader* fTreeReader) {
   Muon_tkRelIso = new TTreeReaderArray<float>(*fTreeReader, "Muon_tkRelIso");
   Muon_nTrackerLayers = new TTreeReaderArray<int>(*fTreeReader, "Muon_nTrackerLayers");
   Muon_highPurity = new TTreeReaderArray<bool>(*fTreeReader, "Muon_highPurity");
+  Muon_mediumId = new TTreeReaderArray<bool>(*fTreeReader, "Muon_mediumId");
 }
-
-// void MUON::PrepareGenMuon() {
-
-//   fFVecGenMuons.clear();
-
-//   for (int i  = 0; i < **nGenPart; i++) {
-
-//     if ( !(std::abs(GenPart_pdgId->At(i)) == 13) )
-//       continue;
-
-//     TLorentzVector mu;
-//     mu.SetPtEtaPhiM(GenPart_pt->At(i), GenPart_eta->At(i), GenPart_phi->At(i), GenPart_mass->At(i));
-
-//     StdMuon mu_std = StdMuon(mu, mu, (-1) * (GenPart_pdgId->At(i) / std::abs(GenPart_pdgId->At(i))));
-//     fFVecGenMuons.push_back(mu_std);
-//   }
-
-//   std::sort(fFVecGenMuons.begin(), fFVecGenMuons.end(), [](const StdMuon &lhs, const StdMuon &rhs) {
-//     return lhs.fVec.Pt() > rhs.fVec.Pt();
-//   });
-// }
-
-// TLorentzVector MUON::GetRochesterCorrectedMuon (TLorentzVector fMu, int fMuCharge, int nTkLayers) {
-
-//   double tCorrectionFactor = 1.;
-//   if (!fIsMC) {
-//     tCorrectionFactor = fRoccoR->kScaleDT(
-//       fMuCharge,
-//       fMu.Pt(),
-//       fMu.Eta(),
-//       fMu.Phi(),
-//       5,
-//       0
-//     );
-//   } else {
-
-//     double drmin = 999.;
-//     bool match = false;
-//     int genMuonIdx = 0;
-
-//     for (int j = 0; j < fFVecGenMuons.size(); j++) {
-//       if (fMu.DeltaR(fFVecGenMuons.at(j).fVec) < 0.1 &&
-//           fMu.DeltaR(fFVecGenMuons.at(j).fVec) < drmin) {
-//         match = true;
-//         genMuonIdx = j;
-//         drmin = fMu.DeltaR(fFVecGenMuons.at(j).fVec);
-//       }
-//     }
-
-//     if (match) {
-//       tCorrectionFactor = fRoccoR->kSpreadMC(
-//         fMuCharge,
-//         fMu.Pt(),
-//         fMu.Eta(),
-//         fMu.Phi(),
-//         fFVecGenMuons.at(genMuonIdx).fVec.Pt(),
-//         5,
-//         0
-//       );
-//     } else {
-//       double rndm = gRandom->Rndm();
-//       tCorrectionFactor = fRoccoR->kSmearMC(
-//         fMuCharge,
-//         fMu.Pt(),
-//         fMu.Eta(),
-//         fMu.Phi(),
-//         nTkLayers,
-//         rndm,
-//         5,
-//         0
-//       );
-//     }
-//   }
-  
-//   if (tCorrectionFactor != 1.) {
-
-//     TLorentzVector fMuReturn;
-//     fMuReturn.SetPtEtaPhiM(tCorrectionFactor * fMu.Pt(), fMu.Eta(), fMu.Phi(), fMu.M());
-//     return fMuReturn;
-//   } else {
-  
-//     return fMu;
-//   }
-// }
 
 TLorentzVector MUON::GetMCSmearing (TLorentzVector fMu) {
 
   if (std::abs(fMu.Eta()) <= 1.2 && fSmearingEngine->DoBarrel()) { // barrel
 
     double fMomentum = fMu.P();
-    double tSmearingFactor = 1 + gRandom->Gaus(0, fSmearingEngine->GetBarrelSmearingFactor() * fSmearingEngine->GetBarrelSigma(fMomentum));
+    double tSmearingFactor = 1 + fRandom.Gaus(0, fSmearingEngine->GetBarrelSmearingFactor() * fSmearingEngine->GetBarrelSigma(fMomentum));
 
     TLorentzVector fMuReturn;
     fMuReturn.SetPtEtaPhiM(tSmearingFactor * fMu.Pt(), fMu.Eta(), fMu.Phi(), fMu.M());
@@ -131,7 +37,7 @@ TLorentzVector MUON::GetMCSmearing (TLorentzVector fMu) {
   } else if (std::abs(fMu.Eta()) > 1.2 && std::abs(fMu.Eta()) < 2.4 && fSmearingEngine->DoEndcap()) { // endcap
     
     double fMomentum = fMu.P();
-    double tSmearingFactor = 1 + gRandom->Gaus(0, fSmearingEngine->GetEndcapSmearingFactor() * fSmearingEngine->GetEndcapSigma(fMomentum));
+    double tSmearingFactor = 1 + fRandom.Gaus(0, fSmearingEngine->GetEndcapSmearingFactor() * fSmearingEngine->GetEndcapSigma(fMomentum));
 
     TLorentzVector fMuReturn;
     fMuReturn.SetPtEtaPhiM(tSmearingFactor * fMu.Pt(), fMu.Eta(), fMu.Phi(), fMu.M());
@@ -147,9 +53,18 @@ bool MUON::PrepareMuon() {
 
   fFVecMuons.clear();
 
+  fFVecOSMuons.clear();
+  fFVecSSMuons.clear();
+  fFVecOSinvertedMuons.clear();
+  fFVecSSinvertedMuons.clear();
+
   for (int i = 0; i < **nMuon; i++) {
+    
     if ( !(Muon_highPtId->At(i) == fID) )
       continue;
+    
+    // if ( !Muon_mediumId->At(i) )
+    //   continue;
 
     if (std::abs(Muon_eta->At(i)) > fEta)
       continue;
@@ -161,15 +76,8 @@ bool MUON::PrepareMuon() {
     mu.SetPtEtaPhiM(Muon_pt->At(i) * Muon_tunepRelPt->At(i), Muon_eta->At(i), Muon_phi->At(i), Muon_mass->At(i));
 
     TLorentzVector mu_corr;
-
-    // if (fDoRoccoR && !fDoMCSmearing)
-      // mu_corr = GetRochesterCorrectedMuon(mu, Muon_charge->At(i), Muon_nTrackerLayers->At(i));
-
-    if (!fDoRoccoR && fDoMCSmearing)
-      mu_corr = GetMCSmearing(mu);
-
-    if (!fDoRoccoR && !fDoMCSmearing)
-      mu_corr = mu;
+    if (fIsMC && fDoMCSmearing) mu_corr = GetMCSmearing(mu);
+    else mu_corr = mu;
     
     if ( !(mu_corr.Pt() > fSubLeadingMuonPt) )
       continue;
@@ -177,13 +85,8 @@ bool MUON::PrepareMuon() {
     int tIso = 1;
     if (Muon_tkRelIso->At(i) > fISO) tIso = -1;
 
-    if (!fISOinverted && tIso == 1) {
-      StdMuon mu_std = StdMuon(mu_corr, mu, Muon_charge->At(i), tIso);
-      fFVecMuons.push_back(mu_std);
-    } else if (fISOinverted) {
-      StdMuon mu_std = StdMuon(mu_corr, mu, Muon_charge->At(i), tIso);
-      fFVecMuons.push_back(mu_std);
-    }
+    StdMuon mu_std = StdMuon(mu_corr, mu, Muon_charge->At(i), tIso);
+    fFVecMuons.push_back(mu_std);
   }
 
   std::sort(fFVecMuons.begin(), fFVecMuons.end(), [](const StdMuon &lhs, const StdMuon &rhs) {
@@ -193,57 +96,146 @@ bool MUON::PrepareMuon() {
   if (fFVecMuons.size() < 2)
     return false;
 
-  int tLeadingIdx = -1;
-  int tSubLeadingIdx = -1;
-
-  int tChargeSelection = 1;
-  if (!fOppositeCharge) tChargeSelection = -1;
-
   for (int i = 0; i < fFVecMuons.size(); i++) {
     for (int j = i + 1; j < fFVecMuons.size(); j++) {
-      if (tChargeSelection * (fFVecMuons.at(i).fCharge * fFVecMuons.at(j).fCharge) > 0)
+
+      if (fFVecOSMuons.size() == 0
+          && fFVecMuons.at(i).fCharge * fFVecMuons.at(j).fCharge < 0
+          && fFVecMuons.at(i).fISO == 1
+          && fFVecMuons.at(j).fISO == 1
+          && ( (fFVecMuons.at(i).fVec.Pt() > fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fSubLeadingMuonPt) ||
+               (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
+         ) {
+
+        fFVecOSMuons.push_back(fFVecMuons.at(i));
+        fFVecOSMuons.push_back(fFVecMuons.at(j));
+
         continue;
-
-      if (!fISOinverted && fFVecMuons.at(i).fVec.Pt() < fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() < fLeadingMuonPt)
-        continue;
-
-      if (fISOinverted && fFVecMuons.at(i).fISO * fFVecMuons.at(j).fISO > 0)
-        continue;
-
-      if (fISOinverted && fFVecMuons.at(i).fISO == 1 && !(fFVecMuons.at(i).fVec.Pt() > fLeadingMuonPt)) 
-        continue;
-
-      if (fISOinverted && fFVecMuons.at(j).fISO == 1 && !(fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt)) 
-        continue;
-
-      auto tDimuonVec = fFVecMuons.at(i).fVec + fFVecMuons.at(j).fVec;
-
-      if (tDimuonVec.M() < fZMassCut)
-        continue;
-
-      tLeadingIdx = i;
-      tSubLeadingIdx = j;
-
-      if (fISOinverted) {
-        if (fFVecMuons.at(i).fISO == -1 && fFVecMuons.at(j).fISO == 1) {
-          tLeadingIdx = j;
-          tSubLeadingIdx = i;
-        } 
       }
 
-      if (tSubLeadingIdx != -1 && tLeadingIdx != -1)
-        break;
+      if (fFVecSSMuons.size() == 0
+          && fFVecMuons.at(i).fCharge * fFVecMuons.at(j).fCharge > 0
+          && fFVecMuons.at(i).fISO == 1
+          && fFVecMuons.at(j).fISO == 1
+          && ( (fFVecMuons.at(i).fVec.Pt() > fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fSubLeadingMuonPt) ||
+               (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
+         ) {
+
+        fFVecSSMuons.push_back(fFVecMuons.at(i));
+        fFVecSSMuons.push_back(fFVecMuons.at(j));
+
+        continue;
+      }
+
+      if (fFVecOSinvertedMuons.size() == 0
+          && fFVecMuons.at(i).fCharge * fFVecMuons.at(j).fCharge < 0
+          && (fFVecMuons.at(i).fISO + fFVecMuons.at(j).fISO <= 0)
+          && ( (fFVecMuons.at(i).fVec.Pt() > fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fSubLeadingMuonPt) ||
+               (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
+         ) {
+
+        fFVecOSinvertedMuons.push_back(fFVecMuons.at(i));
+        fFVecOSinvertedMuons.push_back(fFVecMuons.at(j));
+
+        continue;
+      }
+
+      if (fFVecSSinvertedMuons.size() == 0
+          && fFVecMuons.at(i).fCharge * fFVecMuons.at(j).fCharge > 0
+          && (fFVecMuons.at(i).fISO + fFVecMuons.at(j).fISO <= 0)
+          && ( (fFVecMuons.at(i).fVec.Pt() > fLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fSubLeadingMuonPt) ||
+              (fFVecMuons.at(i).fVec.Pt() > fSubLeadingMuonPt && fFVecMuons.at(j).fVec.Pt() > fLeadingMuonPt) ) 
+        ) {
+      
+        fFVecSSinvertedMuons.push_back(fFVecMuons.at(j));
+        fFVecSSinvertedMuons.push_back(fFVecMuons.at(i));
+
+        continue;
+      }
     }
-    
-    if (tSubLeadingIdx != -1 && tLeadingIdx != -1)
-      break;
   }
 
-  if (tSubLeadingIdx == -1 || tLeadingIdx == -1)
-    return false;
+  // std::cout << " " << std::endl;
+  // std::cout << "######################################################################" << std::endl;
+  // std::cout << "                              Muon debug                              " << std::endl;
+  // std::cout << "----------------------------------------------------------------------" << std::endl;
+  // if (fFVecOSMuons.size() == 2) {
+  //   std::cout << " OS: " << std::endl;
+  //   std::cout << "    1 - " << fFVecOSMuons.at(0).fVec.Pt() << " " << fFVecOSMuons.at(0).fVec.Eta() << " " << fFVecOSMuons.at(0).fVec.Phi() << " " << fFVecOSMuons.at(0).fCharge << " " << fFVecOSMuons.at(0).fISO << std::endl;
+  //   std::cout << "    1 - " << fFVecOSMuons.at(0).fVecRaw.Pt() << " " << fFVecOSMuons.at(0).fVecRaw.Eta() << " " << fFVecOSMuons.at(0).fVecRaw.Phi() << " " << fFVecOSMuons.at(0).fCharge << " " << fFVecOSMuons.at(0).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecOSMuons.at(1).fVec.Pt() << " " << fFVecOSMuons.at(1).fVec.Eta() << " " << fFVecOSMuons.at(1).fVec.Phi() << " " << fFVecOSMuons.at(1).fCharge << " " << fFVecOSMuons.at(1).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecOSMuons.at(1).fVecRaw.Pt() << " " << fFVecOSMuons.at(1).fVecRaw.Eta() << " " << fFVecOSMuons.at(1).fVecRaw.Phi() << " " << fFVecOSMuons.at(1).fCharge << " " << fFVecOSMuons.at(1).fISO << std::endl;
+  // }
+  // if (fFVecSSMuons.size() == 2) {
+  //   std::cout << " SS: " << std::endl;
+  //   std::cout << "    1 - " << fFVecSSMuons.at(0).fVec.Pt() << " " << fFVecSSMuons.at(0).fVec.Eta() << " " << fFVecSSMuons.at(0).fVec.Phi() << " " << fFVecSSMuons.at(0).fCharge << " " << fFVecSSMuons.at(0).fISO << std::endl;
+  //   std::cout << "    1 - " << fFVecSSMuons.at(0).fVecRaw.Pt() << " " << fFVecSSMuons.at(0).fVecRaw.Eta() << " " << fFVecSSMuons.at(0).fVecRaw.Phi() << " " << fFVecSSMuons.at(0).fCharge << " " << fFVecSSMuons.at(0).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecSSMuons.at(1).fVec.Pt() << " " << fFVecSSMuons.at(1).fVec.Eta() << " " << fFVecSSMuons.at(1).fVec.Phi() << " " << fFVecSSMuons.at(1).fCharge << " " << fFVecSSMuons.at(1).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecSSMuons.at(1).fVecRaw.Pt() << " " << fFVecSSMuons.at(1).fVecRaw.Eta() << " " << fFVecSSMuons.at(1).fVecRaw.Phi() << " " << fFVecSSMuons.at(1).fCharge << " " << fFVecSSMuons.at(1).fISO << std::endl;
+  // }
+  // if (fFVecOSinvertedMuons.size() == 2) {
+  //   std::cout << " OS_inverted: " << std::endl;
+  //   std::cout << "    1 - " << fFVecOSinvertedMuons.at(0).fVec.Pt() << " " << fFVecOSinvertedMuons.at(0).fVec.Eta() << " " << fFVecOSinvertedMuons.at(0).fVec.Phi() << " " << fFVecOSinvertedMuons.at(0).fCharge << " " << fFVecOSinvertedMuons.at(0).fISO << std::endl;
+  //   std::cout << "    1 - " << fFVecOSinvertedMuons.at(0).fVecRaw.Pt() << " " << fFVecOSinvertedMuons.at(0).fVecRaw.Eta() << " " << fFVecOSinvertedMuons.at(0).fVecRaw.Phi() << " " << fFVecOSinvertedMuons.at(0).fCharge << " " << fFVecOSinvertedMuons.at(0).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecOSinvertedMuons.at(1).fVec.Pt() << " " << fFVecOSinvertedMuons.at(1).fVec.Eta() << " " << fFVecOSinvertedMuons.at(1).fVec.Phi() << " " << fFVecOSinvertedMuons.at(1).fCharge << " " << fFVecOSinvertedMuons.at(1).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecOSinvertedMuons.at(1).fVecRaw.Pt() << " " << fFVecOSinvertedMuons.at(1).fVecRaw.Eta() << " " << fFVecOSinvertedMuons.at(1).fVecRaw.Phi() << " " << fFVecOSinvertedMuons.at(1).fCharge << " " << fFVecOSinvertedMuons.at(1).fISO << std::endl;
+  // }
+  // if (fFVecSSinvertedMuons.size() == 2) {
+  //   std::cout << " SS_inverted: " << std::endl;
+  //   std::cout << "    1 - " << fFVecSSinvertedMuons.at(0).fVec.Pt() << " " << fFVecSSinvertedMuons.at(0).fVec.Eta() << " " << fFVecSSinvertedMuons.at(0).fVec.Phi() << " " << fFVecSSinvertedMuons.at(0).fCharge << " " << fFVecSSinvertedMuons.at(0).fISO << std::endl;
+  //   std::cout << "    1 - " << fFVecSSinvertedMuons.at(0).fVecRaw.Pt() << " " << fFVecSSinvertedMuons.at(0).fVecRaw.Eta() << " " << fFVecSSinvertedMuons.at(0).fVecRaw.Phi() << " " << fFVecSSinvertedMuons.at(0).fCharge << " " << fFVecSSinvertedMuons.at(0).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecSSinvertedMuons.at(1).fVec.Pt() << " " << fFVecSSinvertedMuons.at(1).fVec.Eta() << " " << fFVecSSinvertedMuons.at(1).fVec.Phi() << " " << fFVecSSinvertedMuons.at(1).fCharge << " " << fFVecSSinvertedMuons.at(1).fISO << std::endl;
+  //   std::cout << "    2 - " << fFVecSSinvertedMuons.at(1).fVecRaw.Pt() << " " << fFVecSSinvertedMuons.at(1).fVecRaw.Eta() << " " << fFVecSSinvertedMuons.at(1).fVecRaw.Phi() << " " << fFVecSSinvertedMuons.at(1).fCharge << " " << fFVecSSinvertedMuons.at(1).fISO << std::endl;
+  // }
+  // std::cout << "######################################################################" << std::endl;
+  // std::cout << " " << std::endl;
 
-  fLeadingIdx = tLeadingIdx;
-  fSubLeadingIdx = tSubLeadingIdx;
+  return (fFVecOSMuons.size() == 2 || fFVecSSMuons.size() == 2 || fFVecOSinvertedMuons.size() == 2 || fFVecSSinvertedMuons.size() == 2);
+}
 
-  return true;
+std::vector<TLorentzVector> MUON::GetFiducialMuons(const std::vector<std::pair<int, TLorentzVector>>& fMuons) const {
+  
+  std::vector<TLorentzVector> tReturnVec = {};
+  bool tIsFiducial = false;
+
+  for (int i = 0; i < fMuons.size(); i++) {
+    
+    if (std::abs(fMuons.at(i).second.Eta()) > fEta)
+      continue;
+
+    if (fMuons.at(i).second.Pt() < fSubLeadingMuonPt)
+      continue;
+    
+    for (int j = i + 1; j < fMuons.size(); j++) {
+      
+      if (std::abs(fMuons.at(j).second.Eta()) > fEta)
+        continue;
+
+      if (fMuons.at(j).second.Pt() < fSubLeadingMuonPt)
+        continue;
+
+      if (
+        fMuons.at(i).first * fMuons.at(j).first < 0 &&
+        ((fMuons.at(i).second.Pt() > fLeadingMuonPt && fMuons.at(j).second.Pt() > fSubLeadingMuonPt) ||
+         (fMuons.at(i).second.Pt() > fSubLeadingMuonPt && fMuons.at(j).second.Pt() > fLeadingMuonPt))
+      ) {
+
+        if (fMuons.at(i).second.Pt() > fMuons.at(j).second.Pt()) {
+          tReturnVec.push_back(fMuons.at(i).second);
+          tReturnVec.push_back(fMuons.at(j).second);
+        } else {
+          tReturnVec.push_back(fMuons.at(j).second);
+          tReturnVec.push_back(fMuons.at(i).second);
+        }
+
+        tIsFiducial = true;
+      }
+
+      if (tIsFiducial) break;
+    }
+
+    if (tIsFiducial) break;
+  }
+  
+  return tReturnVec;
 }

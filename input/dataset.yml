@@ -448,6 +448,126 @@
     nList: 2
     nEvent: 250000
     IsMC: true
+
+  QCD_Pt-15To20_MuEnrichedPt5: 
+    Name: QCD_Pt-15To20_MuEnrichedPt5
+    nList: 3
+    nEvent: 4749558
+    IsMC: true
+
+  QCD_Pt-20To30_MuEnrichedPt5: 
+    Name: QCD_Pt-20To30_MuEnrichedPt5
+    nList: 5
+    nEvent: 31926643
+    IsMC: true
+
+  QCD_Pt-30To50_MuEnrichedPt5: 
+    Name: QCD_Pt-30To50_MuEnrichedPt5
+    nList: 5
+    nEvent: 28664840
+    IsMC: true
+
+  QCD_Pt-50To80_MuEnrichedPt5: 
+    Name: QCD_Pt-50To80_MuEnrichedPt5
+    nList: 3
+    nEvent: 19724658
+    IsMC: true
+
+  QCD_Pt-80To120_MuEnrichedPt5: 
+    Name: QCD_Pt-80To120_MuEnrichedPt5
+    nList: 6
+    nEvent: 21978558
+    IsMC: true
+
+  QCD_Pt-120To170_MuEnrichedPt5: 
+    Name: QCD_Pt-120To170_MuEnrichedPt5
+    nList: 4
+    nEvent: 19136907
+    IsMC: true
+
+  QCD_Pt-170To300_MuEnrichedPt5: 
+    Name: QCD_Pt-170To300_MuEnrichedPt5
+    nList: 7
+    nEvent: 37080544
+    IsMC: true
+
+  QCD_Pt-300To470_MuEnrichedPt5: 
+    Name: QCD_Pt-300To470_MuEnrichedPt5
+    nList: 5
+    nEvent: 28465385
+    IsMC: true
+
+  QCD_Pt-470To600_MuEnrichedPt5: 
+    Name: QCD_Pt-470To600_MuEnrichedPt5
+    nList: 5
+    nEvent: 19695298
+    IsMC: true
+
+  QCD_Pt-600To800_MuEnrichedPt5: 
+    Name: QCD_Pt-600To800_MuEnrichedPt5
+    nList: 7
+    nEvent: 19598815
+    IsMC: true
+
+  QCD_Pt-800To1000_MuEnrichedPt5: 
+    Name: QCD_Pt-800To1000_MuEnrichedPt5
+    nList: 8
+    nEvent: 38933940
+    IsMC: true
+
+  QCD_Pt-1000_MuEnrichedPt5: 
+    Name: QCD_Pt-1000_MuEnrichedPt5
+    nList: 5
+    nEvent: 13660999
+    IsMC: true
+
+  QCD_Pt-15to20_EMEnriched: 
+    Name: QCD_Pt-15to20_EMEnriched
+    nList: 5
+    nEvent: 4062805
+    IsMC: true
+
+  QCD_Pt-20to30_EMEnriched: 
+    Name: QCD_Pt-20to30_EMEnriched
+    nList: 1
+    nEvent: 7156441
+    IsMC: true
+
+  QCD_Pt-30to50_EMEnriched: 
+    Name: QCD_Pt-30to50_EMEnriched
+    nList: 3
+    nEvent: 4361931
+    IsMC: true
+
+  QCD_Pt-50to80_EMEnriched: 
+    Name: QCD_Pt-50to80_EMEnriched
+    nList: 1
+    nEvent: 5440758
+    IsMC: true
+
+  QCD_Pt-80to120_EMEnriched: 
+    Name: QCD_Pt-80to120_EMEnriched
+    nList: 2
+    nEvent: 4847354
+    IsMC: true
+
+  QCD_Pt-120to170_EMEnriched: 
+    Name: QCD_Pt-120to170_EMEnriched
+    nList: 2
+    nEvent: 4852573
+    IsMC: true
+
+  QCD_Pt-170to300_EMEnriched: 
+    Name: QCD_Pt-170to300_EMEnriched
+    nList: 1
+    nEvent: 1855461
+    IsMC: true
+
+  QCD_Pt-300toInf_EMEnriched: 
+    Name: QCD_Pt-300toInf_EMEnriched
+    nList: 2
+    nEvent: 1142775
+    IsMC: true
     
 2016_postVFP:
   Run2016F_SingleMuon:
@@ -874,6 +994,126 @@
     Name: GGToMuMu_Pt-5_Mll-50To200_Inel-Inel
     nList: 2
     nEvent: 200000
+    IsMC: true
+  
+  QCD_Pt-15To20_MuEnrichedPt5: 
+    Name: QCD_Pt-15To20_MuEnrichedPt5
+    nList: 2
+    nEvent: 4529975
+    IsMC: true
+
+  QCD_Pt-20To30_MuEnrichedPt5: 
+    Name: QCD_Pt-20To30_MuEnrichedPt5
+    nList: 3
+    nEvent: 30853571
+    IsMC: true
+
+  QCD_Pt-30To50_MuEnrichedPt5: 
+    Name: QCD_Pt-30To50_MuEnrichedPt5
+    nList: 3
+    nEvent: 35474172
+    IsMC: true
+
+  QCD_Pt-50To80_MuEnrichedPt5: 
+    Name: QCD_Pt-50To80_MuEnrichedPt5
+    nList: 4
+    nEvent: 21491325
+    IsMC: true
+
+  QCD_Pt-80To120_MuEnrichedPt5: 
+    Name: QCD_Pt-80To120_MuEnrichedPt5
+    nList: 5
+    nEvent: 22005632
+    IsMC: true
+
+  QCD_Pt-120To170_MuEnrichedPt5: 
+    Name: QCD_Pt-120To170_MuEnrichedPt5
+    nList: 4
+    nEvent: 19772747
+    IsMC: true
+
+  QCD_Pt-170To300_MuEnrichedPt5: 
+    Name: QCD_Pt-170To300_MuEnrichedPt5
+    nList: 8
+    nEvent: 34183334
+    IsMC: true
+
+  QCD_Pt-300To470_MuEnrichedPt5: 
+    Name: QCD_Pt-300To470_MuEnrichedPt5
+    nList: 4
+    nEvent: 29824712
+    IsMC: true
+
+  QCD_Pt-470To600_MuEnrichedPt5: 
+    Name: QCD_Pt-470To600_MuEnrichedPt5
+    nList: 3
+    nEvent: 19771458
+    IsMC: true
+
+  QCD_Pt-600To800_MuEnrichedPt5: 
+    Name: QCD_Pt-600To800_MuEnrichedPt5
+    nList: 6
+    nEvent: 18165741
+    IsMC: true
+
+  QCD_Pt-800To1000_MuEnrichedPt5: 
+    Name: QCD_Pt-800To1000_MuEnrichedPt5
+    nList: 9
+    nEvent: 38913226
+    IsMC: true
+
+  QCD_Pt-1000_MuEnrichedPt5: 
+    Name: QCD_Pt-1000_MuEnrichedPt5
+    nList: 2
+    nEvent: 13905446
+    IsMC: true
+
+  QCD_Pt-15to20_EMEnriched: 
+    Name: QCD_Pt-15to20_EMEnriched
+    nList: 6
+    nEvent: 4026314
+    IsMC: true
+
+  QCD_Pt-20to30_EMEnriched: 
+    Name: QCD_Pt-20to30_EMEnriched
+    nList: 6
+    nEvent: 7134788
+    IsMC: true
+
+  QCD_Pt-30to50_EMEnriched: 
+    Name: QCD_Pt-30to50_EMEnriched
+    nList: 1
+    nEvent: 4351014
+    IsMC: true
+
+  QCD_Pt-50to80_EMEnriched: 
+    Name: QCD_Pt-50to80_EMEnriched
+    nList: 3
+    nEvent: 5443934
+    IsMC: true
+
+  QCD_Pt-80to120_EMEnriched: 
+    Name: QCD_Pt-80to120_EMEnriched
+    nList: 1
+    nEvent: 4804788
+    IsMC: true
+
+  QCD_Pt-120to170_EMEnriched: 
+    Name: QCD_Pt-120to170_EMEnriched
+    nList: 1
+    nEvent: 5007347
+    IsMC: true
+
+  QCD_Pt-170to300_EMEnriched: 
+    Name: QCD_Pt-170to300_EMEnriched
+    nList: 1
+    nEvent: 1861129
+    IsMC: true
+
+  QCD_Pt-300toInf_EMEnriched: 
+    Name: QCD_Pt-300toInf_EMEnriched
+    nList: 2
+    nEvent: 1138742
     IsMC: true
     
 2017:
@@ -1326,7 +1566,127 @@
     nList: 2
     nEvent: 500000
     IsMC: true
-    
+
+  QCD_Pt-15To20_MuEnrichedPt5: 
+    Name: QCD_Pt-15To20_MuEnrichedPt5
+    nList: 2
+    nEvent: 9019841
+    IsMC: true
+
+  QCD_Pt-20To30_MuEnrichedPt5: 
+    Name: QCD_Pt-20To30_MuEnrichedPt5
+    nList: 9
+    nEvent: 64623134
+    IsMC: true
+
+  QCD_Pt-30To50_MuEnrichedPt5: 
+    Name: QCD_Pt-30To50_MuEnrichedPt5
+    nList: 11
+    nEvent: 58639613
+    IsMC: true
+
+  QCD_Pt-50To80_MuEnrichedPt5: 
+    Name: QCD_Pt-50To80_MuEnrichedPt5
+    nList: 5
+    nEvent: 40322726
+    IsMC: true
+
+  QCD_Pt-80To120_MuEnrichedPt5: 
+    Name: QCD_Pt-80To120_MuEnrichedPt5
+    nList: 6
+    nEvent: 45981017
+    IsMC: true
+
+  QCD_Pt-120To170_MuEnrichedPt5: 
+    Name: QCD_Pt-120To170_MuEnrichedPt5
+    nList: 8
+    nEvent: 39394151
+    IsMC: true
+
+  QCD_Pt-170To300_MuEnrichedPt5: 
+    Name: QCD_Pt-170To300_MuEnrichedPt5
+    nList: 10
+    nEvent: 73071987
+    IsMC: true
+
+  QCD_Pt-300To470_MuEnrichedPt5: 
+    Name: QCD_Pt-300To470_MuEnrichedPt5
+    nList: 7
+    nEvent: 58692910
+    IsMC: true
+
+  QCD_Pt-470To600_MuEnrichedPt5: 
+    Name: QCD_Pt-470To600_MuEnrichedPt5
+    nList: 5
+    nEvent: 39491752
+    IsMC: true
+
+  QCD_Pt-600To800_MuEnrichedPt5: 
+    Name: QCD_Pt-600To800_MuEnrichedPt5
+    nList: 6
+    nEvent: 39321940
+    IsMC: true
+
+  QCD_Pt-800To1000_MuEnrichedPt5: 
+    Name: QCD_Pt-800To1000_MuEnrichedPt5
+    nList: 11
+    nEvent: 78215559
+    IsMC: true
+
+  QCD_Pt-1000_MuEnrichedPt5: 
+    Name: QCD_Pt-1000_MuEnrichedPt5
+    nList: 4
+    nEvent: 27478273
+    IsMC: true
+
+  QCD_Pt-15to20_EMEnriched: 
+    Name: QCD_Pt-15to20_EMEnriched
+    nList: 3
+    nEvent: 7966910
+    IsMC: true
+
+  QCD_Pt-20to30_EMEnriched: 
+    Name: QCD_Pt-20to30_EMEnriched
+    nList: 8
+    nEvent: 14166147
+    IsMC: true
+
+  QCD_Pt-30to50_EMEnriched: 
+    Name: QCD_Pt-30to50_EMEnriched
+    nList: 1
+    nEvent: 8784542
+    IsMC: true
+
+  QCD_Pt-50to80_EMEnriched: 
+    Name: QCD_Pt-50to80_EMEnriched
+    nList: 1
+    nEvent: 10210400
+    IsMC: true
+
+  QCD_Pt-80to120_EMEnriched: 
+    Name: QCD_Pt-80to120_EMEnriched
+    nList: 3
+    nEvent: 9615795
+    IsMC: true
+
+  QCD_Pt-120to170_EMEnriched: 
+    Name: QCD_Pt-120to170_EMEnriched
+    nList: 4
+    nEvent: 9904245
+    IsMC: true
+
+  QCD_Pt-170to300_EMEnriched: 
+    Name: QCD_Pt-170to300_EMEnriched
+    nList: 1
+    nEvent: 3678200
+    IsMC: true
+
+  QCD_Pt-300toInf_EMEnriched: 
+    Name: QCD_Pt-300toInf_EMEnriched
+    nList: 1
+    nEvent: 2214934
+    IsMC: true
+
 2018:
   Run2018A_SingleMuon:
     Name: SingleMuon_Run2018A
@@ -1765,4 +2125,124 @@
     nList: 4
     nEvent: 500000
     IsMC: true
-    
+
+  QCD_Pt-15To20_MuEnrichedPt5: 
+    Name: QCD_Pt-15To20_MuEnrichedPt5
+    nList: 2
+    nEvent: 9325758
+    IsMC: true
+
+  QCD_Pt-20To30_MuEnrichedPt5: 
+    Name: QCD_Pt-20To30_MuEnrichedPt5
+    nList: 8
+    nEvent: 60640516
+    IsMC: true
+
+  QCD_Pt-30To50_MuEnrichedPt5: 
+    Name: QCD_Pt-30To50_MuEnrichedPt5
+    nList: 7
+    nEvent: 58737695
+    IsMC: true
+
+  QCD_Pt-50To80_MuEnrichedPt5: 
+    Name: QCD_Pt-50To80_MuEnrichedPt5
+    nList: 4
+    nEvent: 40022458
+    IsMC: true
+
+  QCD_Pt-80To120_MuEnrichedPt5: 
+    Name: QCD_Pt-80To120_MuEnrichedPt5
+    nList: 6
+    nEvent: 45494357
+    IsMC: true
+
+  QCD_Pt-120To170_MuEnrichedPt5: 
+    Name: QCD_Pt-120To170_MuEnrichedPt5
+    nList: 7
+    nEvent: 38022194
+    IsMC: true
+
+  QCD_Pt-170To300_MuEnrichedPt5: 
+    Name: QCD_Pt-170To300_MuEnrichedPt5
+    nList: 7
+    nEvent: 71870974
+    IsMC: true
+
+  QCD_Pt-300To470_MuEnrichedPt5: 
+    Name: QCD_Pt-300To470_MuEnrichedPt5
+    nList: 8
+    nEvent: 58949756
+    IsMC: true
+
+  QCD_Pt-470To600_MuEnrichedPt5: 
+    Name: QCD_Pt-470To600_MuEnrichedPt5
+    nList: 9
+    nEvent: 38453296
+    IsMC: true
+
+  QCD_Pt-600To800_MuEnrichedPt5: 
+    Name: QCD_Pt-600To800_MuEnrichedPt5
+    nList: 11
+    nEvent: 37197942
+    IsMC: true
+
+  QCD_Pt-800To1000_MuEnrichedPt5: 
+    Name: QCD_Pt-800To1000_MuEnrichedPt5
+    nList: 10
+    nEvent: 78942993
+    IsMC: true
+
+  QCD_Pt-1000_MuEnrichedPt5: 
+    Name: QCD_Pt-1000_MuEnrichedPt5
+    nList: 4
+    nEvent: 27427130
+    IsMC: true
+
+  QCD_Pt-15to20_EMEnriched: 
+    Name: QCD_Pt-15to20_EMEnriched
+    nList: 4
+    nEvent: 7899865
+    IsMC: true
+
+  QCD_Pt-20to30_EMEnriched: 
+    Name: QCD_Pt-20to30_EMEnriched
+    nList: 2
+    nEvent: 14328846
+    IsMC: true
+
+  QCD_Pt-30to50_EMEnriched: 
+    Name: QCD_Pt-30to50_EMEnriched
+    nList: 3
+    nEvent: 8574589
+    IsMC: true
+
+  QCD_Pt-50to80_EMEnriched: 
+    Name: QCD_Pt-50to80_EMEnriched
+    nList: 1
+    nEvent: 10497272
+    IsMC: true
+
+  QCD_Pt-80to120_EMEnriched: 
+    Name: QCD_Pt-80to120_EMEnriched
+    nList: 1
+    nEvent: 9468372
+    IsMC: true
+
+  QCD_Pt-120to170_EMEnriched: 
+    Name: QCD_Pt-120to170_EMEnriched
+    nList: 2
+    nEvent: 9677904
+    IsMC: true
+
+  QCD_Pt-170to300_EMEnriched: 
+    Name: QCD_Pt-170to300_EMEnriched
+    nList: 1
+    nEvent: 3714642
+    IsMC: true
+
+  QCD_Pt-300toInf_EMEnriched: 
+    Name: QCD_Pt-300toInf_EMEnriched
+    nList: 1
+    nEvent: 2215994
+    IsMC: true
+

@@ -9,7 +9,6 @@ Muon:
   Pt: 52
   Eta: 2.4
   ID: global
-  ISOinverted: false
   ISO: 0.1
   doMCSmearing: true
   MCSmearing:
@@ -21,13 +20,9 @@ Muon:
       sigma: 0.0129 + 6.48e-5 * x -3.04e-8 * x^2 + 6.63e-12 * x^3
 
 Electron:
-  Pt: 20
+  Pt: 50
   Eta: 2.5
   ID: 3
-  IDinverted: false
-
-Pair:
-  Charge: opposite
 
 Jet:
   Pt: 30
@@ -44,7 +39,6 @@ Correction:
   Trigger: true
   ElecReco: true
   ElecID: true
-  ElecMisCharge: false
   PileUp: true
   L1PreFiring: true
   JetPU: true
@@ -53,22 +47,23 @@ Correction:
 
 Efficiency:
   Reco:
-    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_RECO_2016_schemaV2.json
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_RECO_2016_schemaV2.json
     Name: NUM_GlobalMuons_DEN_TrackerMuonProbes
   ID:
-    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_schemaV2.json
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_schemaV2.json
     Name: NUM_HighPtID_DEN_GlobalMuonProbes
   ISO:
-    Path: ../../EfficiencyTable/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_schemaV2.json
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_IDISO_2016_schemaV2.json
     Name: NUM_probe_LooseRelTkIso_DEN_HighPtProbes
   Trigger:
-    Path: ../../correctionlib/muon/high/2016_postVFP/ScaleFactors_Muon_highPt_HLT_2016_schemaV2.json
-    Name: NUM_HLT_DEN_HighPtLooseRelIsoProbes
+    Path: ../../correctionlib/muon/high/ScaleFactors_Muon_highPt_HLT_2016_schemaV2.json
+    Data: NUM_HLT_DEN_HighPtLooseRelIsoProbes_DATAeff
+    MC: NUM_HLT_DEN_HighPtLooseRelIsoProbes_MCeff
   ElecReco:
     Path: ../../correctionlib/electron/reco/EGM_2016postVFP.json
     Name: UL-Electron-ID-SF
   ElecID:
-    Path: ../../correctionlib/electron/Run2UL_ID.json
+    Path: ../../correctionlib/electron/reco/EGM_2016postVFP.json
     Name: UL-Electron-ID-SF
   ElecMisCharge:
     Path: ../../EfficiencyTable/elec/ChargeMisId/CFRate2016b.root
@@ -77,9 +72,7 @@ Efficiency:
   BTag:
     Path: ../../correctionlib/bTag/2016postVFP.json
   BTagEff:
-    bQuark: ../../EfficiencyTable/BTagEff/DY_2016_postVFP_h_BTagEff_B.txt
-    cQuark: ../../EfficiencyTable/BTagEff/DY_2016_postVFP_h_BTagEff_C.txt
-    lQuark: ../../EfficiencyTable/BTagEff/DY_2016_postVFP_h_BTagEff_L.txt
+    Path: ../../correctionlib/bTag/eff/BTagEff_MUMU_eff_AbsEta_PtMerged.json
 
 Pileup:
   Data: PileupHistogram-goldenJSON-13tev-2016-postVFP-69200ub-99bins.root

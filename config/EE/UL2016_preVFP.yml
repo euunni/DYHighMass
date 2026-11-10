@@ -51,9 +51,7 @@ Efficiency:
   BTag:
     Path: ../../correctionlib/bTag/2016preVFP.json
   BTagEff:
-    bQuark: ../../EfficiencyTable/BTagEff/DY_2016_preVFP_h_BTagEff_B.txt
-    cQuark: ../../EfficiencyTable/BTagEff/DY_2016_preVFP_h_BTagEff_C.txt
-    lQuark: ../../EfficiencyTable/BTagEff/DY_2016_preVFP_h_BTagEff_L.txt
+    Path: ../../correctionlib/bTag/eff/BTagEff_EE_eff_AbsEta_PtMerged.json
 
 Pileup:
   Data: PileupHistogram-goldenJSON-13tev-2016-preVFP-69200ub-99bins.root

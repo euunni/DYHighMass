@@ -138,7 +138,9 @@ public:
     * \throws TTbar should have 2 gen tops, if not, throw an exception
     */
   std::vector<std::pair<int, TLorentzVector>> GetGenPart(int tID, int tStatus);
+  const std::vector<TLorentzVector> GetGenPartWithFlag(int tID, int tStatus) const;
   std::vector<std::pair<int, TLorentzVector>> GetGenDressedLepton(int tID);
+  const std::vector<TLorentzVector> GetGenJet(const float& fJetPt, const std::vector<TLorentzVector>& tGenLep) const;
 
   void SetMC() { fIsMC = true; }
 

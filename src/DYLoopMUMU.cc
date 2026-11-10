@@ -49,16 +49,15 @@ void DYLoopMUMU::Loop() {
   double tTotalGenWeight = 0;
   while(fNtuples->GetNext()) { // Event loop starts here
     tMaxLoop++;
-
-    // if (tMaxLoop == 100) break;
     
+    fWeightEnvelope.Clear();
 
+    // print progress
     if (static_cast<int>(tMaxLoop) % 10000 == 0 ) {
       auto tCurrentTime = std::chrono::system_clock::now();
       auto tElapsed = tCurrentTime - tTimeBegin;
       double tProgressPercent = 100. * tMaxLoop / fMaxEntries;
       
-      // 총 예상 시간 계산: 현재 걸린 시간 * 100 / 진행률
       auto tEstimatedTotal = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(
           tElapsed * (100.0 / tProgressPercent)
       );
@@ -72,13 +71,14 @@ void DYLoopMUMU::Loop() {
       std::cout << tProgress << std::endl;
     }
 
-    if (fIsMC) {
-      fHistoSet->FillHisto((std::string)"h_PileUp_Count_Interaction_before", **(fNtuples->Pileup_nTrueInt), 1.);
-      fHistoSet->FillHisto((std::string)"h_PileUp_Count_Interaction_after", **(fNtuples->Pileup_nTrueInt), fPuReweighting->weight(**(fNtuples->Pileup_nTrueInt)));
-    }
+    // for the PU reweighting
+    // if (fIsMC) {
+    //   fHistoSet->FillHisto((std::string)"h_PileUp_Count_Interaction_before", **(fNtuples->Pileup_nTrueInt), 1.);
+    //   fHistoSet->FillHisto((std::string)"h_PileUp_Count_Interaction_after", **(fNtuples->Pileup_nTrueInt), fPuReweighting->weight(**(fNtuples->Pileup_nTrueInt)));
+    // }
 
+    // for the gen weight
     double tEventGenWeight = 1.;
-
     if (fIsMC) {
       tEventGenWeight = **(fNtuples->genWeight);
 
@@ -87,16 +87,15 @@ void DYLoopMUMU::Loop() {
         else                     tEventGenWeight = -1;
       }
 
-      fHistoSet->FillHisto((std::string)"h_GenWeight", tEventGenWeight, 1.);
+      fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "GenWeight", tEventGenWeight, 1.);
+      fWeightEnvelope.AddWeightToAll("GenWeight", tEventGenWeight);
     }
 
-    if (fIsMC && fSampleName.Contains("TTTo2L2Nu") && fDoTopPtReweighing)
-      tEventGenWeight *= fNtuples->GetGenTopPtReweightFactor();
-
+    // for the LHE mass, in case of inclusive NNLO DY sample, we need to cut on the LHE mass at 100 GeV
     if (fIsMC && fSampleName.Contains("NNLO")) {
       auto tLHEMuons = fNtuples->GetLHE(13);
 
-      fHistoSet->FillHisto((std::string)"h_LHEnMuon", static_cast<int>(tLHEMuons.size()));
+      fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "nLHEMuon", static_cast<int>(tLHEMuons.size()), 1.);
 
 
       double tDiMuonMassLHE = 0;
@@ -109,245 +108,257 @@ void DYLoopMUMU::Loop() {
       if (fSampleName.Contains("NNLO") && fSampleName.Contains("inc") && tDiMuonMassLHE > 100 )
         continue;
 
-      fHistoSet->FillHisto((std::string)"h_LHEDimuonMass", tDiMuonMassLHE, tEventGenWeight);
+      fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "LHEDimuonMass", tDiMuonMassLHE, tEventGenWeight);
     }
     
-    fHistoSet->FillHisto((std::string)"h_EventInfo", 1, 1);
-    fHistoSet->FillHisto((std::string)"h_EventInfo", 4, tEventGenWeight);
+    // for the event info
+    fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "EventInfo", 1, 1);
+    fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "EventInfo", 4, tEventGenWeight);
 
-    float tPUReweightingFactor = 1;
-    if (fIsMC && fDoPU) {
 
-      tPUReweightingFactor = fPuReweighting->weight(**(fNtuples->Pileup_nTrueInt));
-      tEventGenWeight *= tPUReweightingFactor;
+    std::vector<std::pair<int, TLorentzVector>> tDreessedOrigin = {};
+    std::vector<TLorentzVector> tDressedLeptons = {};
+    std::vector<TLorentzVector> tGenJets = {};
+    int tGenMass = -9999;
+    bool tHasGen = true;
+
+    if (fSampleName.Contains("NNLO_MUMU")) {
+      tHasGen = false;
+    
+      tDreessedOrigin = fNtuples->GetGenDressedLepton(13);
+      tDressedLeptons = fMuons->GetFiducialMuons(tDreessedOrigin);
+
+      if (tDressedLeptons.size() == 2) tHasGen = true;
+
+      tGenJets = fNtuples->GetGenJet(30., tDressedLeptons);
     }
 
-    if (fIsMC && fDoL1Pre) {
-      tEventGenWeight *= **(fNtuples->L1PreFiringWeight_Nom);
+    if (tDressedLeptons.size() == 2 && fSampleName.Contains("NNLO_MUMU")) {
+      tGenMass = (tDressedLeptons.at(0) + tDressedLeptons.at(1)).M();
+      
+      fHistoSet->FillGenInfoDressedLevel(
+        tDressedLeptons,
+        tGenJets.size(),
+        fWeightEnvelope.GetMCWeight("OS")
+      );
     }
 
+    bool tPassingEventOfflineSelection = true; 
     if ( !(fNtuples->PassinNoiseFilter()) )
-      continue;
-
+      tPassingEventOfflineSelection = false;
+    
     if ( !(fNtuples->PassingTrigger()) )
-      continue;
+      tPassingEventOfflineSelection = false;
 
-    if ( !(fMuons->PrepareMuon()) )
-      continue;
+    if (tPassingEventOfflineSelection) {
+      if (fIsMC && fSampleName.Contains("TTTo2L2Nu") && fDoTopPtReweighing)
+        fWeightEnvelope.AddWeightToAll("TopPtReweighing", fNtuples->GetGenTopPtReweightFactor());
 
-    if ( !(fJets->PrepareJet()) )
-      continue;
+      if (fIsMC && fDoPU)
+        fWeightEnvelope.AddWeightToAll("PUReweighing", fPuReweighting->weight(**(fNtuples->Pileup_nTrueInt)));
+      
+      if (fIsMC && fDoL1Pre)
+        fWeightEnvelope.AddWeightToAll("L1PreFiring", **(fNtuples->L1PreFiringWeight_Nom));
+    }
+
+    bool tPassingMuonOfflineSelection = false;
+    if (fMuons->PrepareMuon())
+      tPassingMuonOfflineSelection = true;
+
+    bool tPassingJetSelection = fJets->PrepareJet();
 
     auto vJets = fJets->GetJets();
     auto vBJets = fJets->GetBJets();
 
-    int nJets = vJets.size();
-    int nBJets = vBJets.size();
+    int nJets = static_cast<int>(vJets.size());
+    int nBJets = static_cast<int>(vBJets.size());
 
-    auto tLeadingMuon = fMuons->GetLeadingMuon();
-    auto tFVecLeadingMuon = tLeadingMuon.fVec;
-    auto tFVecRawLeadingMuon = tLeadingMuon.fVecRaw;
-    float tChargeLeadingMuon = tLeadingMuon.fCharge;
+    const auto& tMuon_OS = fMuons->GetMuons("OS");
+    const auto& tMuon_SS = fMuons->GetMuons("SS");
+    const auto& tMuon_OSinverted = fMuons->GetMuons("OS_inverted");
+    const auto& tMuon_SSinverted = fMuons->GetMuons("SS_inverted");
 
-    auto tSubLeadingMuon = fMuons->GetSubLeadingMuon();
-    auto tFVecSubLeadingMuon = tSubLeadingMuon.fVec;
-    auto tFVecRawSubLeadingMuon = tSubLeadingMuon.fVecRaw;
-    float tChargeSubLeadingMuon = tSubLeadingMuon.fCharge;
+    bool tPassingSignalRegionSeletion = false;
 
-    // std::cout << "######################################################################" << std::endl;
-    // std::cout << "                      dimuon selection debugging                      " << std::endl;
-    // std::cout << "----------------------------------------------------------------------" << std::endl;
-    // std::cout << " LEADING: " << std::endl;
-    // std::cout << "   pT: " << tFVecLeadingMuon.Pt() << std::endl;
-    // std::cout << "   eta: " << tFVecLeadingMuon.Eta() << std::endl;
-    // std::cout << "   charge: " << tChargeLeadingMuon << std::endl;
-    // std::cout << "   ISO: " << tLeadingMuon.fISO << std::endl;
-    // std::cout << " SUB-LLEADING: " << std::endl;
-    // std::cout << "   pT: " << tFVecRawSubLeadingMuon.P() << std::endl;
-    // std::cout << "   eta: " << tFVecRawSubLeadingMuon.Eta() << std::endl;
-    // std::cout << "   charge: " << tChargeSubLeadingMuon << std::endl;
-    // std::cout << "   ISO: " << tSubLeadingMuon.fISO << std::endl;
-    // std::cout << "######################################################################" << std::endl;
-    // std::cout << " " << std::endl;
+    if (tMuon_OS.size() == 2 && tPassingEventOfflineSelection) {
+      tPassingSignalRegionSeletion = true;
 
-    float tCharge = tChargeLeadingMuon * tChargeSubLeadingMuon;
-    if (tCharge < 0) tCharge = -0.5;
-    else             tCharge = 0.5;
+      if (fIsMC && fDoReco) {
+        fWeightEnvelope.AddWeight("OS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OS.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("OS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoID) {
+        fWeightEnvelope.AddWeight("OS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OS.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("OS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoISO) {
+        fWeightEnvelope.AddWeight("OS", "IsoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IsoEff"])(tMuon_OS.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("OS", "IsoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IsoEff"])(tMuon_OS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoTRIGG) {
+        fWeightEnvelope.AddWeight("OS", "EventTriggerEff", std::get<FuncDiMuonCorrection>(fCorrectionFuncs["EventTriggerEff"])(tMuon_OS.at(0).fVecRaw, tMuon_OS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoJetPUID) {
+        fWeightEnvelope.AddWeight("OS", "PUJetIDEff", std::get<FuncEmptyInput>(fCorrectionFuncs["PUJetIDEff"])());
+      }
+      if (fIsMC && fDoBTag) {
+        fWeightEnvelope.AddWeight("OS", "bTaggingEff", std::get<FuncEmptyInput>(fCorrectionFuncs["bTaggingEff"])());
+      }
+
+      fHistoSet->FillMuon(tMuon_OS.at(0).fVec, tMuon_OS.at(1).fVec, tMuon_OS.at(0).fCharge * tMuon_OS.at(1).fCharge, nJets, nBJets, fWeightEnvelope.GetTotalWeight("OS"), "OS", tHasGen);
+      fHistoSet->FillJet(vJets, vBJets, (tMuon_OS.at(0).fVec + tMuon_OS.at(1).fVec).M(), fWeightEnvelope.GetTotalWeight("OS"), "OS");
+
+      // std::cout << "######################################################################" << std::endl;
+      // std::cout << "                             OS debugging                             " << std::endl;
+      // std::cout << "----------------------------------------------------------------------" << std::endl;
+      // std::cout << "tMaxLoop: " << tMaxLoop << std::endl;
+      // std::cout << "tMuon_OS.size(): " << tMuon_OS.size() << std::endl;
+      // std::cout << "tMuon_OS.at(0).fVec: " << tMuon_OS.at(0).fVec.Pt() << " " << tMuon_OS.at(0).fVec.Eta() << " " << tMuon_OS.at(0).fVec.Phi() << std::endl;
+      // std::cout << "tMuon_OS.at(1).fVec: " << tMuon_OS.at(1).fVec.Pt() << " " << tMuon_OS.at(1).fVec.Eta() << " " << tMuon_OS.at(1).fVec.Phi() << std::endl;
+      // std::cout << "nJets: " << nJets << std::endl;
+      // std::cout << "nBJets: " << nBJets << std::endl;
+      // std::cout << "fWeightEnvelope.GetTotalWeight(\"OS\"): " << fWeightEnvelope.GetTotalWeight("OS") << std::endl;
+      // std::cout << "fWeightEnvelope.GetMCWeight(\"OS\"): " << fWeightEnvelope.GetMCWeight("OS") << std::endl;
+      // std::cout << "fWeightEnvelope.GetRecoWeight(\"OS\"): " << fWeightEnvelope.GetRecoWeight("OS") << std::endl;
+      // std::cout << "######################################################################" << std::endl;
+      // std::cout << " " << std::endl;
+
+      if (fSampleName.Contains("NNLO_MUMU") && nBJets == 0 && tDressedLeptons.size() == 2) {
+        fHistoSet->FillResponseMatrix(tGenMass, tGenJets.size(), (tMuon_OS.at(0).fVec + tMuon_OS.at(1).fVec).M(), nJets, fWeightEnvelope.GetMCWeight("OS"), fWeightEnvelope.GetRecoWeight("OS"), true);
+        fHistoSet->FillGenInfo(
+          tDressedLeptons,
+          tGenJets.size(),
+          tMuon_OS,
+          nJets,
+          nBJets,
+          fWeightEnvelope.GetMCWeight("OS"),
+          fWeightEnvelope.GetRecoWeight("OS")
+        );
+      }
+    }
     
-    auto tDiMuon = tFVecLeadingMuon + tFVecSubLeadingMuon;
-
-    if (fIsMC && fDoReco) {
-
-      double tRecoEffSFLeading = 0;
-
-      if (tFVecRawLeadingMuon.P() < 15.) tRecoEffSFLeading = 0;
-      else                               tRecoEffSFLeading = fReco_SF->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.P(), "nominal"});
-
-      tEventGenWeight *= tRecoEffSFLeading;
-
-
-      double tRecoEffSFSubleading = 0;
-
-      if (tFVecRawSubLeadingMuon.P() < 15.) tRecoEffSFSubleading = 0;
-      else                                  tRecoEffSFSubleading = fReco_SF->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.P(), "nominal"});
-
-      tEventGenWeight *= tRecoEffSFSubleading;
-
-      // std::cout << "######################################################################" << std::endl;
-      // std::cout << "                       Reco efficiency debugging                      " << std::endl;
-      // std::cout << "----------------------------------------------------------------------" << std::endl;
-      // std::cout << " LEADING: " << tFVecRawLeadingMuon.P() << " " << tFVecRawLeadingMuon.Eta() << " " << tRecoEffSFLeading << std::endl;
-      // std::cout << " SUB-LLEADING: " << tFVecRawSubLeadingMuon.P() << " " << tFVecRawSubLeadingMuon.Eta() << " " << tRecoEffSFSubleading << std::endl;
-      // std::cout << "######################################################################" << std::endl;
-      // std::cout << " " << std::endl;
-
+    if (fSampleName.Contains("NNLO_MUMU") && tDressedLeptons.size() == 2 && (tMuon_OS.size() != 2 || nBJets != 0 || !tPassingEventOfflineSelection)) {
+      fHistoSet->FillResponseMatrix(tGenMass, tGenJets.size(), -9999, 0, fWeightEnvelope.GetMCWeight("OS"), fWeightEnvelope.GetRecoWeight("OS"), false);
     }
+    
 
-    if (fIsMC && fDoID) {
-
-      double tIDEffSFLeading = 0;
-
-      if (tFVecRawLeadingMuon.Pt() < 15.) tIDEffSFLeading = 0;
-      else                                tIDEffSFLeading = fID_SF->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-
-      tEventGenWeight *= tIDEffSFLeading;
-
-
-      double tIDEffSFSubleading = 0;
-
-      if (tFVecRawSubLeadingMuon.Pt() < 15.) tIDEffSFSubleading = 0;
-      else                                   tIDEffSFSubleading = fID_SF->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
-
-      tEventGenWeight *= tIDEffSFSubleading;
-
-      // std::cout << "######################################################################" << std::endl;
-      // std::cout << "                        ID efficiency debugging                       " << std::endl;
-      // std::cout << "----------------------------------------------------------------------" << std::endl;
-      // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << tIDEffSFLeading << std::endl;
-      // std::cout << " SUB-LLEADING: " << tFVecRawSubLeadingMuon.Pt() << " " << tFVecRawSubLeadingMuon.Eta() << " " << tIDEffSFSubleading << std::endl;
-      // std::cout << "######################################################################" << std::endl;
-      // std::cout << " " << std::endl;
-
-    }
-
-    if (fIsMC && fDoISO) {
-
-      double tISOEffSFLeading = 0;
-      double tISOEffSFSubleading = 0;
-
-      if (tFVecRawLeadingMuon.Pt() < 15.) tISOEffSFLeading = 0;
-      else                                tISOEffSFLeading = fISO_SF->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-      tEventGenWeight *= tISOEffSFLeading;
-
-      if (!fIsInverted) {
-
-        if (tFVecRawSubLeadingMuon.Pt() < 15.) tISOEffSFSubleading = 0;
-        else                                   tISOEffSFSubleading = fISO_SF->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
-        tEventGenWeight *= tISOEffSFSubleading;
+    if (tMuon_SS.size() == 2 && tPassingEventOfflineSelection) {
+      if (fIsMC && fDoReco) {
+        fWeightEnvelope.AddWeight("SS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SS.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("SS", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoID) {
+        fWeightEnvelope.AddWeight("SS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SS.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("SS", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoISO) {
+        fWeightEnvelope.AddWeight("SS", "IsoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IsoEff"])(tMuon_SS.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("SS", "IsoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IsoEff"])(tMuon_SS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoTRIGG) {
+        fWeightEnvelope.AddWeight("SS", "EventTriggerEff", std::get<FuncDiMuonCorrection>(fCorrectionFuncs["EventTriggerEff"])(tMuon_SS.at(0).fVecRaw, tMuon_SS.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoJetPUID) {
+        fWeightEnvelope.AddWeight("SS", "PUJetIDEff", std::get<FuncEmptyInput>(fCorrectionFuncs["PUJetIDEff"])());
+      }
+      if (fIsMC && fDoBTag) {
+        fWeightEnvelope.AddWeight("SS", "bTaggingEff", std::get<FuncEmptyInput>(fCorrectionFuncs["bTaggingEff"])());
       }
 
+      fHistoSet->FillMuon(tMuon_SS.at(0).fVec, tMuon_SS.at(1).fVec, tMuon_SS.at(0).fCharge * tMuon_SS.at(1).fCharge, nJets, nBJets, fWeightEnvelope.GetTotalWeight("SS"), "SS", true);
+      fHistoSet->FillJet(vJets, vBJets, (tMuon_SS.at(0).fVec + tMuon_SS.at(1).fVec).M(), fWeightEnvelope.GetTotalWeight("SS"), "SS");
+
       // std::cout << "######################################################################" << std::endl;
-      // std::cout << "                        ISO efficiency debugging                      " << std::endl;
+      // std::cout << "                             SS debugging                             " << std::endl;
       // std::cout << "----------------------------------------------------------------------" << std::endl;
-      // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << tISOEffSFLeading << std::endl;
-      // if (!fIsInverted) std::cout << " SUB-LEADING: " << tFVecRawSubLeadingMuon.Pt() << " " << tFVecRawSubLeadingMuon.Eta() << " " << tISOEffSFSubleading << std::endl;
+      // std::cout << "tMaxLoop: " << tMaxLoop << std::endl;
+      // std::cout << "tMuon_SS.size(): " << tMuon_SS.size() << std::endl;
+      // std::cout << "tMuon_SS.at(0).fVec: " << tMuon_SS.at(0).fVec.Pt() << " " << tMuon_SS.at(0).fVec.Eta() << " " << tMuon_SS.at(0).fVec.Phi() << std::endl;
+      // std::cout << "tMuon_SS.at(1).fVec: " << tMuon_SS.at(1).fVec.Pt() << " " << tMuon_SS.at(1).fVec.Eta() << " " << tMuon_SS.at(1).fVec.Phi() << std::endl;
+      // std::cout << "nJets: " << nJets << std::endl;
+      // std::cout << "nBJets: " << nBJets << std::endl;
+      // std::cout << "fWeightEnvelope.GetTotalWeight(\"SS\"): " << fWeightEnvelope.GetTotalWeight("SS") << std::endl;
+      // std::cout << "fWeightEnvelope.GetMCWeight(\"SS\"): " << fWeightEnvelope.GetMCWeight("SS") << std::endl;
+      // std::cout << "fWeightEnvelope.GetRecoWeight(\"SS\"): " << fWeightEnvelope.GetRecoWeight("SS") << std::endl;
       // std::cout << "######################################################################" << std::endl;
       // std::cout << " " << std::endl;
     }
 
-    if (fIsMC && fDoTRIGG) {
-      
-      if (!fIsInverted) {
-
-        double mu_1_data = 0;
-        double mu_2_data = 0;
-
-        double mu_1_mc = 0;
-        double mu_2_mc = 0;
-
-        if (tFVecRawLeadingMuon.Pt() < 52.) {
-          mu_1_data = 0.;
-          mu_1_mc = 0.;
-        } else {
-          mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-          mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-        }
-
-        if (tFVecRawSubLeadingMuon.Pt() < 52.) {
-          mu_2_data = 0.;
-          mu_2_mc = 0.;
-        } else {
-          mu_2_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
-          mu_2_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawSubLeadingMuon.Eta()), tFVecRawSubLeadingMuon.Pt(), "nominal"});
-        }
-
-        double data_tot = 1. - (1. - mu_1_data) * (1. - mu_2_data);
-        double mc_tot = 1. - (1. - mu_1_mc) * (1. - mu_2_mc);
-
-        double eventTriggerEffSF = 0.;
-        if ( mc_tot != 0 )
-          eventTriggerEffSF = data_tot / mc_tot;
-
-        tEventGenWeight *= eventTriggerEffSF;
-
-        // std::cout << "######################################################################" << std::endl;
-        // std::cout << "                       TRIGG efficiency debugging                     " << std::endl;
-        // std::cout << "----------------------------------------------------------------------" << std::endl;
-        // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << mu_1_data << " " << mu_1_mc << std::endl;
-        // std::cout << " SUB-LEADING: " << tFVecRawSubLeadingMuon.Pt() << " " << tFVecRawSubLeadingMuon.Eta() << " " << mu_2_data << " " << mu_2_mc << std::endl;
-        // std::cout << "(1 - (1 - " <<  mu_1_data << ") * (1 - " << mu_2_data << ")) / (1 - (1 - " << mu_1_mc << ") * (1 - " << mu_2_mc << ")) = " << eventTriggerEffSF << std::endl;
-        // std::cout << "######################################################################" << std::endl;
-        // std::cout << " " << std::endl;
-      } else {
-
-        double mu_1_data = 0;
-        double mu_1_mc = 0;
-
-        if (tFVecRawLeadingMuon.Pt() < 52.) {
-          mu_1_data = 0.;
-          mu_1_mc = 0.;
-        } else {
-          mu_1_data = fTRIG_Eff_Data->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-          mu_1_mc = fTRIG_Eff_MC->evaluate({std::abs(tFVecRawLeadingMuon.Eta()), tFVecRawLeadingMuon.Pt(), "nominal"});
-        }
-
-        double eventTriggerEffSF = 0.;
-        if ( mu_1_mc != 0 )
-          eventTriggerEffSF = mu_1_data / mu_1_mc;
-
-        tEventGenWeight *= eventTriggerEffSF;
-
-        // std::cout << "######################################################################" << std::endl;
-        // std::cout << "                       TRIGG efficiency debugging                     " << std::endl;
-        // std::cout << "----------------------------------------------------------------------" << std::endl;
-        // std::cout << " LEADING: " << tFVecRawLeadingMuon.Pt() << " " << tFVecRawLeadingMuon.Eta() << " " << mu_1_data << " " << mu_1_mc << std::endl;
-        // std::cout << mu_1_data << " / " << mu_1_mc << " = " << eventTriggerEffSF << std::endl;
-        // std::cout << "######################################################################" << std::endl;
-        // std::cout << " " << std::endl;
+    if (tMuon_OSinverted.size() == 2 && tPassingEventOfflineSelection) {
+      if (fIsMC && fDoReco) {
+        fWeightEnvelope.AddWeight("OS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OSinverted.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("OS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_OSinverted.at(1).fVecRaw));
       }
+      if (fIsMC && fDoID) {
+        fWeightEnvelope.AddWeight("OS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OSinverted.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("OS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_OSinverted.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoJetPUID) {
+        fWeightEnvelope.AddWeight("OS_inverted", "PUJetIDEff", std::get<FuncEmptyInput>(fCorrectionFuncs["PUJetIDEff"])());
+      }
+      if (fIsMC && fDoBTag) {
+        fWeightEnvelope.AddWeight("OS_inverted", "bTaggingEff", std::get<FuncEmptyInput>(fCorrectionFuncs["bTaggingEff"])());
+      }
+
+      fHistoSet->FillMuon(tMuon_OSinverted.at(0).fVec, tMuon_OSinverted.at(1).fVec, tMuon_OSinverted.at(0).fCharge * tMuon_OSinverted.at(1).fCharge, nJets, nBJets, fWeightEnvelope.GetTotalWeight("OS_inverted"), "OS_inverted", true);
+      fHistoSet->FillJet(vJets, vBJets, (tMuon_OSinverted.at(0).fVec + tMuon_OSinverted.at(1).fVec).M(), fWeightEnvelope.GetTotalWeight("OS_inverted"), "OS_inverted");
+
+      // std::cout << "######################################################################" << std::endl;
+      // std::cout << "                             OS_inverted debugging                             " << std::endl;
+      // std::cout << "----------------------------------------------------------------------" << std::endl;
+      // std::cout << "tMaxLoop: " << tMaxLoop << std::endl;
+      // std::cout << "tMuon_OSinverted.size(): " << tMuon_OSinverted.size() << std::endl;
+      // std::cout << "tMuon_OSinverted.at(0).fVec: " << tMuon_OSinverted.at(0).fVec.Pt() << " " << tMuon_OSinverted.at(0).fVec.Eta() << " " << tMuon_OSinverted.at(0).fVec.Phi() << std::endl;
+      // std::cout << "tMuon_OSinverted.at(1).fVec: " << tMuon_OSinverted.at(1).fVec.Pt() << " " << tMuon_OSinverted.at(1).fVec.Eta() << " " << tMuon_OSinverted.at(1).fVec.Phi() << std::endl;
+      // std::cout << "nJets: " << nJets << std::endl;
+      // std::cout << "nBJets: " << nBJets << std::endl;
+      // std::cout << "fWeightEnvelope.GetTotalWeight(\"OS_inverted\"): " << fWeightEnvelope.GetTotalWeight("OS_inverted") << std::endl;
+      // std::cout << "fWeightEnvelope.GetMCWeight(\"OS_inverted\"): " << fWeightEnvelope.GetMCWeight("OS_inverted") << std::endl;
+      // std::cout << "fWeightEnvelope.GetRecoWeight(\"OS_inverted\"): " << fWeightEnvelope.GetRecoWeight("OS_inverted") << std::endl;
+      // std::cout << "######################################################################" << std::endl;
+      // std::cout << " " << std::endl;
     }
 
-    if (fIsMC && fDoJetPUID) {
-      tEventGenWeight *= fJets->GetPUIDSF();
+    if (tMuon_SSinverted.size() == 2 && tPassingEventOfflineSelection) {
+      if (fIsMC && fDoReco) {
+        fWeightEnvelope.AddWeight("SS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SSinverted.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("SS_inverted", "RecoEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["RecoEff"])(tMuon_SSinverted.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoID) {
+        fWeightEnvelope.AddWeight("SS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SSinverted.at(0).fVecRaw));
+        fWeightEnvelope.AddWeight("SS_inverted", "IDEff", std::get<FuncSingleMuonCorrection>(fCorrectionFuncs["IDEff"])(tMuon_SSinverted.at(1).fVecRaw));
+      }
+      if (fIsMC && fDoJetPUID) {
+        fWeightEnvelope.AddWeight("SS_inverted", "PUJetIDEff", std::get<FuncEmptyInput>(fCorrectionFuncs["PUJetIDEff"])());
+      }
+      if (fIsMC && fDoBTag) {
+        fWeightEnvelope.AddWeight("SS_inverted", "bTaggingEff", std::get<FuncEmptyInput>(fCorrectionFuncs["bTaggingEff"])());
+      }
+
+      fHistoSet->FillMuon(tMuon_SSinverted.at(0).fVec, tMuon_SSinverted.at(1).fVec, tMuon_SSinverted.at(0).fCharge * tMuon_SSinverted.at(1).fCharge, nJets, nBJets, fWeightEnvelope.GetTotalWeight("SS_inverted"), "SS_inverted", true);
+      fHistoSet->FillJet(vJets, vBJets, (tMuon_SSinverted.at(0).fVec + tMuon_SSinverted.at(1).fVec).M(), fWeightEnvelope.GetTotalWeight("SS_inverted"), "SS_inverted");
+
+      // std::cout << "######################################################################" << std::endl;
+      // std::cout << "                             SS_inverted debugging                             " << std::endl;
+      // std::cout << "----------------------------------------------------------------------" << std::endl;
+      // std::cout << "tMaxLoop: " << tMaxLoop << std::endl;
+      // std::cout << "tMuon_SSinverted.size(): " << tMuon_SSinverted.size() << std::endl;
+      // std::cout << "tMuon_SSinverted.at(0).fVec: " << tMuon_SSinverted.at(0).fVec.Pt() << " " << tMuon_SSinverted.at(0).fVec.Eta() << " " << tMuon_SSinverted.at(0).fVec.Phi() << std::endl;
+      // std::cout << "tMuon_SSinverted.at(1).fVec: " << tMuon_SSinverted.at(1).fVec.Pt() << " " << tMuon_SSinverted.at(1).fVec.Eta() << " " << tMuon_SSinverted.at(1).fVec.Phi() << std::endl;
+      // std::cout << "nJets: " << nJets << std::endl;
+      // std::cout << "nBJets: " << nBJets << std::endl;
+      // std::cout << "fWeightEnvelope.GetTotalWeight(\"SS_inverted\"): " << fWeightEnvelope.GetTotalWeight("SS_inverted") << std::endl;
+      // std::cout << "fWeightEnvelope.GetMCWeight(\"SS_inverted\"): " << fWeightEnvelope.GetMCWeight("SS_inverted") << std::endl;
+      // std::cout << "fWeightEnvelope.GetRecoWeight(\"SS_inverted\"): " << fWeightEnvelope.GetRecoWeight("SS_inverted") << std::endl;
+      // std::cout << "######################################################################" << std::endl;
+      // std::cout << " " << std::endl;
     }
-
-    if (fIsMC && fDoBTag) {
-      double bTagWeight = fJets->GetBTagSF();
-      tEventGenWeight *= bTagWeight;
-    }
-
-    tTotalGenWeight += tEventGenWeight;
-
-    fHistoSet->FillHisto((std::string)"h_nPVGood_Count", **(fNtuples->PV_npvsGood), tEventGenWeight);
-    if (nJets == 0) fHistoSet->FillMuon(tFVecLeadingMuon, tFVecSubLeadingMuon, tCharge, nJets, nBJets, tDiMuon, tEventGenWeight);
-    else            fHistoSet->FillMuon(tFVecLeadingMuon, tFVecSubLeadingMuon, tCharge, nJets, nBJets, vJets.at(0).fVec, tEventGenWeight);
-    fHistoSet->FillJet(&vJets, &vBJets, tDiMuon.M(), tEventGenWeight);
 
   } // End of event loop
 
-  fHistoSet->FillHisto((std::string)"h_EventInfo", 5, tTotalGenWeight);
-  fHistoSet->FillHisto((std::string)"h_EventInfo", 2, tMaxLoop);
-  fHistoSet->FillHisto((std::string)"h_EventInfo", 3, fMaxEntries);
+  fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "EventInfo", 5, tTotalGenWeight);
+  fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "EventInfo", 2, tMaxLoop);
+  fHistoSet->FillHisto(HistoSetBase::HistGroup::EventInfo, "EventInfo", 3, fMaxEntries);
 
   std::chrono::duration tTimeTaken = std::chrono::system_clock::now() - tTimeBegin;
   std::chrono::minutes tTimeMin = std::chrono::duration_cast<std::chrono::minutes>(tTimeTaken);
@@ -369,5 +380,8 @@ void DYLoopMUMU::Loop() {
 
 void DYLoopMUMU::EndOfJob() {
 
-  fHistoSet->WriteHisto(fEra, fSampleName, "./ROOT/output_" + fEra + "_" +  fSampleName + "_" + std::to_string(fJobID) + ".root", !fIsMC);
+  TString fOutputFileName = fOutputDir + "/output_" + fEra + "_" +  fSampleName + "_" + std::to_string(fJobID) + ".root";
+  TFile* fOutputFile = new TFile(fOutputFileName, "RECREATE");
+  fHistoSet->WriteHisto(fOutputFile, !fIsMC);
+  fOutputFile->Close();
 }

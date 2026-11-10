@@ -131,6 +131,65 @@ std::vector<TLorentzVector> NT::GetLHE(int fPID) {
   return returnVec;
 }
 
+const std::vector<TLorentzVector> NT::GetGenPartWithFlag(int tID, int tStatus) const {
+  std::vector<TLorentzVector> tReturnVec = {};
+
+  float tMass = 0.;
+  if (tID == 13) tMass = 0.1056583755; // Muon mass in PDG
+  if (tID == 11) tMass = 0.00051099895; // Electron mass in PDG
+
+  for (int i = 0; i < **nGenPart; i++) {
+    if (std::abs(std::abs(GenPart_pdgId->At(i))) == tID && GenPart_status->At(i) == tStatus) {
+
+      int tStatusFlags = GenPart_statusFlags->At(i);
+
+      bool tIsPrompt = (tStatusFlags & 1) == 1;
+      bool tFromHardProcess = (tStatusFlags & (1 << 8)) == 256;
+
+      if (!(tIsPrompt && tFromHardProcess))
+        continue;
+
+      TLorentzVector tTmpVec;
+      tTmpVec.SetPtEtaPhiM(GenPart_pt->At(i), GenPart_eta->At(i), GenPart_phi->At(i), tMass);
+      tReturnVec.push_back(tTmpVec);
+    }
+  }
+
+  return tReturnVec;
+}
+
+
+const std::vector<TLorentzVector> NT::GetGenJet(const float& fJetPt, const std::vector<TLorentzVector>& tGenLep) const {
+  std::vector<TLorentzVector> returnVec = {};
+
+  for (int i = 0; i < **nGenJet; i++) {
+
+    if (std::abs(GenJet_eta->At(i)) > 2.5)
+      continue;
+
+    if (GenJet_pt->At(i) < fJetPt)
+      continue;
+
+    TLorentzVector tTmpVec;
+    tTmpVec.SetPtEtaPhiM(GenJet_pt->At(i), GenJet_eta->At(i), GenJet_phi->At(i), GenJet_mass->At(i));
+
+    bool tIsOverlap = false;
+    for (const auto& lep: tGenLep) {
+      if (tTmpVec.DeltaR(lep) < 0.4) {
+        tIsOverlap = true;
+        break;
+      }
+    }
+
+    if (tIsOverlap)
+      continue;
+
+    returnVec.push_back(tTmpVec);
+  }
+
+  return returnVec;
+}
+
 void NT::init_LHE() {
 
   LHE_HT = new TTreeReaderValue<float>(*fTreeReader, "LHE_HT");

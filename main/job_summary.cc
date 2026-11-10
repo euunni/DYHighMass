@@ -50,7 +50,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              // "WJetsToLNu",
+              "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -69,6 +69,26 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "GGToMuMu_50to200_ElEl",
               "GGToMuMu_50to200_InelElElInel",
               "GGToMuMu_50to200_InelInel",
+              "QCD_Pt-15To20_MuEnrichedPt5",
+              "QCD_Pt-20To30_MuEnrichedPt5",
+              "QCD_Pt-30To50_MuEnrichedPt5",
+              "QCD_Pt-50To80_MuEnrichedPt5",
+              "QCD_Pt-80To120_MuEnrichedPt5",
+              "QCD_Pt-120To170_MuEnrichedPt5",
+              "QCD_Pt-170To300_MuEnrichedPt5",
+              "QCD_Pt-300To470_MuEnrichedPt5",
+              "QCD_Pt-470To600_MuEnrichedPt5",
+              "QCD_Pt-600To800_MuEnrichedPt5",
+              "QCD_Pt-800To1000_MuEnrichedPt5",
+              "QCD_Pt-1000_MuEnrichedPt5",
+              "QCD_Pt-15to20_EMEnriched",
+              "QCD_Pt-20to30_EMEnriched",
+              "QCD_Pt-30to50_EMEnriched",
+              "QCD_Pt-50to80_EMEnriched",
+              "QCD_Pt-80to120_EMEnriched",
+              "QCD_Pt-120to170_EMEnriched",
+              "QCD_Pt-170to300_EMEnriched",
+              "QCD_Pt-300toInf_EMEnriched",
             }}
           }
         },
@@ -99,7 +119,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              // "WJetsToLNu",
+              "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -118,6 +138,26 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "GGToMuMu_50to200_ElEl",
               "GGToMuMu_50to200_InelElElInel",
               "GGToMuMu_50to200_InelInel",
+              "QCD_Pt-15To20_MuEnrichedPt5",
+              "QCD_Pt-20To30_MuEnrichedPt5",
+              "QCD_Pt-30To50_MuEnrichedPt5",
+              "QCD_Pt-50To80_MuEnrichedPt5",
+              "QCD_Pt-80To120_MuEnrichedPt5",
+              "QCD_Pt-120To170_MuEnrichedPt5",
+              "QCD_Pt-170To300_MuEnrichedPt5",
+              "QCD_Pt-300To470_MuEnrichedPt5",
+              "QCD_Pt-470To600_MuEnrichedPt5",
+              "QCD_Pt-600To800_MuEnrichedPt5",
+              "QCD_Pt-800To1000_MuEnrichedPt5",
+              "QCD_Pt-1000_MuEnrichedPt5",
+              "QCD_Pt-15to20_EMEnriched",
+              "QCD_Pt-20to30_EMEnriched",
+              "QCD_Pt-30to50_EMEnriched",
+              "QCD_Pt-50to80_EMEnriched",
+              "QCD_Pt-80to120_EMEnriched",
+              "QCD_Pt-120to170_EMEnriched",
+              "QCD_Pt-170to300_EMEnriched",
+              "QCD_Pt-300toInf_EMEnriched",
             }}
           }
         },
@@ -150,7 +190,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              // "WJetsToLNu",
+              "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -169,6 +209,26 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "GGToMuMu_50to200_ElEl",
               "GGToMuMu_50to200_InelElElInel",
               "GGToMuMu_50to200_InelInel",
+              "QCD_Pt-15To20_MuEnrichedPt5",
+              "QCD_Pt-20To30_MuEnrichedPt5",
+              "QCD_Pt-30To50_MuEnrichedPt5",
+              "QCD_Pt-50To80_MuEnrichedPt5",
+              "QCD_Pt-80To120_MuEnrichedPt5",
+              "QCD_Pt-120To170_MuEnrichedPt5",
+              "QCD_Pt-170To300_MuEnrichedPt5",
+              "QCD_Pt-300To470_MuEnrichedPt5",
+              "QCD_Pt-470To600_MuEnrichedPt5",
+              "QCD_Pt-600To800_MuEnrichedPt5",
+              "QCD_Pt-800To1000_MuEnrichedPt5",
+              "QCD_Pt-1000_MuEnrichedPt5",
+              "QCD_Pt-15to20_EMEnriched",
+              "QCD_Pt-20to30_EMEnriched",
+              "QCD_Pt-30to50_EMEnriched",
+              "QCD_Pt-50to80_EMEnriched",
+              "QCD_Pt-80to120_EMEnriched",
+              "QCD_Pt-120to170_EMEnriched",
+              "QCD_Pt-170to300_EMEnriched",
+              "QCD_Pt-300toInf_EMEnriched",
             }}
           }
         },
@@ -200,7 +260,7 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "ST_tW_AntiTop",
               "ST_tW_Top",
               "TTTo2L2Nu",
-              // "WJetsToLNu",
+              "WJetsToLNu",
               "WW",
               "WZ",
               "ZZ",
@@ -219,6 +279,26 @@ static std::map<std::string, std::map<std::string, std::map<std::string, std::ve
               "GGToMuMu_50to200_ElEl",
               "GGToMuMu_50to200_InelElElInel",
               "GGToMuMu_50to200_InelInel",
+              "QCD_Pt-15To20_MuEnrichedPt5",
+              "QCD_Pt-20To30_MuEnrichedPt5",
+              "QCD_Pt-30To50_MuEnrichedPt5",
+              "QCD_Pt-50To80_MuEnrichedPt5",
+              "QCD_Pt-80To120_MuEnrichedPt5",
+              "QCD_Pt-120To170_MuEnrichedPt5",
+              "QCD_Pt-170To300_MuEnrichedPt5",
+              "QCD_Pt-300To470_MuEnrichedPt5",
+              "QCD_Pt-470To600_MuEnrichedPt5",
+              "QCD_Pt-600To800_MuEnrichedPt5",
+              "QCD_Pt-800To1000_MuEnrichedPt5",
+              "QCD_Pt-1000_MuEnrichedPt5",
+              "QCD_Pt-15to20_EMEnriched",
+              "QCD_Pt-20to30_EMEnriched",
+              "QCD_Pt-30to50_EMEnriched",
+              "QCD_Pt-50to80_EMEnriched",
+              "QCD_Pt-80to120_EMEnriched",
+              "QCD_Pt-120to170_EMEnriched",
+              "QCD_Pt-170to300_EMEnriched",
+              "QCD_Pt-300toInf_EMEnriched",
             }}
           }
         }
@@ -465,44 +545,85 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> fErrorSample;
   std::vector<double> fErrorRef;
   std::vector<double> fErrorTarget;
+  
+  if (fChannel == "EE") {
+    for (int i = 0; i < fChannelMap.size(); i++) {
 
-  for (int i = 0; i < fChannelMap.size(); i++) {
+      auto fEraMap = fChannelMap[fEraVec[i]];
+      for (int j = 0; j < fTierVec.size(); j++) {
 
-    auto fEraMap = fChannelMap[fEraVec[i]];
-    for (int j = 0; j < fTierVec.size(); j++) {
+        auto fSampleMap = fEraMap[fTierVec[j]];
+        for (int k = 0; k < fSampleMap.size(); k++) {
+          // std::cout << "Processing: " << fEraVec[i] << " " << fSampleMap[k] << std::endl;
 
-      auto fSampleMap = fEraMap[fTierVec[j]];
-      for (int k = 0; k < fSampleMap.size(); k++) {
-        // std::cout << "Processing: " << fEraVec[i] << " " << fSampleMap[k] << std::endl;
+          double nEventRef    = fConfig[fEraVec[i]][fSampleMap[k]]["nEvent"].as<double>();
+          if (fSampleMap[k] == "NNLO_EE_10to50") nEventRef += fConfig[fEraVec[i]]["NNLO_EE_10to50_v2"]["nEvent"].as<double>();
+          if (fSampleMap[k] == "NNLO_MUMU_10to50") nEventRef += fConfig[fEraVec[i]]["NNLO_MUMU_10to50_v2"]["nEvent"].as<double>();
+          auto fEventHist = (TH1D*)fFile->Get((fEraVec[i] + "/" + fSampleMap[k] + "/h_EventInfo").c_str());
+          
+          double nEventTarget = 0;
+          if (fEventHist == nullptr) {
+            fErrorEra.push_back(fEraVec[i]);
+            fErrorSample.push_back(fSampleMap[k]);
+            fErrorRef.push_back(-1);
+            fErrorTarget.push_back(-1);
 
-        double nEventRef    = fConfig[fEraVec[i]][fSampleMap[k]]["nEvent"].as<double>();
-        if (fSampleMap[k] == "NNLO_EE_10to50") nEventRef += fConfig[fEraVec[i]]["NNLO_EE_10to50_v2"]["nEvent"].as<double>();
-        if (fSampleMap[k] == "NNLO_MUMU_10to50") nEventRef += fConfig[fEraVec[i]]["NNLO_MUMU_10to50_v2"]["nEvent"].as<double>();
-        auto fEventHist = (TH1D*)fFile->Get((fEraVec[i] + "/" + fSampleMap[k] + "/h_EventInfo").c_str());
-        
-        double nEventTarget = 0;
-        if (fEventHist == nullptr) {
-          fErrorEra.push_back(fEraVec[i]);
-          fErrorSample.push_back(fSampleMap[k]);
-          fErrorRef.push_back(-1);
-          fErrorTarget.push_back(-1);
+            continue;
+          } else {
+            nEventTarget = ((TH1D*)fFile->Get((fEraVec[i] + "/" + fSampleMap[k] + "/h_EventInfo").c_str()))->GetBinContent(2);
+          }
 
-          continue;
-        } else {
-          nEventTarget = ((TH1D*)fFile->Get((fEraVec[i] + "/" + fSampleMap[k] + "/h_EventInfo").c_str()))->GetBinContent(2);
+          if (nEventRef != nEventTarget) {
+            // std::cout << "ERROR: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
+
+            fErrorEra.push_back(fEraVec[i]);
+            fErrorSample.push_back(fSampleMap[k]);
+            fErrorRef.push_back(nEventRef);
+            fErrorTarget.push_back(nEventTarget);
+          } else {
+            // std::cout << "OK: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
+          }
         }
+      }
+    }
+  } else {
+    for (int i = 0; i < fChannelMap.size(); i++) {
 
-        if (nEventRef != nEventTarget) {
-          // std::cout << "ERROR: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
+      auto fEraMap = fChannelMap[fEraVec[i]];
+      for (int j = 0; j < fTierVec.size(); j++) {
 
-          fErrorEra.push_back(fEraVec[i]);
-          fErrorSample.push_back(fSampleMap[k]);
-          fErrorRef.push_back(nEventRef);
-          fErrorTarget.push_back(nEventTarget);
-        } else {
-          // std::cout << "OK: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
+        auto fSampleMap = fEraMap[fTierVec[j]];
+        for (int k = 0; k < fSampleMap.size(); k++) {
+          // std::cout << "Processing: " << fEraVec[i] << " " << fSampleMap[k] << std::endl;
+
+          double nEventRef    = fConfig[fEraVec[i]][fSampleMap[k]]["nEvent"].as<double>();
+          if (fSampleMap[k] == "NNLO_EE_10to50") nEventRef += fConfig[fEraVec[i]]["NNLO_EE_10to50_v2"]["nEvent"].as<double>();
+          if (fSampleMap[k] == "NNLO_MUMU_10to50") nEventRef += fConfig[fEraVec[i]]["NNLO_MUMU_10to50_v2"]["nEvent"].as<double>();
+          auto fEventHist = (TH1D*)fFile->Get((fEraVec[i] + "/" + fSampleMap[k] + "/EventInfo/h_EventInfo").c_str());
+          
+          double nEventTarget = 0;
+          if (fEventHist == nullptr) {
+            fErrorEra.push_back(fEraVec[i]);
+            fErrorSample.push_back(fSampleMap[k]);
+            fErrorRef.push_back(-1);
+            fErrorTarget.push_back(-1);
+
+            continue;
+          } else {
+            nEventTarget = fEventHist->GetBinContent(2);
+          }
+
+          if (nEventRef != nEventTarget) {
+            // std::cout << "ERROR: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
+
+            fErrorEra.push_back(fEraVec[i]);
+            fErrorSample.push_back(fSampleMap[k]);
+            fErrorRef.push_back(nEventRef);
+            fErrorTarget.push_back(nEventTarget);
+          } else {
+            // std::cout << "OK: " << fEraVec[i] << " " << fSampleMap[k] << " ref: " << nEventRef << " target: " << nEventTarget << std::endl;
+          }
         }
-
       }
     }
   }

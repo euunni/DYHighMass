@@ -32,7 +32,7 @@ public:
   void FillHisto(std::string name, double value, double weight = 1.);
   void FillHisto(std::string name, float value, double weight = 1.);
   void FillHisto(std::string name, int value, double weight = 1.);
-  void Fill2DHisto(std::string name, double value1, double value2, double weight = 1.) {}
+  void Fill2DHisto(std::string name, double value1, double value2, double weight = 1.);
 
   void SetHisto(std::string name, std::vector<double> bins);
   void SetHisto(std::string name, std::vector<double> bins1, std::vector<double> bins2);
