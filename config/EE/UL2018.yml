@@ -9,8 +9,8 @@ Electron:
   LeadingPt: 52
   SubLeadingPt: 50
   Eta: 2.5
-  Charge: same
-  InvertedID: true
+  Charge: opposite
+  InvertedID: false
   
 Jet:
   Pt: 30
