@@ -80,44 +80,24 @@ bool ELEC::PrepareElec() {
   if (fFVecElecs.at(0).fVec.Pt() < fLeadingPt)
     return false;
 
-  int tLeadingIdx = -1;
-  int tSubLeadingIdx = -1;
-
   int tChargeSelection = 1;
   if (!fOppositeCharge) tChargeSelection = -1;
 
-  for (int i = 0; i < (int)fFVecElecs.size(); i++) {
-    for (int j = i + 1; j < (int)fFVecElecs.size(); j++) {
-      if (tChargeSelection * (fFVecElecs.at(i).fCharge * fFVecElecs.at(j).fCharge) > 0)
-        continue;
+  // Force the two highest-pT electrons as the dielectron pair
+  const StdElec &tLeadElec = fFVecElecs.at(0);
+  const StdElec &tSubElec  = fFVecElecs.at(1);
 
-      if (fInvertedID && fFVecElecs.at(i).fPassID && fFVecElecs.at(j).fPassID)
-        continue;
-
-      if (fFVecElecs.at(i).fVec.Pt() < fLeadingPt && fFVecElecs.at(j).fVec.Pt() < fLeadingPt)
-        continue;
-
-      auto tDiElecVec = fFVecElecs.at(i).fVec + fFVecElecs.at(j).fVec;
-
-      if (tDiElecVec.M() < fZMassCut)
-        continue;
-
-      tLeadingIdx = i;
-      tSubLeadingIdx = j;
-
-      if (tSubLeadingIdx != -1 && tLeadingIdx != -1)
-        break;
-    }
-
-    if (tSubLeadingIdx != -1 && tLeadingIdx != -1)
-      break;
-  }
-
-  if (tSubLeadingIdx == -1 || tLeadingIdx == -1)
+  if (tChargeSelection * (tLeadElec.fCharge * tSubElec.fCharge) > 0)
     return false;
 
-  fLeadingIdx = tLeadingIdx;
-  fSubLeadingIdx = tSubLeadingIdx;
+  if (fInvertedID && (tLeadElec.fPassID == tSubElec.fPassID))
+    return false;  // exactly one fails ID
+
+  if ((tLeadElec.fVec + tSubElec.fVec).M() < fZMassCut)
+    return false;
+
+  fLeadingIdx = 0;
+  fSubLeadingIdx = 1;
 
   return true;
 }
